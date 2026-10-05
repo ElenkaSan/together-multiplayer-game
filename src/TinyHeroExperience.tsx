@@ -1,0 +1,36 @@
+import {useEffect,useRef,useState} from 'react';
+import type {Engine} from '../server/engine';
+import type {Action} from '../server/modes';
+type View=ReturnType<Engine['view']>;
+const steps=[['👀','See your clue'],['🧰','Pick a tool'],['✅','Tap Ready'],['🌟','Rescue together!']];
+const simpleRules='See your clue. Pick a tool. Tap Ready. Rescue together!';
+export function HeroGuide(){return <ol className="hero-guide" aria-label="How to play">{steps.map(([icon,label])=><li key={label}><span aria-hidden="true">{icon}</span><strong>{label}</strong></li>)}</ol>}
+
+export function ReadToMe({text,context}:{text:string;context:string}){
+ const [supported]=useState(()=>typeof window!=='undefined'&&'speechSynthesis' in window&&'SpeechSynthesisUtterance' in window);
+ const [speaking,setSpeaking]=useState(false),[failed,setFailed]=useState(false);
+ const current=useRef<SpeechSynthesisUtterance|null>(null);
+ function stop(){const utterance=current.current;current.current=null;if(utterance){utterance.onend=null;utterance.onerror=null;window.speechSynthesis.cancel()}setSpeaking(false)}
+ useEffect(()=>{stop();setFailed(false);return stop},[text,context]);
+ useEffect(()=>{const onHidden=()=>{if(document.hidden)stop()};document.addEventListener('visibilitychange',onHidden);return()=>document.removeEventListener('visibilitychange',onHidden)},[]);
+ function read(){if(!supported)return;if(speaking){stop();return}setFailed(false);const synth=window.speechSynthesis;synth.cancel();const utterance=new SpeechSynthesisUtterance(text);utterance.lang='en-US';utterance.rate=.88;const voice=synth.getVoices().find(v=>v.lang==='en-US'&&v.localService)??synth.getVoices().find(v=>v.lang.startsWith('en'));if(voice)utterance.voice=voice;current.current=utterance;utterance.onend=()=>{if(current.current===utterance){current.current=null;setSpeaking(false)}};utterance.onerror=()=>{if(current.current===utterance){current.current=null;setSpeaking(false);setFailed(true)}};try{setSpeaking(true);synth.speak(utterance)}catch{current.current=null;setSpeaking(false);setFailed(true)}}
+ return <div className="hero-audio"><button type="button" className="read-to-me" onClick={read} disabled={!supported} aria-pressed={speaking}>{speaking?'⏹ Stop reading':'🔊 Read to me'}</button>{(!supported||failed)&&<p role="status">Ask your captain to read this to you.</p>}</div>
+}
+
+export function TinyHeroExperience({view,actions,setActions,connected,pending,remaining,command}:{view:View;actions:Action;setActions:(a:Action)=>void;connected:boolean;pending:boolean;remaining:number;command:(data:Record<string,unknown>)=>Promise<unknown>}){
+ const me=view.players.find(p=>p.id===view.me)!;
+ const isHost=view.host===view.me;
+ const allReady=view.players.length>=2&&view.players.every(p=>p.connected&&p.ready);
+ const clue=(view.brief?.message||'').replace(/^Your secret clue: /,'').replace(/ Tell your captain\.$/,'');
+ const result=view.result?.success?'Hooray! We rescued our friend!':'Our friend is safe with the rescue crew!';
+ const context=`${view.code}:${view.round}:${view.phase}:${view.submitted}`;
+ const audio=view.phase==='lobby'?`Welcome to Tiny Heroes! Help five animal friends. ${simpleRules} Tell your captain your clue. Tap Ready when you want to play.`:view.phase==='finished'?`Hooray, little heroes! All five friends are home. You earned ${view.score} rescue badges. Thank you for helping!`:view.phase==='paused'?'Wait for your team to come back.':view.phase==='result'?`${view.mission.story} ${result} ${view.round===4?'Your adventure is almost complete!':'Get ready to help our next friend.'}`:view.phase==='locked'?'Your tool is ready. Wait for your team.':`${view.mission.story} ${simpleRules} Your clue: ${clue} Tell your captain. ${view.submitted?'Your tool is ready. Wait for your team.':view.phase==='briefing'?'Look at your clue. Wait for the buttons to open.':'Pick one tool, then tap Ready.'}`;
+ return <section className="play-area little-hero"><ReadToMe text={audio} context={context}/>
+ {view.phase==='lobby'?<div className="panel hero-lobby"><span className="hero-big-icon" aria-hidden="true">🐰 🐻 🐥</span><h1>Let’s help our friends!</h1><HeroGuide/><button className="primary hero-ready" disabled={!connected||pending} onClick={()=>command({type:'ready'})}>{me.ready?'✅ Ready!':'✅ Tap Ready'}</button>{isHost&&<button className="secondary hero-ready" disabled={!allReady||!connected||pending} onClick={()=>command({type:'start'})}>🌟 Start rescue</button>}<p>{allReady?'🌟 Your team is ready!':'👋 Wait for your team.'}</p></div>:
+ view.phase==='finished'?<div className="panel finale"><span className="hero-big-icon" aria-hidden="true">🏅</span><h1>Hooray, little heroes!</h1><p>All five friends are home!</p><div className="badges" aria-label={`${view.score} rescue badges out of five`}>{Array.from({length:5},(_,i)=><span key={i}>{i<view.score?'★':'☆'}</span>)}</div>{isHost?<button className="primary hero-ready" disabled={!connected||pending} onClick={()=>command({type:'replay'})}>🌟 Play again</button>:<p>👑 Ask your captain to play again.</p>}</div>:
+ view.phase==='paused'?<div className="panel hero-lobby"><span className="hero-big-icon" aria-hidden="true">👋</span><h2>Wait for your team.</h2></div>:
+ <><div className="round-header"><h2>Rescue {view.round+1} / 5</h2><div className="timer" aria-label={`${remaining} seconds remaining`}>{view.phase==='action'?`⏱ ${remaining}s`:view.phase==='briefing'?'👀 Look':view.phase==='locked'?'✅ Ready':'🌟'}</div></div><div className="mission-stage"><span className="mission-icon" aria-hidden="true">{view.mission.icon}</span><p>{view.mission.story}</p></div>
+ {view.phase==='result'?<div className={`panel result ${view.result?.success?'success':''}`} role="status"><span className="hero-big-icon" aria-hidden="true">{view.result?.success?'🌟':'💛'}</span><h2>{result}</h2><p>{view.round===4?'🏅 See your badges soon!':'👋 Next friend soon!'}</p></div>:
+ <div className="panel private-panel"><div className="hero-clue"><span aria-hidden="true">{['🌉','🌳','🌑','❄️','🌊'][view.round]}</span><div><h3>👀 Your clue</h3><p>{clue}</p></div></div>{view.brief?.tasks.map(task=><fieldset key={task.key} disabled={view.phase!=='action'||view.submitted||!connected||pending}><legend>🧰 Pick a tool</legend><div className="choices tool-choices">{task.options.map(o=>{const [icon,...words]=o.label.split(' ');return <button type="button" className={actions[task.key]===o.value?'selected':''} aria-pressed={actions[task.key]===o.value} aria-label={words.join(' ')} key={o.value} onClick={()=>setActions({...actions,[task.key]:o.value})}><span className="tool-icon" aria-hidden="true">{icon}</span><span>{words.join(' ')}</span>{actions[task.key]===o.value&&<span className="tool-check" aria-hidden="true">✓</span>}</button>})}</div></fieldset>)}<button className="primary hero-ready" disabled={view.phase!=='action'||view.submitted||pending||!connected||!view.brief?.tasks.every(t=>actions[t.key])} onClick={()=>command({type:'submit',round:view.round,action:actions})}>{view.submitted?'✅ Ready!':'✅ Tap Ready'}</button><p className="hero-next">{view.submitted||view.phase==='locked'?'👋 Wait for your team.':view.phase==='briefing'?'👀 Look at your clue.':'👑 Tell your captain your clue.'}</p></div>}</>}
+ </section>
+}
