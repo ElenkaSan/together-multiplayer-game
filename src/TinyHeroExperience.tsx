@@ -45,7 +45,7 @@ export function TinyHeroExperience({view,actions,setActions,connected,pending,re
  const a=view.adventure!,rescue=a.rescues[view.round];
  const clue=(view.brief?.message||'').replace(/^Your secret clue: /,'').replace(/ Tell your captain\.$/,'');
  const success=!!view.result?.success;
- const result=success?'🌟 You did it! Rescue complete!':"Oops! That didn't work. Let's try something else!";
+ const result=success?'You did it! Rescue complete!':"Oops! That didn't work. Let's try something else!";
  const followup=view.result?.retry?'Try again with this hint.':view.result?.assisted?'Our rescue crew will help our friend home.':view.round===a.total-1?'Your adventure is complete!':'Next friend soon!';
  const context=`${view.code}:${view.round}:${a.attempt}:${view.phase}:${view.submitted}`;
  const audio=view.phase==='lobby'?`Welcome to ${a.title}! ${a.intro} ${simpleRules} Tap Ready when you want to play.`:view.phase==='finished'?`Adventure complete! ${a.completed.length} friends are home. You earned ${view.score} rescue badges. Thank you for helping!`:view.phase==='paused'?'Wait for your team to come back.':view.phase==='result'?`${view.mission.story} ${result} ${view.result?.hint?.text||''} ${followup}`:view.phase==='locked'?'Your tool is ready. Wait for your team.':`${view.mission.story} ${simpleRules} Your clue: ${clue} ${a.hint?.hint||''} Tell your captain. ${view.submitted?'Your tool is ready. Wait for your team.':view.phase==='briefing'?'Look at your clue. Wait for the buttons to open.':'Pick one tool, then tap Ready.'}`;

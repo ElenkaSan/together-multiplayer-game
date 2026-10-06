@@ -36,7 +36,7 @@ export function resolve(mode:Mode,index:number,actions:Action[],bonus:number,adv
   const spend=actions[0]?.support==='boost'&&bonus>0;
   const misses=actions.slice(1).filter(a=>a.tool!==r.power).length;
   const success=misses<=(spend?1:0);
-  return {success,bonus:bonus-(spend?1:0),details:`The right tool was ${r.power}. ${actions.slice(1).filter(a=>a.tool===r.power).length}/${actions.length-1} helpers brought it.${spend?' A kindness star covered one missing tool.':''}`,message:success?'🌟 You did it! Rescue complete!':"Oops! That didn't work. Let's try something else!"};
+  return {success,bonus:bonus-(spend?1:0),details:`The right tool was ${r.power}. ${actions.slice(1).filter(a=>a.tool===r.power).length}/${actions.length-1} helpers brought it.${spend?' A kindness star covered one missing tool.':''}`,message:success?'You did it! Rescue complete!':"Oops! That didn't work. Let's try something else!"};
  }
  const expected:Action={navigation:r.target,engineering:r.power,comms:r.frequency,shield:r.hazard==='debris'?'on':'off'};
  const errors:string[]=[];
