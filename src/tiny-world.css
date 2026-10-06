@@ -57,3 +57,88 @@
 
 .tiny .hero-guide li>span{display:flex;justify-content:center;align-items:center}
 .tiny .guide-icon{display:block;width:64px;height:64px;max-width:100%}
+
+/* Forest expedition: original illustrated layers; controls remain live HTML. */
+.tiny{--accent:#246955;--border:#d8d8c5;--muted:#59695f;background:linear-gradient(180deg,#e4f0e8,#f7f4e8 520px,#eeeedd)!important;color:#293f38}
+.tiny h1,.tiny h2,.tiny h3{color:#243e36;letter-spacing:-.4px}
+.tiny .panel{border:1px solid #d4dccc;border-radius:20px;background:#fffef8;box-shadow:0 8px 24px #2146360a}
+.tiny .primary{background:linear-gradient(#398365,#246349);color:#fff;border:2px solid #276a50;box-shadow:0 3px 0 #194c39;border-radius:14px}
+.tiny .primary:active:not(:disabled){box-shadow:0 0 0 #194c39;transform:translateY(3px)}
+.tiny button:focus-visible{outline:3px solid #176faa;outline-offset:4px}
+.tiny .secondary{border-radius:12px;background:#f7f7ed;border:1px solid #becab9}
+.tiny .read-to-me{background:linear-gradient(#2789cc,#1766a3);border-color:#1765a0;border-radius:14px;box-shadow:0 3px 0 #124d7b;display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.tiny .read-to-me svg{width:26px;height:26px;flex-shrink:0}
+.tiny .hero-guide li{border-radius:14px;border-bottom-width:2px;background:#f4edce}
+.tiny .hero-guide li:nth-child(2){background:#e5efe0}.tiny .hero-guide li:nth-child(3){background:#e3edf1}.tiny .hero-guide li:nth-child(4){background:#f5e6cf}
+.tiny .hero-guide strong{color:#2f483d}.tiny .hero-ready{border-radius:15px!important}
+.tiny .animal-art{object-fit:contain;max-width:100%;height:auto}
+.tiny .animal-idle,.tiny .animal-thinking{animation:adventurer-idle 4.5s ease-in-out infinite;transform-origin:50% 90%}
+.tiny .animal-oops{animation:adventurer-oops 1.5s ease-in-out 2}.tiny .animal-celebrate{animation:adventurer-celebrate 1s ease-in-out 3}
+.tiny .illustrated-map{background:#e5eed7;border:2px solid #cfdbc9;border-radius:20px;box-shadow:0 5px 20px #254a3014}
+.tiny .map-landscape{position:relative;isolation:isolate;overflow:hidden}
+.tiny .map-background{width:100%;height:auto;display:block}
+.tiny .illustrated-map .map-caption{position:static;display:flex;padding:10px 12px;background:#f9f9ed;gap:4px}
+.tiny .illustrated-map .map-caption span{font-size:12px;background:none;border-radius:0;padding:0;color:#35513d}
+.tiny .map-locations{position:absolute;inset:0;list-style:none;padding:0;margin:0}
+.tiny .map-location{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;width:70px;pointer-events:none}
+.tiny .map-location .animal-art{width:44px;height:52px;filter:drop-shadow(0 2px 2px #102f3150);margin-bottom:-6px;animation:none}
+.tiny .location-number{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#d7792e;border:2px solid #fff7df;box-shadow:0 2px 5px #173c3150;color:#fff;font-size:18px;font-weight:800;position:relative}
+.tiny .location-label{font-size:10px;line-height:1.3;font-weight:800;color:#173a2a;background:#fffdf3ed;padding:2px 5px;border-radius:5px;margin-top:3px;white-space:nowrap}
+.tiny .active-location .location-number{background:#287a5a;animation:rescue-marker-glow 2s ease-in-out infinite}
+.tiny .location-home .location-number{background:#346d56}
+.tiny .illustrated-map .adventure-progress{margin:0;border-radius:0;padding:12px;background:#f4f5e9;border-top:1px solid #d4decb}
+.tiny .illustrated-scene{display:block;padding:0;min-height:0;background:#fffef5;border:1px solid #cbd9c8;border-radius:18px;box-shadow:0 4px 14px #35563912}
+.tiny .scene-picture{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:1.85;background:#c9ddbc}
+.tiny .scene-background{width:100%;height:100%;object-fit:cover;display:block}
+.tiny .scene-picture>.animal-art{position:absolute;bottom:1%;left:5%;width:22%;height:70%;object-fit:contain;filter:drop-shadow(0 4px 3px #1d403240);z-index:2}
+.tiny .illustrated-scene .friend-speech{max-width:none;box-shadow:none;border-radius:0;background:#fffef7;padding:15px 18px}
+.tiny .illustrated-scene .friend-speech strong{color:#577365;font-size:11px}
+.tiny .illustrated-scene .friend-speech p{font-size:21px;line-height:1.4;margin:6px 0 0;color:#253f33}
+.tiny .little-hero .illustrated-scene .friend-speech p{font-size:20px!important}
+.tiny .captain-resources{margin:12px 0 18px;display:flex;gap:16px;font-weight:700;color:#43644e}
+.tiny .world-motion{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.tiny .drifting-cloud{position:absolute;top:8%;width:16%;height:8%;border-radius:50%;background:#fff;filter:blur(9px);opacity:.17;animation:adventure-cloud-drift 22s ease-in-out infinite alternate}
+.tiny .cloud-one{left:18%}.tiny .cloud-two{left:64%;top:12%;animation-delay:-12s}
+.tiny .water-glint{position:absolute;width:10%;height:3px;border-radius:50%;background:#fff9d7;opacity:0;animation:water-sparkle 4s ease-in-out infinite}
+.tiny .glint-one{left:43%;top:84%}.tiny .glint-two{left:78%;top:70%;animation-delay:-2s}
+.tiny .floating-leaf{position:absolute;left:6%;top:25%;width:9px;height:5px;background:#d7b34e;border-radius:80% 0 80% 0;opacity:0;animation:adventure-leaf-drift 13s linear infinite}
+.tiny .leaf-two{left:70%;top:10%;animation-delay:-6s;background:#80a856}
+.tiny .motion-snow .floating-leaf{background:#fff;width:5px;height:5px;border-radius:50%}
+.tiny .illustrated-world-cards{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(240px,31%);gap:16px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 3px 18px;scrollbar-color:#769a7b #e7eddf}
+.tiny .adventure-world-card{display:flex;flex-direction:column;padding:0;overflow:hidden;border:1px solid #cbd5c3;background:#fffef5;border-radius:16px;text-align:left;scroll-snap-align:start;box-shadow:0 4px 10px #244b3010;color:#2a4135;min-width:0}
+.tiny .adventure-world-card>img{display:block;width:100%;height:150px;object-fit:cover}
+.tiny .world-card-copy{display:flex;flex-direction:column;gap:8px;padding:14px;flex:1}
+.tiny .world-card-copy>strong{font-size:18px}.tiny .world-card-copy small{font-size:12px;color:#596c5d}
+.tiny .world-card-action{background:#2e7858;color:#fff;text-align:center;padding:10px;border-radius:9px;margin-top:auto;font-size:14px}
+.tiny .available-world[aria-pressed=true]{border:3px solid #387a59}
+.tiny .world-card-lock{display:flex;align-items:center;gap:8px;color:#53615b;background:#edf0e6;border-radius:8px;padding:10px;font-size:13px;margin-top:auto}
+.tiny .world-card-lock svg{width:17px;height:20px}.tiny .locked-world>img{opacity:.95}
+.tiny .adventure-picker h2{margin:0 0 8px}
+.tiny .adventure-picker:after{content:'Swipe to discover more worlds →';display:block;color:#506b5b;font-size:12px;margin:0 3px 12px}
+.tiny .setup-friends{margin-top:4px}.tiny .setup-friends .animal-art{width:18%;max-width:92px;height:110px}
+.tiny .hero-clue{border:1px solid #d7d5b4;background:#f6f1db;border-radius:15px}
+.tiny .little-hero .tool-choices button{border-radius:16px;min-height:132px;border-bottom-width:3px}
+.tiny .little-hero .tool-choices button.selected{border-color:#258157;background:#eef7db;box-shadow:0 0 0 2px #fff;transform:translateY(-2px)}
+.tiny .captain-icon{border-radius:50%;background:#e0ead6;overflow:hidden;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center}
+.tiny .captain-icon .animal-art{width:33px;height:39px;animation:none}
+.tiny .captain-helper-tool .guide-icon{width:48px;height:48px}
+.tiny .progress-friend .animal-art{animation:none}.tiny .adventure-progress li{border-radius:12px;background:#fffdf3}
+.tiny .hero-lobby .animal-art{height:135px}.tiny .friends-parade .animal-art{height:130px}
+.tiny .timer{background:#e3ece7;color:#365e49;box-shadow:none;border:1px solid #c5d7c9;border-radius:12px}
+.tiny .sound-toggle{border-radius:12px;border-width:1px}
+.tiny-card-characters{background:linear-gradient(#c8e7df,#dae9bc);border-radius:18px}
+.tiny-card-characters .animal-art{height:145px;object-fit:contain;animation:adventurer-idle 4.5s ease-in-out infinite}
+@keyframes adventurer-idle{50%{transform:translateY(-2px) rotate(.6deg)}}
+@keyframes adventurer-oops{35%{transform:rotate(-2deg)}65%{transform:rotate(2deg)}}
+@keyframes adventurer-celebrate{35%{transform:translateY(-7px)}65%{transform:translateY(0)}}
+@keyframes rescue-marker-glow{50%{box-shadow:0 0 0 7px #fff6a755,0 0 18px #f5d06299}}
+@keyframes adventure-cloud-drift{to{transform:translateX(45px)}}
+@keyframes water-sparkle{40%,60%{opacity:.75;transform:translateX(12px)}100%{opacity:0;transform:translateX(24px)}}
+@keyframes adventure-leaf-drift{10%{opacity:.65}90%{opacity:.5}100%{transform:translate(55px,100px) rotate(220deg);opacity:0}}
+@media(max-width:600px){.tiny .illustrated-world-cards{grid-auto-columns:78%;gap:12px}.tiny .map-location{width:50px}.tiny .map-location .animal-art{width:30px;height:36px}.tiny .location-number{width:25px;height:25px;font-size:14px}.tiny .location-label{font-size:8px}.tiny .illustrated-map .map-caption{padding:8px}.tiny .illustrated-map .map-caption span{font-size:10px}.tiny .scene-picture{aspect-ratio:1.55}.tiny .scene-picture>.animal-art{width:27%;height:65%}.tiny .little-hero .illustrated-scene .friend-speech p{font-size:18px!important}.tiny .friends-parade .animal-art{height:100px}.tiny .tiny-setup-world{margin-top:18px}.tiny .hero-guide{margin:16px 0}.tiny .world-card-copy>strong{font-size:18px}}
+@media(prefers-reduced-motion:reduce){.tiny .world-motion{display:none}.tiny .animal-art,.tiny-card-characters .animal-art{animation:none!important}.tiny .active-location .location-number{animation:none}}
+/* A friend occupies the actual rescue location, rather than a generic portrait slot. */
+.tiny .scene-tree .scene-background{object-position:75% center}
+.tiny .scene-tree .scene-picture>.animal-art{left:70%;bottom:46%;width:17%;height:40%}
+.tiny .scene-cave .scene-picture>.animal-art{left:65%;bottom:3%;width:20%;height:57%}
+@media(max-width:600px){.tiny .scene-tree .scene-picture>.animal-art{left:70%;bottom:43%;width:22%;height:43%}.tiny .scene-cave .scene-picture>.animal-art{left:67%;width:23%;height:60%}}

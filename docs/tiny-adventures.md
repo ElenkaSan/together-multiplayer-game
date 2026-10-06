@@ -25,3 +25,11 @@ Progress is the completed outcome ledger (friends home). Performance is the badg
 4. Add original art/sound cues, keep touch targets large and clues short, and verify Read to me for introduction, retries, results and completion. Current generated sound cues are opt-in and narration never autoplays.
 
 The data-only extension test supplies a reordered, three-rescue pack and finishes it through the same engine. Full engine tests cover 2–6 players in both modes; real socket tests cover wrong-answer synchronization, retry, stale attempts and reconnect.
+
+## Forest expedition artwork
+
+The original illustrated 2D assets in `public/art/tiny` were generated with the built-in image-generation tool using the approved richer 2D concept as a style reference. Generation briefs: six text-free layered forest environments (map, broken bridge, tall tree, dark cave, snow trail, flooded village); five original animal adventurers in five expressions (idle, thinking, oops, happy, celebrate); nine distinct future-world preview illustrations. Atlases were sliced into individual optimized WebP assets; no UI or labels are baked into images.
+
+The map uses HTML markers positioned by each rescue's `mapPosition` in normalized 900×540 coordinates over the complete image, preserving progress and current-step state. The original SVG renderer remains a fallback for content packs without `mapAsset`. All five scenes and the Captain use the same environment and hero artwork. CSS supplies subtle clouds, glints, drifting foliage, idle/reaction motion and marker glow, with reduced-motion support. Future cards are locked previews, not new playable packs. Text, tools, buttons, room commands, timers, narration and sound controls remain HTML and existing APIs.
+
+Shared `story` is a neutral question describing the rescue, without naming its solution. Private `clue` describes a useful property (strong/bendy, steps, light, warmth, floating), so players reason and communicate. Retry hints still reveal a tool after a missed attempt under the existing policy. No networking, phase, score, seat, reconnect or speech implementation is changed by this art update.
