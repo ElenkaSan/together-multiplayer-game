@@ -142,3 +142,5 @@
 .tiny .scene-tree .scene-picture>.animal-art{left:70%;bottom:46%;width:17%;height:40%}
 .tiny .scene-cave .scene-picture>.animal-art{left:65%;bottom:3%;width:20%;height:57%}
 @media(max-width:600px){.tiny .scene-tree .scene-picture>.animal-art{left:70%;bottom:43%;width:22%;height:43%}.tiny .scene-cave .scene-picture>.animal-art{left:67%;width:23%;height:60%}}
+
+.tiny .voice-settings{margin:8px 0 16px;color:#426450;font-size:14px}.tiny .voice-settings summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700}.tiny .voice-settings-controls{display:grid;gap:10px;padding:14px;background:#eef4e8;border:1px solid #cbdac3;border-radius:14px;max-width:440px}.tiny .voice-settings-controls label{font-weight:700}.tiny .voice-settings-controls select{width:100%;min-height:48px;border:1px solid #a4bea7;border-radius:10px;background:#fffef8;color:#293f38;padding:10px;font:inherit}.tiny .voice-settings-controls select:focus-visible{outline:3px solid #176faa;outline-offset:2px}.tiny .voice-settings-controls small{line-height:1.5}

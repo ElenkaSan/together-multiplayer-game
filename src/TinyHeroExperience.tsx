@@ -1,7 +1,7 @@
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useRef,useState,useId} from 'react';
 import type {Engine} from '../server/engine';
 import type {Action} from '../server/modes';
-import {createReader} from './speech';
+import {createReader,englishVoices,loadNarrationSettings,saveNarrationSettings,type NarrationSettings} from './speech';
 import {GuideIcon,AdventureProgress,RescueHint,CluePicture,CaptainIcon,Animal,ToolArt,MissionMap,FriendScene,Celebration,useTinySound} from './TinyWorld';
 type View=ReturnType<Engine['view']>;
 const steps=['See your clue','Pick a tool','Ready','Rescue together!'];
@@ -22,19 +22,21 @@ export function ReadToMe({text,context}:{text:string;context:string}){
  const [supported]=useState(()=>typeof window!=='undefined'&&'speechSynthesis' in window&&'SpeechSynthesisUtterance' in window);
  const [state,setState]=useState<'starting'|'reading'|'idle'|'error'>('idle'),[error,setError]=useState('');
  const reader=useRef<ReturnType<typeof createReader>|null>(null);
+ const [voices,setVoices]=useState<SpeechSynthesisVoice[]>([]),[preferences,setPreferences]=useState(loadNarrationSettings);const voiceId=useId(),speedId=useId();
+ function changePreferences(next:NarrationSettings){reader.current?.stop();setState('idle');setError('');saveNarrationSettings(next);setPreferences(next)}
  useEffect(()=>{
   if(!supported)return;
   const synth=window.speechSynthesis;
   reader.current=createReader(synth,t=>new SpeechSynthesisUtterance(t),(state,error)=>{setState(state);setError(error||'')});
   // Request voices on mount as some browsers populate them asynchronously.
-  const loadVoices=()=>{synth.getVoices()};loadVoices();synth.addEventListener('voiceschanged',loadVoices);
+  const loadVoices=()=>{setVoices(englishVoices(synth.getVoices()))};loadVoices();synth.addEventListener('voiceschanged',loadVoices);
   return()=>{reader.current?.stop();reader.current=null;synth.removeEventListener('voiceschanged',loadVoices)};
  },[supported]);
  useEffect(()=>{reader.current?.stop();setState('idle');setError('')},[text,context]);
  const active=state==='starting'||state==='reading';
  function read(){if(active){reader.current?.stop();setState('idle')}else reader.current?.start(text)}
  const failure=!supported?'This browser cannot read aloud. Ask your captain for help.':error==='not-allowed'?'Sound was blocked. Unmute this site and tap Read to me again.':error==='language-unavailable'||error==='voice-unavailable'?'An English voice is unavailable. Try another browser or ask your captain for help.':`Could not start the voice (${error}). Try again or use another browser.`;
- return <div className="hero-audio"><button type="button" className="read-to-me" onClick={read} disabled={!supported} aria-pressed={active}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3Z" fill="currentColor"/><path d="M16 8q5 4 0 8M19 5q8 7 0 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>{active?'Stop reading':'Read to me'}</button><p className="audio-help" role="status">{!supported||state==='error'?failure:state==='starting'?'Starting the voice…':state==='reading'?'Reading aloud. No sound? Check device volume and unmute this site.':'Tap to hear this screen.'}</p></div>
+ return <div className="hero-audio"><button type="button" className="read-to-me" onClick={read} disabled={!supported} aria-pressed={active}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3Z" fill="currentColor"/><path d="M16 8q5 4 0 8M19 5q8 7 0 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>{active?'Stop reading':'Read to me'}</button><p className="audio-help" role="status">{!supported||state==='error'?failure:state==='starting'?'Starting the voice…':state==='reading'?'Reading aloud. No sound? Check device volume and unmute this site.':'Tap to hear this screen.'}</p>{supported&&<details className="voice-settings"><summary>Voice settings</summary><div className="voice-settings-controls"><label htmlFor={voiceId}>Reading voice</label><select id={voiceId} value={voices.some(v=>v.voiceURI===preferences.voiceURI)?preferences.voiceURI:''} onChange={e=>changePreferences({...preferences,voiceURI:e.target.value})}><option value="">Recommended voice</option>{voices.map(v=><option key={v.voiceURI} value={v.voiceURI}>{v.name} · {v.lang}</option>)}</select><label htmlFor={speedId}>Reading pace</label><select id={speedId} value={preferences.rate} onChange={e=>changePreferences({...preferences,rate:Number(e.target.value)})}><option value={.92}>Calm</option><option value={1}>Normal</option></select><button className="secondary" type="button" onClick={()=>reader.current?.start('Hello, hero! Ready for an adventure? Let’s rescue our friends together.')}>Try voice</button><small>Choose the voice you like. Your choice is saved on this device.</small></div></details>}</div>
 }
 
 export function TinyHeroExperience({view,actions,setActions,connected,pending,remaining,command}:{view:View;actions:Action;setActions:(a:Action)=>void;connected:boolean;pending:boolean;remaining:number;command:(data:Record<string,unknown>)=>Promise<unknown>}){
