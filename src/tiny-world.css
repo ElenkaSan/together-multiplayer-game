@@ -48,3 +48,9 @@
 @media(prefers-reduced-motion:reduce){.tiny .scene-encourage .animal-idle{animation:none}}
 
 .tiny .adventure-map>img{display:block;width:100%;height:auto}
+
+.tiny .friends-home{display:inline-flex;align-items:center;gap:8px}
+.tiny .leaf-icon{width:28px;height:28px;flex-shrink:0;display:block}
+.tiny .progress-friend{display:block;width:42px;height:46px;flex-shrink:0}
+.tiny .progress-friend .animal-art,.tiny .progress-friend img{display:block;width:100%;height:100%;object-fit:contain}
+.tiny .progress-friend .animal-idle,.tiny .progress-friend .animal-eyes,.tiny .progress-friend .waving-paw{animation:none}
