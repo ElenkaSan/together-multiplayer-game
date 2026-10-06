@@ -1,20 +1,39 @@
 import {useEffect,useRef,useState} from 'react';
 import type {Engine} from '../server/engine';
 import type {Action} from '../server/modes';
+import {createReader} from './speech';
 type View=ReturnType<Engine['view']>;
 const steps=[['👀','See your clue'],['🧰','Pick a tool'],['✅','Tap Ready'],['🌟','Rescue together!']];
 const simpleRules='See your clue. Pick a tool. Tap Ready. Rescue together!';
 export function HeroGuide(){return <ol className="hero-guide" aria-label="How to play">{steps.map(([icon,label])=><li key={label}><span aria-hidden="true">{icon}</span><strong>{label}</strong></li>)}</ol>}
 
+export const tinyRulesText='Save five animal friends together. One player is the Team Captain; everyone else is a Little Hero. Helpers read their secret clue and tell the captain. Each helper chooses the tool that fits the rescue. The captain saves a star or spends one to cover one wrong or missing tool. Tap Ready before the timer ends. Choices stay hidden until everyone locks in or time runs out. Earn one rescue badge when every helper brings the right tool, including any help from a star. Aim for five badges! Missing choices count as waiting. There is no elimination. Speak together in the room or on your usual phone or video call.';
+export function TinyMissionRules(){return <div className="rules-content"><p>Save five animal friends together. One player is the Team Captain; everyone else is a Little Hero.</p><ol><li>Helpers read their secret clue and tell the captain.</li><li>Each helper chooses the tool that fits the rescue. The captain saves a star or spends one to cover one wrong or missing tool.</li><li>Tap Ready! before the timer ends. Choices stay hidden until everyone locks in or time runs out.</li><li>Earn one rescue badge when every helper brings the right tool, including any help from a star. Aim for five badges!</li></ol><p>Missing choices count as waiting. There is no elimination. Speak together in the room or on your usual phone/video call.</p></div>}
+export function HeroInstructions(){return <><HeroGuide/><details className="hero-full-rules"><summary>Read the mission rules</summary><TinyMissionRules/></details></>}
+export function captainAudio(view:View){
+ if(view.phase==='lobby')return `Welcome, Team Captain. Create a team of two to six players. Share the room code. Everyone taps Ready, then you start the mission. ${tinyRulesText}`;
+ if(view.phase==='finished')return `Mission complete. You earned ${view.score} of five rescue badges. All five friends are home with the rescue crew.`;
+ if(view.phase==='paused')return 'Waiting for the team. At least two players must reconnect to begin the next round.';
+ if(view.phase==='result')return `${view.mission.story} ${view.result?.message||''} ${view.result?.details||''}`;
+ return `${view.mission.story} ${view.brief?.message||''} ${view.brief?.tasks.map(t=>`${t.title}. ${t.hint||''}. ${t.options.map(o=>o.label.replace(/[^a-zA-Z0-9 .]/g,'')).join('. ')}`).join('. ')||''} ${view.submitted?'Your choice is locked. Wait for your team.':'Choose your team plan, then tap Ready.'}`;
+}
 export function ReadToMe({text,context}:{text:string;context:string}){
  const [supported]=useState(()=>typeof window!=='undefined'&&'speechSynthesis' in window&&'SpeechSynthesisUtterance' in window);
- const [speaking,setSpeaking]=useState(false),[failed,setFailed]=useState(false);
- const current=useRef<SpeechSynthesisUtterance|null>(null);
- function stop(){const utterance=current.current;current.current=null;if(utterance){utterance.onend=null;utterance.onerror=null;window.speechSynthesis.cancel()}setSpeaking(false)}
- useEffect(()=>{stop();setFailed(false);return stop},[text,context]);
- useEffect(()=>{const onHidden=()=>{if(document.hidden)stop()};document.addEventListener('visibilitychange',onHidden);return()=>document.removeEventListener('visibilitychange',onHidden)},[]);
- function read(){if(!supported)return;if(speaking){stop();return}setFailed(false);const synth=window.speechSynthesis;synth.cancel();const utterance=new SpeechSynthesisUtterance(text);utterance.lang='en-US';utterance.rate=.88;const voice=synth.getVoices().find(v=>v.lang==='en-US'&&v.localService)??synth.getVoices().find(v=>v.lang.startsWith('en'));if(voice)utterance.voice=voice;current.current=utterance;utterance.onend=()=>{if(current.current===utterance){current.current=null;setSpeaking(false)}};utterance.onerror=()=>{if(current.current===utterance){current.current=null;setSpeaking(false);setFailed(true)}};try{setSpeaking(true);synth.speak(utterance)}catch{current.current=null;setSpeaking(false);setFailed(true)}}
- return <div className="hero-audio"><button type="button" className="read-to-me" onClick={read} disabled={!supported} aria-pressed={speaking}>{speaking?'⏹ Stop reading':'🔊 Read to me'}</button>{(!supported||failed)&&<p role="status">Ask your captain to read this to you.</p>}</div>
+ const [state,setState]=useState<'starting'|'reading'|'idle'|'error'>('idle'),[error,setError]=useState('');
+ const reader=useRef<ReturnType<typeof createReader>|null>(null);
+ useEffect(()=>{
+  if(!supported)return;
+  const synth=window.speechSynthesis;
+  reader.current=createReader(synth,t=>new SpeechSynthesisUtterance(t),(state,error)=>{setState(state);setError(error||'')});
+  // Request voices on mount as some browsers populate them asynchronously.
+  const loadVoices=()=>{synth.getVoices()};loadVoices();synth.addEventListener('voiceschanged',loadVoices);
+  return()=>{reader.current?.stop();reader.current=null;synth.removeEventListener('voiceschanged',loadVoices)};
+ },[supported]);
+ useEffect(()=>{reader.current?.stop();setState('idle');setError('')},[text,context]);
+ const active=state==='starting'||state==='reading';
+ function read(){if(active){reader.current?.stop();setState('idle')}else reader.current?.start(text)}
+ const failure=!supported?'This browser cannot read aloud. Ask your captain for help.':error==='not-allowed'?'Sound was blocked. Unmute this site and tap Read to me again.':error==='language-unavailable'||error==='voice-unavailable'?'An English voice is unavailable. Try another browser or ask your captain for help.':`Could not start the voice (${error}). Try again or use another browser.`;
+ return <div className="hero-audio"><button type="button" className="read-to-me" onClick={read} disabled={!supported} aria-pressed={active}>{active?'⏹ Stop reading':'🔊 Read to me'}</button><p className="audio-help" role="status">{!supported||state==='error'?failure:state==='starting'?'Starting the voice…':state==='reading'?'Reading aloud. No sound? Check device volume and unmute this site.':'Tap to hear this screen.'}</p></div>
 }
 
 export function TinyHeroExperience({view,actions,setActions,connected,pending,remaining,command}:{view:View;actions:Action;setActions:(a:Action)=>void;connected:boolean;pending:boolean;remaining:number;command:(data:Record<string,unknown>)=>Promise<unknown>}){
@@ -26,7 +45,7 @@ export function TinyHeroExperience({view,actions,setActions,connected,pending,re
  const context=`${view.code}:${view.round}:${view.phase}:${view.submitted}`;
  const audio=view.phase==='lobby'?`Welcome to Tiny Heroes! Help five animal friends. ${simpleRules} Tell your captain your clue. Tap Ready when you want to play.`:view.phase==='finished'?`Hooray, little heroes! All five friends are home. You earned ${view.score} rescue badges. Thank you for helping!`:view.phase==='paused'?'Wait for your team to come back.':view.phase==='result'?`${view.mission.story} ${result} ${view.round===4?'Your adventure is almost complete!':'Get ready to help our next friend.'}`:view.phase==='locked'?'Your tool is ready. Wait for your team.':`${view.mission.story} ${simpleRules} Your clue: ${clue} Tell your captain. ${view.submitted?'Your tool is ready. Wait for your team.':view.phase==='briefing'?'Look at your clue. Wait for the buttons to open.':'Pick one tool, then tap Ready.'}`;
  return <section className="play-area little-hero"><ReadToMe text={audio} context={context}/>
- {view.phase==='lobby'?<div className="panel hero-lobby"><span className="hero-big-icon" aria-hidden="true">🐰 🐻 🐥</span><h1>Let’s help our friends!</h1><HeroGuide/><button className="primary hero-ready" disabled={!connected||pending} onClick={()=>command({type:'ready'})}>{me.ready?'✅ Ready!':'✅ Tap Ready'}</button>{isHost&&<button className="secondary hero-ready" disabled={!allReady||!connected||pending} onClick={()=>command({type:'start'})}>🌟 Start rescue</button>}<p>{allReady?'🌟 Your team is ready!':'👋 Wait for your team.'}</p></div>:
+ {view.phase==='lobby'?<div className="panel hero-lobby"><span className="hero-big-icon" aria-hidden="true">🐰 🐻 🐥</span><h1>Let’s help our friends!</h1><HeroInstructions/><button className="primary hero-ready" disabled={!connected||pending} onClick={()=>command({type:'ready'})}>{me.ready?'✅ Ready!':'✅ Tap Ready'}</button>{isHost&&<button className="secondary hero-ready" disabled={!allReady||!connected||pending} onClick={()=>command({type:'start'})}>🌟 Start rescue</button>}<p>{allReady?'🌟 Your team is ready!':'👋 Wait for your team.'}</p></div>:
  view.phase==='finished'?<div className="panel finale"><span className="hero-big-icon" aria-hidden="true">🏅</span><h1>Hooray, little heroes!</h1><p>All five friends are home!</p><div className="badges" aria-label={`${view.score} rescue badges out of five`}>{Array.from({length:5},(_,i)=><span key={i}>{i<view.score?'★':'☆'}</span>)}</div>{isHost?<button className="primary hero-ready" disabled={!connected||pending} onClick={()=>command({type:'replay'})}>🌟 Play again</button>:<p>👑 Ask your captain to play again.</p>}</div>:
  view.phase==='paused'?<div className="panel hero-lobby"><span className="hero-big-icon" aria-hidden="true">👋</span><h2>Wait for your team.</h2></div>:
  <><div className="round-header"><h2>Rescue {view.round+1} / 5</h2><div className="timer" aria-label={`${remaining} seconds remaining`}>{view.phase==='action'?`⏱ ${remaining}s`:view.phase==='briefing'?'👀 Look':view.phase==='locked'?'✅ Ready':'🌟'}</div></div><div className="mission-stage"><span className="mission-icon" aria-hidden="true">{view.mission.icon}</span><p>{view.mission.story}</p></div>
