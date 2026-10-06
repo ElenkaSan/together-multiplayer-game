@@ -6,3 +6,17 @@
 @media(max-width:600px){.tiny header{padding:18px}.tiny main{padding:15px 14px 35px}.tiny .setup h1{font-size:38px}.tiny .setup>p{font-size:17px}.tiny .room-bar{gap:8px;flex-wrap:wrap}.tiny .room-buttons{max-width:none;width:100%;justify-content:flex-start}.tiny .room-buttons .sound-toggle{padding:8px 10px;min-height:40px;font-size:12px}.tiny .room-buttons .secondary{font-size:12px}.tiny .player-requirements{padding:16px 18px}.tiny .player-requirements strong{font-size:18px}.tiny .panel{padding:22px 18px}.tiny .adventure-map{border-radius:22px}.tiny .map-caption{top:8px;left:8px;right:8px}.tiny .map-caption span{font-size:10px;padding:6px 8px}.tiny .rescue-badges{bottom:8px;font-size:20px;gap:6px}.tiny .hero-guide{grid-template-columns:repeat(2,minmax(0,1fr))}.tiny .hero-full-rules .rules-content,.tiny .hero-full-rules .rules-content p{font-size:15px!important}.tiny .hero-full-rules summary{font-size:14px}.tiny .mission-icon .animal-art{width:80px;height:90px}.tiny .lobby h1,.tiny .finale h1{font-size:30px}}
 @media(prefers-reduced-motion:reduce){.tiny *, .tiny-card-characters *{animation:none!important;transition:none!important}.tiny .celebration{display:none}}
 .tiny .crew .avatar{padding:2px;min-width:50px}.tiny .crew .avatar .animal-art{width:50px;height:54px;display:block}
+
+.tiny .captain-icon{display:inline-block;width:34px;height:34px;vertical-align:middle;flex-shrink:0}
+.tiny .captain-prompt,.tiny .hero-next{display:flex;justify-content:center;align-items:center;gap:8px}
+.tiny .captain-clues{margin:20px 0;padding:16px;border-radius:22px;background:#edf8f0;border:2px solid #bedfce}
+.tiny .captain-clues h4{margin:0;color:#335e4f;font-size:1.15rem}
+.tiny .captain-clues .captain-clues-hint{font-size:.85rem;margin:8px 0 12px}
+.tiny .captain-clues ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.tiny .captain-clues li{display:flex;gap:12px;align-items:center;padding:12px;background:#fffdf4;border-radius:16px}
+.tiny .captain-helper-copy{flex:1;min-width:0;overflow-wrap:anywhere}
+.tiny .captain-helper-copy p{margin:6px 0;font-size:.95rem}
+.tiny .captain-helper-tool{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:85px;min-height:80px;gap:2px;color:#596453;text-align:center}
+.tiny .captain-helper-tool .tool-art{width:70px;height:58px}
+.tiny .captain-helper-tool>span{font-size:2rem}
+.tiny .captain-helper-tool.tool-sent{color:#287052;background:#e0f4de;border-radius:14px;padding:6px}
