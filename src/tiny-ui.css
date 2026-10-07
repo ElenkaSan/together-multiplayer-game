@@ -133,15 +133,12 @@
 .tiny .voice-settings[open] .voice-chevron {transform:rotate(180deg)}
 .tiny .hero-audio .voice-settings-controls {width:100%;min-width:0;max-width:none;margin-inline:0;padding:16px}
 .tiny .voice-settings-controls small {overflow-wrap:break-word}
-/* Fixed edge shading stays over the swipe area without intercepting touch. */
+/* Soft edge fade blends the carousel into its surrounding surface. */
 .tiny .world-carousel-frame {position:relative;min-width:0;width:100%}
-.tiny .world-carousel-frame .illustrated-world-cards {width:100%}
-.tiny .world-carousel-frame::before,.tiny .world-carousel-frame::after {content:"";position:absolute;top:8px;bottom:20px;width:32px;z-index:2;pointer-events:none;border-radius:24px}
-.tiny .world-carousel-frame::before {left:0;background:linear-gradient(90deg,#17232d26,transparent)}
-.tiny .world-carousel-frame::after {right:0;background:linear-gradient(270deg,#17232d38,transparent)}
+.tiny .world-carousel-frame .illustrated-world-cards {width:100%;mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent)}
 .tiny .scout-greeting-paw {transform-origin:91px 172px}
 @keyframes scout-hello-wave {0%,40%,100%{transform:rotate(0deg)}10%,26%{transform:rotate(13deg)}18%,34%{transform:rotate(-8deg)}}
 @keyframes scout-hello-idle {0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.014)}}
-@media(max-width:600px){.tiny .world-carousel-frame::before,.tiny .world-carousel-frame::after{width:20px}}
+@media(max-width:600px){.tiny .world-carousel-frame .illustrated-world-cards{mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent)}}
 
 @media(min-width:700px){.tiny .hero-audio .voice-settings-controls{width:300px;max-width:100%}}
