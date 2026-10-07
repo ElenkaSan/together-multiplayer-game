@@ -11,7 +11,7 @@ export const adventureSolutions:Record<string,Record<string,{tool:string;hint:st
  'bear-trail':{tool:'blanket',hint:'A blanket keeps our friend warm.'},
  'duckling-home':{tool:'boat',hint:'A boat floats on deep water.'}
  },
- 'ice-rescue':Object.fromEntries(Object.entries(iceRoutes).map(([id,rule])=>[id,{tool:rule.free,hint:rule.hint}]))};
+ 'ice-rescue':Object.fromEntries(Object.entries(iceRoutes).map(([id,rule])=>[id,{tool:rule.free||rule.warm!,hint:rule.hint}]))};
 export function adventureState(id?:string):TinyAdventureState {const a=getAdventure(id);validateAdventure(a);return {id:a.id,attempt:1,hintUsed:false,kindnessUsed:false,completed:[]}}
 export function validateAdventure(a:Adventure){if(a.mechanics?.resource&&(a.mechanics.resource.total!==a.policy.kindnessStars||!a.mechanics.resource.requiredRescueIds.every(id=>a.rescues.some(r=>r.id===id))))throw Error('Invalid resource policy');if(!a.rescues.length||!Number.isInteger(a.policy.maxAttempts)||a.policy.maxAttempts<2||a.policy.maxAttempts>5||!Number.isInteger(a.policy.kindnessStars)||a.policy.kindnessStars<0)throw Error('Invalid adventure policy');const ids=new Set<string>();for(const r of a.rescues){const solution=adventureSolutions[a.id]?.[r.id];if(ids.has(r.id)||!solution||(r.challenge?!r.challenge.choices.some(c=>c.id===solution.tool):!r.tools.includes(solution.tool as ToolId))||!r.tools.every(t=>tinyTools[t]))throw Error('Invalid rescue content');ids.add(r.id)}}
 export function solutionFor(id:string,index:number){const a=getAdventure(id);return adventureSolutions[id][a.rescues[index].id]}
@@ -26,3 +26,4 @@ export function adventureSnapshot(state:TinyAdventureState,index:number){const a
 
 // Presentation pacing scales injected timers; transport, action windows and retry rules stay intact.
 export function tinyPresentationDuration(state:TinyAdventureState|undefined,base:number,kind:'briefing'|'result',round:number,success=false){if(!state)return base;const p=getAdventure(state.id).presentation;if(!p)return base;const scale=kind==='briefing'?(round===0&&state.attempt===1?1:p.laterBriefingScale):success?p.successResultScale:1;return Math.max(1,Math.round(base*scale))}
+

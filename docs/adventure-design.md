@@ -7,9 +7,13 @@ Public content and artwork never identify a winning choice. Numbered world marke
 show expedition progress, not mission answers. Keep UI text and controls in HTML.
 
 Forest stays the introductory tool and teamwork mechanic. Ice introduces route
-agreement and two shared Warm Packs: sheltered alternatives always remain available,
-while saved warmth permits a shorter exposed option in the finale. The shorter route
-is narrative strategy, not a shorter server timer or an extra scoring reward.
+agreement and two shared Warm Packs for extreme cold. Environmental clues determine
+whether a path is safe, blocked or needs warmth. The Windy Crossing cave is blocked,
+so the team must reserve one pack for its exposed bridge. The finale always offers
+a protected tunnel even at zero packs. No route has a speed/scoring advantage.
+Consume exactly one pack only after a successful, aligned warmth-required route.
+Wrong/missing choices, retry, Team Assist and sheltered routes consume nothing.
+Warm Packs never correct another player's mistake or add time.
 
 Add future gameplay through a content pack and a registered server mechanic in
 `server/adventure-mechanics.ts`. The existing Engine still owns room codes, seats,

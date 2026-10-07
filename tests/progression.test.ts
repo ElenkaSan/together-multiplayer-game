@@ -35,10 +35,10 @@ test('unlock is earned by completion, including crew help, never by badge count 
 test('Ice resource is bounded, spent once, and zero packs still allows a protected finale',()=>{
  const {e,r,p}=setup();finish(e,r);e.chooseAdventure(r,p,'ice-rescue');start(e,r);
  attempt(e,r,'blue-shelf');assert.equal(r.result?.success,true);e.tick(r.deadline!+1);
- attempt(e,r,'steep-ridge','warm');assert.equal(r.result?.success,false);assert.equal(r.bonus,1);assert.equal(r.result?.retry,true);e.tick(Date.now());assert.equal(r.bonus,1);e.tick(r.deadline!+1);
- attempt(e,r,'open-trail','warm');assert.equal(r.result?.success,true);assert.equal(r.bonus,0);e.tick(r.deadline!+1);
+ attempt(e,r,'steep-ridge','warm');assert.equal(r.result?.success,false);assert.equal(r.bonus,2);assert.equal(r.result?.retry,true);e.tick(Date.now());assert.equal(r.bonus,2);e.tick(r.deadline!+1);
+ attempt(e,r,'open-trail','warm');assert.equal(r.result?.success,true);assert.equal(r.bonus,1);e.tick(r.deadline!+1);
  attempt(e,r,'pine-hollow');e.tick(r.deadline!+1);
- attempt(e,r,'cave-path');assert.equal(r.result?.success,true);e.tick(r.deadline!+1);
+ attempt(e,r,'exposed-bridge','warm');assert.equal(r.result?.success,true);e.tick(r.deadline!+1);
  attempt(e,r,'beacon-ridge');assert.equal(r.result?.retry,true);e.tick(r.deadline!+1);
  attempt(e,r,'shelter-tunnel');assert.equal(r.result?.success,true);assert.equal(r.bonus,0);e.tick(r.deadline!+1);assert.equal(r.phase,'finished');assert.equal(r.tiny?.completed.length,5);assert.equal(r.score,5);
 });

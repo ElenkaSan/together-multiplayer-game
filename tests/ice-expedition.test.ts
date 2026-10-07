@@ -24,13 +24,13 @@ test('Ice uses five expedition locations and no Forest tool tasks or public clue
 });
 test('warm routes and sheltered routes are valid alternatives with clear finite resource costs',()=>{
  for(const index of [1,3,4]){const rule=iceRoutes[iceRescue.rescues[index].id];
-  const free=resolve('tiny',index,[{route:rule.free,support:'save'},{route:rule.free}],2,'ice-rescue');assert.equal(free.success,true);assert.equal(free.bonus,2);
+  const free=resolve('tiny',index,[{route:rule.free,support:'save'},{route:rule.free}],2,'ice-rescue');assert.equal(free.success,!!rule.free);assert.equal(free.bonus,2);
   const warm=resolve('tiny',index,[{route:rule.warm!,support:'warm'},{route:rule.warm!}],2,'ice-rescue');assert.equal(warm.success,true);assert.equal(warm.bonus,1);
   assert.equal(resolve('tiny',index,[{route:rule.warm!,support:'save'},{route:rule.warm!}],2,'ice-rescue').success,false);
   assert.equal(resolve('tiny',index,[{route:rule.free,support:'save'},{route:rule.warm!}],2,'ice-rescue').success,false);
  }
 });
-test('Blizzard Finale remains winnable at 2, 1 and 0 packs; saved warmth gives the shorter route',()=>{
+test('Blizzard Finale remains winnable at 2, 1 and 0 packs; saved warmth protects the exposed route',()=>{
  for(const packs of [2,1,0]){
   assert.equal(resolve('tiny',4,[{route:'shelter-tunnel',support:'save'},{route:'shelter-tunnel'}],packs,'ice-rescue').success,true);
   const short=resolve('tiny',4,[{route:'beacon-ridge',support:'warm'},{route:'beacon-ridge'}],packs,'ice-rescue');assert.equal(short.success,packs>0);assert.equal(short.bonus,Math.max(0,packs-1));

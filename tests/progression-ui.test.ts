@@ -20,6 +20,6 @@ test('Adventure Map marks completed Forest, playable Ice and locked future world
 });
 test('Ice resource guide reads the server budget, including depletion',()=>{
  const {e,r,p}=completeForest();e.chooseAdventure(r,p,'ice-rescue');r.bonus=0;
- const html=renderToStaticMarkup(React.createElement(IceResourceGuide,{view:e.view(r,p)}));assert.match(html,/0 of 2 Warm Packs left/);assert.match(html,/0 Warm Packs left/);assert.equal((html.match(/pack-empty/g)||[]).length,2);
+ const html=renderToStaticMarkup(React.createElement(IceResourceGuide,{view:e.view(r,p)}));assert.match(html,/0 of 2 Warm Packs left/);assert.match(html,/Warm Packs: 0/);assert.equal((html.match(/pack-empty/g)||[]).length,2);
 });
 

@@ -20,7 +20,7 @@ test('starting with Ice then choosing Forest preserves room results, seats and r
  r.players.forEach(x=>e.ready(r,x));e.start(r,p);
  for(let i=0;i<5;i++){
   e.tick(r.deadline!+1);const route=solutionFor('ice-rescue',i).tool;
-  for(const x of r.players)e.submit(r,x,i,{route,...(x.slot===0&&getAdventure('ice-rescue').rescues[i].challenge!.kind!=='route'&&i!==2?{support:'save'}:{})},1,'ice-rescue',r.tinyProgress!.run);
+  for(const x of r.players)e.submit(r,x,i,{route,...(x.slot===0&&getAdventure('ice-rescue').rescues[i].challenge!.kind!=='route'&&i!==2?{support:i===3?'warm':'save'}:{})},1,'ice-rescue',r.tinyProgress!.run);
   e.tick(r.deadline!+1);e.tick(r.deadline!+1);
  }
  assert.equal(r.phase,'finished');assert.deepEqual(e.view(r,p).progression?.results['ice-rescue'],{friendsHome:5,badges:5,assists:0});
