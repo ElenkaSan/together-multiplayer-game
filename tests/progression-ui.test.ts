@@ -10,7 +10,7 @@ function completeForest(){const e=new Engine();const {r,p}=e.create('tiny','Capt
 test('completion has accessible unlock and Captain controls, with matching read-aloud text',()=>{
  const {e,r,p}=completeForest(),v=e.view(r,p);
  const html=renderToStaticMarkup(React.createElement(TinyProgression,{view:v,connected:true,pending:false,command:async()=>{}}));
- assert.match(html,/New Adventure Unlocked/);assert.match(html,/Ice Rescue/);assert.match(html,/5 friends are home/);assert.match(html,/Continue Adventure/);assert.match(html,/Back to Adventure Map/);assert.match(progressionAudio(v),/New adventure unlocked: Ice Rescue/);
+ assert.match(html,/New Adventure Unlocked/);assert.match(html,/Ice Rescue/);assert.match(html,/5 friends are home/);assert.match(html,/Continue to Ice Rescue/);assert.match(html,/Back to Adventure Map/);assert.match(progressionAudio(v),/New adventure unlocked: Ice Rescue/);
  const child=renderToStaticMarkup(React.createElement(TinyProgression,{view:e.view(r,r.players[1]),connected:true,pending:false,command:async()=>{}}));assert.doesNotMatch(child,/<button/);assert.match(child,/captain chooses/);
 });
 test('Adventure Map marks completed Forest, playable Ice and locked future worlds',()=>{
@@ -20,5 +20,5 @@ test('Adventure Map marks completed Forest, playable Ice and locked future world
 });
 test('Ice resource guide reads the server budget, including depletion',()=>{
  const {e,r,p}=completeForest();e.chooseAdventure(r,p,'ice-rescue');r.bonus=0;
- const html=renderToStaticMarkup(React.createElement(IceResourceGuide,{view:e.view(r,p)}));assert.match(html,/0 of 2 heat packs left/);assert.match(html,/0 heat packs left/);assert.equal((html.match(/pack-empty/g)||[]).length,2);
+ const html=renderToStaticMarkup(React.createElement(IceResourceGuide,{view:e.view(r,p)}));assert.match(html,/0 of 2 Warm Packs left/);assert.match(html,/0 Warm Packs left/);assert.equal((html.match(/pack-empty/g)||[]).length,2);
 });

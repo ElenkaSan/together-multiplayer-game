@@ -24,8 +24,9 @@ test('two independent clients share Forest unlock, map, Ice transition, retry an
     if(id==='ice-rescue'&&round===0){const stale=await command(b,{type:'submit',round,attempt:1,action:{tool:'rope'},adventureId:'forest-rescue',run:1});assert.equal(stale.ok,false)}
     const submit=(s:Socket,v:any,action:object)=>command(s,{type:'submit',round,attempt:v.adventure.attempt,adventureId:id,run:v.progression.run,action});
     if(id==='forest-rescue'&&round===0){assert.ok((await submit(a,va,{support:'save'})).ok);assert.ok((await submit(b,vb,{tool:'blanket'})).ok);const result=await wait(b,v=>v?.phase==='result'&&v.round===0);assert.equal(result.result.retry,true);va=await wait(a,v=>v?.phase==='action'&&v.adventure.attempt===2);vb=await wait(b,v=>v?.phase==='action'&&v.adventure.attempt===2)}
-    assert.ok((await submit(a,va,{support:id==='ice-rescue'&&round>=3?'warm':'save'})).ok);
-    assert.ok((await submit(b,vb,{tool:['rope','ladder','lamp','blanket','boat'][round]})).ok);
+    const route=['blue-shelf','open-trail','pine-hollow','exposed-bridge','shelter-tunnel'][round];
+    assert.ok((await submit(a,va,id==='ice-rescue'?{route,...([1,3,4].includes(round)?{support:round===4?'save':'warm'}:{})}:{support:'save'})).ok);
+    assert.ok((await submit(b,vb,id==='ice-rescue'?{route}:{tool:['rope','ladder','lamp','blanket','boat'][round]})).ok);
     if(id==='ice-rescue'&&round===1){b.disconnect();b=await connect();const restore=await command(b,{type:'join',code:room.code,token:hero.token,name:''});assert.ok(restore.ok);assert.equal(restore.state.me,hero.state.me);assert.ok(restore.state.submitted);assert.deepEqual(restore.state.progression.completed,['forest-rescue'])}
     const [ra,rb]=await Promise.all([wait(a,v=>v?.phase==='result'&&v.round===round&&v.result.success),wait(b,v=>v?.phase==='result'&&v.round===round&&v.result.success)]);assert.deepEqual(ra.result,rb.result);
    }

@@ -14,7 +14,7 @@ function setup(count=2){const e=new Engine();const {r,p}=e.create('tiny','Captai
 test('Forest has five distinct scenes and varied three-tool menus; public stories never name tools',()=>{
  assert.equal(new Set(forestRescue.rescues.map(r=>r.art?.scene)).size,5);
  assert.equal(new Set(forestRescue.rescues.map(r=>r.tools.join(','))).size,5);
- forestRescue.rescues.forEach((r,i)=>{assert.equal(r.tools.length,3);assert.ok(r.tools.includes(solutionFor(forestRescue.id,i).tool));assert.doesNotMatch(r.story,/\b(rope|ladder|lamp|light|blanket|boat)\b/i)});
+ forestRescue.rescues.forEach((r,i)=>{assert.equal(r.tools.length,3);assert.ok(r.tools.some(t=>t===solutionFor(forestRescue.id,i).tool));assert.doesNotMatch(r.story,/\b(rope|ladder|lamp|light|blanket|boat)\b/i)});
 });
 test('multiple Little Heroes receive useful different clues, without broadcasting the private clue list',()=>{
  const {e,r,p}=setup(4);assert.notEqual(brief('tiny',0,1,4,3).message,brief('tiny',0,2,4,3).message);assert.match(brief('tiny',0,1,2,3).message,/strong and bendy/);
