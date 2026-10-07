@@ -1,46 +1,269 @@
-import {TinyProgression,IceResourceGuide} from './TinyProgression';
-import {TinyIcon} from './TinyIcon';
-import {defaultAdventureId,getAdventure} from '../shared/tiny-adventures';
-import React,{useEffect,useState} from 'react';
-import {createRoot} from 'react-dom/client';
-import {io} from 'socket.io-client';
-import type {Engine} from '../server/engine';
-import type {Mode,Action} from '../server/modes';
-import './style.css';
-import './tiny-world.css';
-import {FriendScene,AdventurePicker,RescueHint,CaptainClues,Animal,MissionMap,Celebration,SoundToggle,TinyRoundEffects,TinySoundProvider,useTinySound} from './TinyWorld';
-import {HeroInstructions,TinyMissionRules,ReadToMe,captainAudio,TinyHeroExperience} from './TinyHeroExperience';
-type View=ReturnType<Engine['view']>;
-const socket=io({autoConnect:false});
-const titles={tiny:'Tiny Heroes',signal:'Signal Lost'};
-const storageKey='together-seat-v1';
-function saved(){try{return JSON.parse(localStorage.getItem(storageKey)||'null')}catch{return null}}
-function App(){
- const tinySound=useTinySound();const [adventureId,setAdventureId]=useState(defaultAdventureId);
- const [restoring,setRestoring]=useState(()=>saved()?.mode==='tiny'),[view,setView]=useState<View|null>(null),[mode,setMode]=useState<Mode|null>(null),[name,setName]=useState(''),[code,setCode]=useState(new URLSearchParams(location.search).get('room')||''),[error,setError]=useState(''),[connected,setConnected]=useState(socket.connected),[pending,setPending]=useState(false),[actions,setActions]=useState<Action>({}),[now,setNow]=useState(Date.now()),[offset,setOffset]=useState(0),[rules,setRules]=useState(false),[copied,setCopied]=useState(false);
- const ingest=(v:View)=>{setRestoring(false);setView(v);setMode(v.mode);if(v.mode==='tiny'&&v.ownAction)setActions({...v.ownAction});setOffset(v.serverTime-Date.now());setError('')};
- const command=(data:Record<string,unknown>)=>{setError('');setPending(true);return new Promise<any>(resolve=>socket.timeout(8000).emit('command',data,(err:Error|null,result:any)=>{setPending(false);if(err){setError('Connection interrupted. Reconnect to check your room before trying again.');resolve(null)}else if(!result?.ok){setError(result?.error||'Something went wrong.');resolve(null)}else resolve(result)}))};
- useEffect(()=>{const onConnect=()=>{setConnected(true);const seat=saved();if(seat)socket.timeout(8000).emit('command',{type:'join',code:seat.code,token:seat.token,name:''},(err:Error|null,r:any)=>{if(!err&&r?.ok)ingest(r.state);else{setRestoring(false);setError(r?.error||'Could not restore your room. Try reconnecting.');if(!err){localStorage.removeItem(storageKey);setView(null)}}})};const onDisconnect=()=>setConnected(false);const onReplace=()=>{setRestoring(false);localStorage.removeItem(storageKey);setView(null);setError('Your seat was opened in another tab. Close that tab to play here.');};socket.on('connect',onConnect);socket.on('disconnect',onDisconnect);socket.on('state',ingest);socket.on('replaced',onReplace);socket.connect();const t=setInterval(()=>setNow(Date.now()),250);return()=>{clearInterval(t);socket.off('connect',onConnect);socket.off('disconnect',onDisconnect);socket.off('state',ingest);socket.off('replaced',onReplace);socket.disconnect()}},[]);
- useEffect(()=>{setActions(view?.mode==='tiny'?view.ownAction||{}:{});setRules(false)},[view?.adventure?.attempt,view?.round,view?.phase==='lobby',view?.code,view?.adventure?.id,view?.progression?.run]);
- async function enter(type:'create'|'join'){const r=await command({type,mode,name,code,...(type==='create'&&mode==='tiny'?{adventureId}:{})});if(r){localStorage.setItem(storageKey,JSON.stringify({code:r.code,token:r.token,...(r.state.mode==='tiny'?{mode:'tiny'}:{})}));history.replaceState(null,'',`?room=${r.code}`);ingest(r.state)}}
- async function leave(){const r=await command({type:'leave'});if(r){localStorage.removeItem(storageKey);history.replaceState(null,'',location.pathname);setView(null);setCode('');setActions({})}}
- async function copy(){try{await navigator.clipboard.writeText(`${location.origin}/?room=${view!.code}`);setCopied(true);setTimeout(()=>setCopied(false),2500)}catch{setError('Copy the room code shown above and send it to your team.')}}
- const remaining=Math.max(0,Math.ceil(((view?.deadline||0)-now-offset)/1000));const me=view?.players.find(p=>p.id===view.me);const ready=view?.players.every(p=>p.ready&&p.connected)&&view.players.length>=2;const isHost=view?.host===view?.me;
- const isLittleHero=view?.mode==='tiny'&&me?.role==='Little Hero';const total=view?.adventure?.total||5;
- const rulesContent=<div className="rules-content">{mode==='tiny'?(isLittleHero||!view)?<HeroInstructions ice={!!view?.adventure?.mechanics?.resource}/>:<TinyMissionRules ice={!!view?.adventure?.mechanics?.resource}/>:<><p>Your team must restore a rescue signal across five sectors. Aim for at least four aligned sectors while keeping integrity above zero.</p><ol><li>Read your private assignments. With two players, the Navigator also handles communications; the other player handles engineering.</li><li>Share your telemetry. Navigation gives the safe route, engineering gives power and hazard, communications gives the carrier.</li><li>Everyone chooses the shield: ON for debris, OFF for interference. All assigned systems and every shield vote must be correct.</li><li>Lock orders within 60 seconds. Missing or incorrect orders cost one integrity; each fully aligned sector earns one point.</li></ol><p>Starting integrity: 3. Duplicate operators must align too. All five sectors run, so the team can learn from each result. Discuss through your usual call; there is no built-in voice.</p></>}</div>;
- return <div className={`app ${restoring?'tiny':mode||'home'}`}><header><a className="brand" href="/" onClick={e=>{e.preventDefault();if(!view){setMode(null);setRules(false)}}}>TOGETHER<span>!</span></a><div className="header-meta">{view?titles[view.mode]:'Small screens. Big teamwork.'}<span className={`connection ${connected?'online':''}`}>{connected?'Connected':'Reconnecting…'}</span></div></header>
- <main>{error&&<div role="alert" className="error">{error}{!connected&&<button onClick={()=>socket.connect()}>Reconnect</button>}</div>}{view&&!connected&&<div className="notice">Your seat is saved. Reconnecting automatically… The server timer continues.</div>}
- {!view&&restoring?<section className="panel seat-restoring" role="status"><Animal kind={0}/><h1>Returning to your team…</h1><p>Your rescue is saved.</p></section>:!view&&!mode?<><div className="intro"><span className="eyebrow">THE CO-OP GAME NIGHT</span><h1>Different devices.<br/>Same adventure.</h1><p>Pick your world. Invite your people. Win together.</p></div><div className="worlds"><button className="world tiny-card" onClick={()=>setMode('tiny')}><div className="card-top"><span>AGES 5+</span><span>2–6 PLAYERS</span></div><div className="tiny-card-characters"><Animal kind={0} happy/><Animal kind={1}/><Animal kind={4} happy/></div><h2>Tiny Heroes</h2><p>Little clues. Kind hearts.<br/>Five friends who need your help.</p><div className="world-bottom">Family rescue adventure <span>PLAY</span></div></button><button className="world signal-card" onClick={()=>setMode('signal')}><div className="card-top"><span>AGES 12+</span><span>2–6 PLAYERS</span></div><div className="signal-mark" aria-hidden="true">(( ◉ ))<small>TRANSMISSION UNKNOWN</small></div><h2>Signal Lost</h2><p>You have part of the truth.<br/>Your crew has the rest.</p><div className="world-bottom">Cooperative space mission <span>PLAY</span></div></button></div><form className="quick-join" onSubmit={e=>{e.preventDefault();setMode('tiny')}}><span>Have an invite?</span><label className="sr-only" htmlFor="quick-code">Room code</label><input id="quick-code" placeholder="ROOM CODE" maxLength={6} value={code} onChange={e=>setCode(e.target.value.toUpperCase())}/><button type="submit">Join a room</button></form></>:
- !view?<section className="setup"><button className="text-button" onClick={()=>setMode(null)}>Choose another world</button><span className="eyebrow">{mode==='tiny'?`${getAdventure(adventureId).title.toUpperCase()} / ${getAdventure(adventureId).world.toUpperCase()}`:'MISSION / RETURN THE SIGNAL'}</span><h1>{titles[mode!]}</h1><p>{mode==='tiny'?'A small team can do a big kind thing.':'Five sectors. One crew. No one has the whole picture.'}</p><div className="player-requirements"><strong>Minimum 2 players · Maximum 6</strong><p>{mode==='tiny'?'1 Team Captain + 1–5 Little Heroes.':'With 2 players, responsibilities from multiple roles are combined.'}</p><small>Each player uses their own device.</small></div>{mode==='tiny'&&<div className="tiny-setup-world"><AdventurePicker selected={adventureId} onSelect={setAdventureId}/><div className="world-topline"><span>{getAdventure(adventureId).title}</span><SoundToggle/></div><MissionMap adventureId={adventureId}/><div className="setup-friends"><Animal kind={0} happy/><Animal kind={1}/><Animal kind={2}/><Animal kind={3}/><Animal kind={4} happy/></div></div>}<div className="setup-layout"><form className="panel" onSubmit={e=>{e.preventDefault();enter(code?'join':'create')}}><label htmlFor="name">Your name</label><input id="name" required maxLength={24} autoComplete="nickname" placeholder="What should your team call you?" value={name} onChange={e=>setName(e.target.value)}/><button className="primary" type="button" disabled={pending||!connected||!name.trim()} onClick={()=>enter('create')}>Create {titles[mode!]} room</button><div className="divider">or join your team</div><label htmlFor="code">Room code</label><input id="code" maxLength={6} placeholder="ABC234" value={code} onChange={e=>setCode(e.target.value.toUpperCase())}/><button className="secondary" disabled={pending||!connected||!name.trim()||code.length!==6}>Join room</button><small>The invite decides the game mode. No account needed.</small></form><aside className="panel"><h3>How to play</h3>{mode==='tiny'&&<ReadToMe context={`tiny-setup:${adventureId}`} text={`Welcome to Tiny Heroes! ${getAdventure(adventureId).title}. ${getAdventure(adventureId).intro} You need at least two players, up to six. One Team Captain and one to five Little Heroes. Each player uses their own device. Help five animal friends. See your clue. Pick a tool. Tap Ready. Rescue together! Ask an adult to create a room as Team Captain. Little Heroes enter their name and room code, then tap Join room.`}/>}{rulesContent}</aside></div></section>:
- <><div className="room-bar"><div><span className="eyebrow">YOUR ROOM</span><button className="room-code" onClick={copy} title="Copy invite link">{view.code}</button></div><div className="room-buttons">{view.mode==='tiny'&&<SoundToggle/>}<button className="secondary" onClick={copy}>{copied?'Invite copied!':'Copy invite'}</button><button className="text-button" onClick={()=>setRules(!rules)}>{rules?'Close rules':'Rules'}</button><button className="text-button" disabled={!connected||pending} onClick={leave}>Leave</button></div></div>{rules&&<aside className="panel rules-panel"><h3>Mission rules</h3>{rulesContent}</aside>}
- {view.mode==='tiny'&&<TinyRoundEffects view={view}/>}<div className={`game-layout ${isLittleHero?'hero-layout':''}`}>{!isLittleHero&&<aside className="crew panel"><span className="eyebrow">{view.mode==='tiny'?'YOUR RESCUE TEAM':'CREW MANIFEST'}</span><h3>{view.players.length} / 6 players</h3>{view.players.map((p,i)=><div className="player" key={p.id}><span className="avatar">{view.mode==='tiny'?<Animal kind={i%5} happy={p.ready||p.submitted}/>:String(i+1).padStart(2,'0')}</span><div><strong>{p.name}{p.id===view.me?' (you)':''}</strong><small>{p.role}{p.id===view.host?' · Host':''}</small><span className="player-status">{!p.connected?'Reconnecting':view.phase==='lobby'?(p.ready?'Ready':'Getting ready'):view.mode==='tiny'?(view.phase==='finished'?'Adventure complete':view.phase==='result'?'Rescue result':p.submitted?'Ready':'Choosing…'):(p.submitted?'Orders locked':'Thinking…')}</span></div></div>)}<div className="crew-note">{view.mode==='tiny'?'The captain sees heroes’ clues here and their tools after Ready. You can also talk together in person or on your usual call.':'Talk together in person or on your usual call. Your private clues stay on your device.'}</div></aside>}
- {isLittleHero?<TinyHeroExperience view={view} actions={actions} setActions={setActions} connected={connected} pending={pending} remaining={remaining} command={command}/>:<section className="play-area" onClickCapture={e=>{if(view.mode!=='tiny')return;const target=e.target as Element;if(target.closest('.choices button'))tinySound.play('select');if(target.closest('.lock-button'))tinySound.play('ready')}}>{view.mode==='tiny'&&<ReadToMe text={captainAudio(view)} context={`${view.code}:${view.adventure?.id}:${view.progression?.run}:${view.progression?.mapOpen}:${view.phase==='briefing'?'action':view.phase}:${view.round}:${view.adventure?.attempt}:${view.submitted}`}/>} {view.mode==='tiny'&&view.phase!=='finished'&&<MissionMap view={view} compact/>}{view.mode==='tiny'&&(view.phase==='result'&&view.result?.success)&&<Celebration/>} {view.phase==='lobby'?<div className="panel lobby"><span className="lobby-icon">{view.mode==='tiny'?<Animal kind={0} happy/>:'◉'}</span><span className="eyebrow">{view.mode==='tiny'?'ADVENTURE STARTS HERE':'AWAITING CREW'}</span><h1>{view.mode==='tiny'?`${view.adventure?.title}: assemble your heroes.`:'Establish the link.'}</h1><p>Share the room code with your team. Everyone joins on their own device and reads the rules.</p><div className="mission-summary"><span>{total} rounds</span><span>60 seconds / round</span><span>{view.mode==='tiny'?`${view.bonus} ${view.adventure?.mechanics?.resource?.label||'kindness stars'}`:'3 integrity'}</span></div>{view.mode==='tiny'?<><IceResourceGuide view={view}/><HeroInstructions ice={!!view?.adventure?.mechanics?.resource}/></>:<details><summary>Read the mission rules</summary>{rulesContent}</details>}<button className="primary" disabled={!connected||pending} onClick={()=>command({type:'ready'})}>{me?.ready?'✓ Ready — tap to undo':view.mode==='tiny'?'I’m ready!':'Ready for mission'}</button>{isHost?<button className="secondary" disabled={!ready||!connected||pending} onClick={()=>command({type:'start'})}>Start mission</button>:<p className="subtle">Your host will start when everyone is ready.</p>}<p className="subtle">{view.players.length<2?'Waiting for at least one more player.':ready?'Everyone is ready.':'Waiting for everyone to be ready.'}</p></div>:
- view.phase==='finished'&&view.mode==='tiny'?<TinyProgression view={view} connected={connected} pending={pending} command={command}/>:view.phase==='finished'?<div className="panel finale"><span className="lobby-icon">{view.mode==='tiny'?<Animal kind={4} happy/>:view.score>=4&&view.integrity>0?'◉':'◎'}</span><span className="eyebrow">MISSION COMPLETE</span><h1>{view.mode==='tiny'?'Adventure complete!':view.score>=4&&view.integrity>0?'Signal restored.':'Rescue needs another run.'}</h1><p>{view.mode==='tiny'?`Adventure complete: ${view.adventure?.completed.length} of ${total} friends are home. ${view.score} rescue badges earned. ${view.adventure?.completed.filter(x=>x.crewHelp).length} rescues needed crew help; ${view.adventure?.completed.filter(x=>x.hintUsed).length} used a hint.`:`${view.score} of 5 sectors aligned. Final integrity: ${Math.max(0,view.integrity)}. Victory requires 4 aligned sectors and positive integrity.`}</p><div className="badges">{Array.from({length:total},(_,i)=><span key={i}>{i<view.score?'★':'☆'}</span>)}</div>{isHost?<button className="primary" disabled={!connected||pending} onClick={()=>command({type:'replay'})}>Play again</button>:<p>Your host can bring the team back to the lobby.</p>}</div>:
- view.phase==='paused'?<div className="panel lobby"><h1>Waiting for the team.</h1><p>At least two players must reconnect to begin the next round. Your mission is saved while this server is running.</p></div>:
- <><div className="round-header"><div><span className="eyebrow">{view.mode==='tiny'?'RESCUE':'SECTOR'} {view.round+1} / {total}</span><h2>{view.mission.title}</h2></div><div className="timer" aria-label={`${remaining} seconds remaining`}>{view.phase==='action'?`${remaining}s`:view.phase==='briefing'?'Get ready':view.phase==='locked'?'Syncing':'Result'}</div></div>{view.mode==='tiny'?<><FriendScene view={view}/><IceResourceGuide view={view}/><div className="resources captain-resources"><span><TinyIcon name="star"/> {view.score} / {total} badges</span><span>{view.bonus} {view.adventure?.mechanics?.resource?.label||'kindness stars'}</span></div></>:<div className="mission-stage"><span className="mission-icon">{view.mission.icon}</span><div><span className="eyebrow">MISSION OBJECTIVE</span><p>{view.mission.story}</p><div className="resources"><span>★ {view.score} / {total}</span><span>{`Integrity ${Math.max(0,view.integrity)} / 3`}</span></div></div></div>}<div className="round-track">{Array.from({length:total},(_,i)=><span className={i===view.round?'current':i<view.round?'done':''} key={i}>{i+1}</span>)}</div>
- {view.phase==='result'?<div className={`panel result ${view.result?.success?'success':''}`} role="status"><span className="eyebrow">SHARED RESULT</span><h2>{view.result?.message}</h2><p>{view.result?.details}</p>{view.mode==='tiny'&&!view.result?.success&&<><RescueHint view={view}/><p>{view.result?.assisted?'The rescue crew will help this friend home. No rescue badge is awarded.':'The team will retry this rescue with a hint.'}</p></>}<small>{view.result?.retry?'Try again':view.round===total-1?'Mission summary':'Next round'} in {remaining}s</small></div>:
- <div className="panel private-panel"><span className="eyebrow">PRIVATE BRIEF / {view.brief?.role}</span><h3>{view.mode==='tiny'?'Psst… your secret clue!':'Your eyes only.'}</h3><p>{view.brief?.message}</p>{view.mode==='tiny'&&<><CaptainClues view={view}/>{view.adventure?.hint&&<RescueHint view={view}/>}</>}{view.phase==='briefing'&&<div className="notice">Read your assignment. The action phase opens in {remaining}s.</div>}{view.brief?.tasks.map(task=><fieldset key={task.key} disabled={view.phase!=='action'||view.submitted||!connected||pending}><legend>{task.title}</legend><p className="task-hint">{task.hint}</p><div className={`choices ${task.key==='tool'?'tool-choices':''}`}>{task.options.map(o=><button type="button" className={actions[task.key]===o.value?'selected':''} aria-pressed={actions[task.key]===o.value} key={o.value} onClick={()=>setActions({...actions,[task.key]:o.value})}>{view.mode==='tiny'?<><TinyIcon name={view.adventure?.mechanics?.resource?'heat':o.value==='save'?'star':'heart'}/><span>{o.label.split(' ').slice(1).join(' ')}</span></>:o.label}</button>)}</div></fieldset>)}<button className="primary lock-button" disabled={view.phase!=='action'||view.submitted||pending||!connected||!view.brief?.tasks.every(t=>actions[t.key])} onClick={()=>command({type:'submit',round:view.round,...(view.mode==='tiny'?{attempt:view.adventure?.attempt,adventureId:view.adventure?.id,run:view.progression?.run}:{}),action:actions})}>{view.submitted?'✓ Locked — waiting for your team':view.mode==='tiny'?'Ready! Send my choice':'Lock all orders'}</button><small>{view.players.filter(p=>p.submitted).length} / {view.players.length} locked. {view.mode==='tiny'?'The captain sees heroes’ tools after Ready. Results reveal together.':'Choices reveal together after resolution.'}</small></div>}</>}
- </section>}</div></>}
- </main><footer><span>TOGETHER! / Made for shared moments</span><span>No login. Just your team.</span></footer></div>
-}
-createRoot(document.getElementById('root')!).render(<TinySoundProvider><App/></TinySoundProvider>);
+import {Tiny…8150 tokens truncated…:#edf8f0;border:2px solid #bedfce}
+.tiny .captain-clues h4{margin:0;color:#335e4f;font-size:1.15rem}
+.tiny .captain-clues .captain-clues-hint{font-size:.85rem;margin:8px 0 12px}
+.tiny .captain-clues ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.tiny .captain-clues li{display:flex;gap:12px;align-items:center;padding:12px;background:#fffdf4;border-radius:16px}
+.tiny .captain-helper-copy{flex:1;min-width:0;overflow-wrap:anywhere}
+.tiny .captain-helper-copy p{margin:6px 0;font-size:.95rem}
+.tiny .captain-helper-tool{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:85px;min-height:80px;gap:2px;color:#596453;text-align:center}
+.tiny .captain-helper-tool .tool-art{width:70px;height:58px}
+.tiny .captain-helper-tool>span{font-size:2rem}
+.tiny .captain-helper-tool.tool-sent{color:#287052;background:#e0f4de;border-radius:14px;padding:6px}
+.tiny .adventure-picker{margin-bottom:20px}
+.tiny .adventure-picker h2{font-size:1.4rem;color:#335e4f}
+.tiny .adventure-options{display:flex;gap:12px;flex-wrap:wrap}
+.tiny .adventure-options button{display:grid;grid-template-columns:60px 1fr;gap:5px 16px;text-align:left;border:3px solid #68ac8d;background:#f6ffe6;padding:20px;min-height:112px;border-radius:24px;flex:1}
+.tiny .adventure-options button>span:first-child{grid-row:span 3;font-size:3rem;align-self:center}
+.tiny .adventure-selected{color:#30735a;font-weight:800}
+.tiny .future-worlds{margin-top:16px}
+.tiny .future-worlds>div{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:14px 0}
+.tiny .future-worlds>div>div{display:flex;flex-direction:column;text-align:center;background:#f0f1e9;border-radius:18px;padding:14px;gap:6px;color:#58654e}
+.tiny .future-worlds>div>div>span{font-size:2rem}
+.tiny .adventure-progress{padding:16px;border-radius:20px;background:#f4faea;margin-top:15px;color:#436448}
+.tiny .adventure-progress>div{display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}
+.tiny .adventure-progress ol{list-style:none;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0;margin:12px 0 0}
+.tiny .adventure-progress li{display:flex;align-items:center;gap:6px;border:2px solid #d3dfc7;border-radius:16px;padding:5px 10px;font-size:1.35rem;opacity:.65}
+.tiny .adventure-progress li.progress-complete{opacity:1;background:#fff4ce;border-color:#e5cb82}
+.tiny .rescue-hint{display:flex;align-items:center;gap:16px;background:#fff2ca;border:2px solid #eed38b;border-radius:20px;padding:16px;margin:14px 0;text-align:left}
+.tiny .rescue-hint .tool-art{width:84px;height:70px;flex-shrink:0}
+.tiny .rescue-hint p{margin:6px 0 0;font-size:1rem}
+.tiny .gentle-feedback{border-color:#e8ce9d;background:#fffaf0}
+.tiny .gentle-feedback h2{font-size:1.6rem;color:#675333}
+.tiny .try-again-note{background:#fff2ca;border-radius:18px;padding:12px;text-align:center;font-weight:800}
+.tiny .scene-encourage .animal-idle{animation:encourage-sway 2s ease-in-out 2}
+.tiny .completion-note{font-size:1rem}
+.tiny .scene-scenery img,.tiny .clue-picture img{width:100%;height:100%;object-fit:contain}
+@keyframes encourage-sway{0%,100%{transform:rotate(0)}35%{transform:rotate(-3deg)}70%{transform:rotate(3deg)}}
+@media(prefers-reduced-motion:reduce){.tiny .scene-encourage .animal-idle{animation:none}}
+
+.tiny .adventure-map>img{display:block;width:100%;height:auto}
+
+.tiny .friends-home{display:inline-flex;align-items:center;gap:8px}
+.tiny .leaf-icon{width:28px;height:28px;flex-shrink:0;display:block}
+.tiny .progress-friend{display:block;width:42px;height:46px;flex-shrink:0}
+.tiny .progress-friend .animal-art,.tiny .progress-friend img{display:block;width:100%;height:100%;object-fit:contain}
+.tiny .progress-friend .animal-idle,.tiny .progress-friend .animal-eyes,.tiny .progress-friend .waving-paw{animation:none}
+
+.tiny .hero-guide li>span{display:flex;justify-content:center;align-items:center}
+.tiny .guide-icon{display:block;width:64px;height:64px;max-width:100%}
+
+/* Forest expedition: original illustrated layers; controls remain live HTML. */
+.tiny{--accent:#246955;--border:#d8d8c5;--muted:#59695f;background:linear-gradient(180deg,#e4f0e8,#f7f4e8 520px,#eeeedd)!important;color:#293f38}
+.tiny h1,.tiny h2,.tiny h3{color:#243e36;letter-spacing:-.4px}
+.tiny .panel{border:1px solid #d4dccc;border-radius:20px;background:#fffef8;box-shadow:0 8px 24px #2146360a}
+.tiny .primary{background:linear-gradient(#398365,#246349);color:#fff;border:2px solid #276a50;box-shadow:0 3px 0 #194c39;border-radius:14px}
+.tiny .primary:active:not(:disabled){box-shadow:0 0 0 #194c39;transform:translateY(3px)}
+.tiny button:focus-visible{outline:3px solid #176faa;outline-offset:4px}
+.tiny .secondary{border-radius:12px;background:#f7f7ed;border:1px solid #becab9}
+.tiny .read-to-me{background:linear-gradient(#2789cc,#1766a3);border-color:#1765a0;border-radius:14px;box-shadow:0 3px 0 #124d7b;display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.tiny .read-to-me svg{width:26px;height:26px;flex-shrink:0}
+.tiny .hero-guide li{border-radius:14px;border-bottom-width:2px;background:#f4edce}
+.tiny .hero-guide li:nth-child(2){background:#e5efe0}.tiny .hero-guide li:nth-child(3){background:#e3edf1}.tiny .hero-guide li:nth-child(4){background:#f5e6cf}
+.tiny .hero-guide strong{color:#2f483d}.tiny .hero-ready{border-radius:15px!important}
+.tiny .animal-art{object-fit:contain;max-width:100%;height:auto}
+.tiny .animal-idle,.tiny .animal-thinking{animation:adventurer-idle 4.5s ease-in-out infinite;transform-origin:50% 90%}
+.tiny .animal-oops{animation:adventurer-oops 1.5s ease-in-out 2}.tiny .animal-celebrate{animation:adventurer-celebrate 1s ease-in-out 3}
+.tiny .illustrated-map{background:#e5eed7;border:2px solid #cfdbc9;border-radius:20px;box-shadow:0 5px 20px #254a3014}
+.tiny .map-landscape{position:relative;isolation:isolate;overflow:hidden}
+.tiny .map-background{width:100%;height:auto;display:block}
+.tiny .illustrated-map .map-caption{position:static;display:flex;padding:10px 12px;background:#f9f9ed;gap:4px}
+.tiny .illustrated-map .map-caption span{font-size:12px;background:none;border-radius:0;padding:0;color:#35513d}
+.tiny .map-locations{position:absolute;inset:0;list-style:none;padding:0;margin:0}
+.tiny .map-location{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;width:70px;pointer-events:none}
+.tiny .map-location .animal-art{width:44px;height:52px;filter:drop-shadow(0 2px 2px #102f3150);margin-bottom:-6px;animation:none}
+.tiny .location-number{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#d7792e;border:2px solid #fff7df;box-shadow:0 2px 5px #173c3150;color:#fff;font-size:18px;font-weight:800;position:relative}
+.tiny .location-label{font-size:10px;line-height:1.3;font-weight:800;color:#173a2a;background:#fffdf3ed;padding:2px 5px;border-radius:5px;margin-top:3px;white-space:nowrap}
+.tiny .active-location .location-number{background:#287a5a;animation:rescue-marker-glow 2s ease-in-out infinite}
+.tiny .location-home .location-number{background:#346d56}
+.tiny .illustrated-map .adventure-progress{margin:0;border-radius:0;padding:12px;background:#f4f5e9;border-top:1px solid #d4decb}
+.tiny .illustrated-scene{display:block;padding:0;min-height:0;background:#fffef5;border:1px solid #cbd9c8;border-radius:18px;box-shadow:0 4px 14px #35563912}
+.tiny .scene-picture{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:1.85;background:#c9ddbc}
+.tiny .scene-background{width:100%;height:100%;object-fit:cover;display:block}
+.tiny .scene-picture>.animal-art{position:absolute;bottom:1%;left:5%;width:22%;height:70%;object-fit:contain;filter:drop-shadow(0 4px 3px #1d403240);z-index:2}
+.tiny .illustrated-scene .friend-speech{max-width:none;box-shadow:none;border-radius:0;background:#fffef7;padding:15px 18px}
+.tiny .illustrated-scene .friend-speech strong{color:#577365;font-size:11px}
+.tiny .illustrated-scene .friend-speech p{font-size:21px;line-height:1.4;margin:6px 0 0;color:#253f33}
+.tiny .little-hero .illustrated-scene .friend-speech p{font-size:20px!important}
+.tiny .captain-resources{margin:12px 0 18px;display:flex;gap:16px;font-weight:700;color:#43644e}
+.tiny .world-motion{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.tiny .drifting-cloud{position:absolute;top:8%;width:16%;height:8%;border-radius:50%;background:#fff;filter:blur(9px);opacity:.17;animation:adventure-cloud-drift 22s ease-in-out infinite alternate}
+.tiny .cloud-one{left:18%}.tiny .cloud-two{left:64%;top:12%;animation-delay:-12s}
+.tiny .water-glint{position:absolute;width:10%;height:3px;border-radius:50%;background:#fff9d7;opacity:0;animation:water-sparkle 4s ease-in-out infinite}
+.tiny .glint-one{left:43%;top:84%}.tiny .glint-two{left:78%;top:70%;animation-delay:-2s}
+.tiny .floating-leaf{position:absolute;left:6%;top:25%;width:9px;height:5px;background:#d7b34e;border-radius:80% 0 80% 0;opacity:0;animation:adventure-leaf-drift 13s linear infinite}
+.tiny .leaf-two{left:70%;top:10%;animation-delay:-6s;background:#80a856}
+.tiny .motion-snow .floating-leaf{background:#fff;width:5px;height:5px;border-radius:50%}
+.tiny .illustrated-world-cards{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(240px,31%);gap:16px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 3px 18px;scrollbar-color:#769a7b #e7eddf}
+.tiny .adventure-world-card{display:flex;flex-direction:column;padding:0;overflow:hidden;border:1px solid #cbd5c3;background:#fffef5;border-radius:16px;text-align:left;scroll-snap-align:start;box-shadow:0 4px 10px #244b3010;color:#2a4135;min-width:0}
+.tiny .adventure-world-card>img{display:block;width:100%;height:150px;object-fit:cover}
+.tiny .world-card-copy{display:flex;flex-direction:column;gap:8px;padding:14px;flex:1}
+.tiny .world-card-copy>strong{font-size:18px}.tiny .world-card-copy small{font-size:12px;color:#596c5d}
+.tiny .world-card-action{background:#2e7858;color:#fff;text-align:center;padding:10px;border-radius:9px;margin-top:auto;font-size:14px}
+.tiny .available-world[aria-pressed=true]{border:3px solid #387a59}
+.tiny .world-card-lock{display:flex;align-items:center;gap:8px;color:#53615b;background:#edf0e6;border-radius:8px;padding:10px;font-size:13px;margin-top:auto}
+.tiny .world-card-lock svg{width:17px;height:20px}.tiny .locked-world>img{opacity:.95}
+.tiny .adventure-picker h2{margin:0 0 8px}
+.tiny .adventure-picker:after{content:'Swipe to discover more worlds →';display:block;color:#506b5b;font-size:12px;margin:0 3px 12px}
+.tiny .setup-friends{margin-top:4px}.tiny .setup-friends .animal-art{width:18%;max-width:92px;height:110px}
+.tiny .hero-clue{border:1px solid #d7d5b4;background:#f6f1db;border-radius:15px}
+.tiny .little-hero .tool-choices button{border-radius:16px;min-height:132px;border-bottom-width:3px}
+.tiny .little-hero .tool-choices button.selected{border-color:#258157;background:#eef7db;box-shadow:0 0 0 2px #fff;transform:translateY(-2px)}
+.tiny .captain-icon{border-radius:50%;background:#e0ead6;overflow:hidden;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center}
+.tiny .captain-icon .animal-art{width:33px;height:39px;animation:none}
+.tiny .captain-helper-tool .guide-icon{width:48px;height:48px}
+.tiny .progress-friend .animal-art{animation:none}.tiny .adventure-progress li{border-radius:12px;background:#fffdf3}
+.tiny .hero-lobby .animal-art{height:135px}.tiny .friends-parade .animal-art{height:130px}
+.tiny .timer{background:#e3ece7;color:#365e49;box-shadow:none;border:1px solid #c5d7c9;border-radius:12px}
+.tiny .sound-toggle{border-radius:12px;border-width:1px}
+.tiny-card-characters{background:linear-gradient(#c8e7df,#dae9bc);border-radius:18px}
+.tiny-card-characters .animal-art{height:145px;object-fit:contain;animation:adventurer-idle 4.5s ease-in-out infinite}
+@keyframes adventurer-idle{50%{transform:translateY(-2px) rotate(.6deg)}}
+@keyframes adventurer-oops{35%{transform:rotate(-2deg)}65%{transform:rotate(2deg)}}
+@keyframes adventurer-celebrate{35%{transform:translateY(-7px)}65%{transform:translateY(0)}}
+@keyframes rescue-marker-glow{50%{box-shadow:0 0 0 7px #fff6a755,0 0 18px #f5d06299}}
+@keyframes adventure-cloud-drift{to{transform:translateX(45px)}}
+@keyframes water-sparkle{40%,60%{opacity:.75;transform:translateX(12px)}100%{opacity:0;transform:translateX(24px)}}
+@keyframes adventure-leaf-drift{10%{opacity:.65}90%{opacity:.5}100%{transform:translate(55px,100px) rotate(220deg);opacity:0}}
+@media(max-width:600px){.tiny .illustrated-world-cards{grid-auto-columns:78%;gap:12px}.tiny .map-location{width:50px}.tiny .map-location .animal-art{width:30px;height:36px}.tiny .location-number{width:25px;height:25px;font-size:14px}.tiny .location-label{font-size:8px}.tiny .illustrated-map .map-caption{padding:8px}.tiny .illustrated-map .map-caption span{font-size:10px}.tiny .scene-picture{aspect-ratio:1.55}.tiny .scene-picture>.animal-art{width:27%;height:65%}.tiny .little-hero .illustrated-scene .friend-speech p{font-size:18px!important}.tiny .friends-parade .animal-art{height:100px}.tiny .tiny-setup-world{margin-top:18px}.tiny .hero-guide{margin:16px 0}.tiny .world-card-copy>strong{font-size:18px}}
+@media(prefers-reduced-motion:reduce){.tiny .world-motion{display:none}.tiny .animal-art,.tiny-card-characters .animal-art{animation:none!important}.tiny .active-location .location-number{animation:none}}
+/* A friend occupies the actual rescue location, rather than a generic portrait slot. */
+.tiny .scene-tree .scene-background{object-position:75% center}
+.tiny .scene-tree .scene-picture>.animal-art{left:70%;bottom:46%;width:17%;height:40%}
+.tiny .scene-cave .scene-picture>.animal-art{left:65%;bottom:3%;width:20%;height:57%}
+@media(max-width:600px){.tiny .scene-tree .scene-picture>.animal-art{left:70%;bottom:43%;width:22%;height:43%}.tiny .scene-cave .scene-picture>.animal-art{left:67%;width:23%;height:60%}}
+
+.tiny .voice-settings{margin:8px 0 16px;color:#426450;font-size:14px}.tiny .voice-settings summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700}.tiny .voice-settings-controls{display:grid;gap:10px;padding:14px;background:#eef4e8;border:1px solid #cbdac3;border-radius:14px;max-width:440px}.tiny .voice-settings-controls label{font-weight:700}.tiny .voice-settings-controls select{width:100%;min-height:48px;border:1px solid #a4bea7;border-radius:10px;background:#fffef8;color:#293f38;padding:10px;font:inherit}.tiny .voice-settings-controls select:focus-visible{outline:3px solid #176faa;outline-offset:2px}.tiny .voice-settings-controls small{line-height:1.5}
+
+/* Shared expedition narration control: setup, Captain and Little Hero screens. */
+.tiny .read-to-me{position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:68px;max-width:100%;padding:10px 18px 10px 10px;border:2px solid #284d3e;border-radius:22px;background:linear-gradient(160deg,#477b60,#2f5947);color:#fff9e6;box-shadow:0 4px 0 #213f34,inset 0 1px 0 #ffffff35,0 7px 16px #233e2b18;font-size:20px;line-height:1.25;transition:background .18s,box-shadow .18s,transform .18s}
+.tiny .read-to-me .narration-emblem{display:grid;place-items:center;width:46px;height:46px;flex:0 0 46px;border-radius:15px;background:linear-gradient(145deg,#fff0bf,#eac477);color:#345341;box-shadow:inset 0 1px 0 #fff9e4,0 2px 0 #213f3440}
+.tiny .read-to-me .narration-emblem svg{width:30px;height:30px}
+.tiny .read-to-me .narration-label{text-align:left;letter-spacing:.1px}
+.tiny .read-to-me .narration-status{display:grid;place-items:center;width:26px;height:26px;flex:0 0 26px;border:1px solid #fff7d54a;border-radius:50%;color:#f4d48c}
+.tiny .read-to-me .narration-status svg{width:20px;height:20px}
+.tiny .read-to-me:hover:not(:disabled){background:linear-gradient(160deg,#52876a,#386650);box-shadow:0 4px 0 #213f34,inset 0 1px 0 #ffffff40,0 8px 18px #233e2b22}
+.tiny .read-to-me:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 #213f34,inset 0 1px 0 #ffffff35}
+.tiny .read-to-me:focus-visible{outline:3px solid #b37722;outline-offset:5px}
+.tiny .read-to-me[aria-pressed=true]{background:linear-gradient(160deg,#fff0c3,#f4dda1);color:#3a4e3d;border-color:#b99b59;box-shadow:0 4px 0 #987d45,inset 0 1px 0 #fffdf0}
+.tiny .read-to-me[aria-pressed=true] .narration-emblem{background:#fff8e5;color:#416d53}
+.tiny .read-to-me[aria-pressed=true] .narration-status{color:#426450;border-color:#b99b5980}
+.tiny .read-to-me[aria-pressed=true] .narration-wave{animation:narration-breathe 1.5s ease-in-out infinite}
+.tiny .read-to-me:disabled{opacity:.55;box-shadow:0 2px 0 #213f34;cursor:not-allowed}
+.tiny .hero-audio .audio-help{color:#526557;font-size:14px!important;line-height:1.5;margin:12px 0 0}
+.tiny .voice-settings summary{justify-content:center;gap:8px;color:#426450}
+.tiny .voice-settings summary::after{content:'⌄';font-size:18px;transition:transform .18s}
+.tiny .voice-settings[open] summary::after{transform:rotate(180deg)}
+.tiny .voice-settings-controls{margin-inline:auto;text-align:left;background:#fff9eb;border:1px solid #ddcfac;border-radius:18px;box-shadow:0 3px 0 #dfcfab33}
+.tiny .voice-settings-controls select:focus-visible{outline-color:#426450}
+@keyframes narration-breathe{50%{opacity:.4}}
+@media(max-width:600px){.tiny .read-to-me{gap:12px;font-size:20px}.tiny .read-to-me .narration-status{margin-left:auto}.tiny .read-to-me .narration-label{flex:1}}
+
+/* Shared original UI icon family; never dependent on a device's emoji font. */
+.tiny-icon{display:inline-block;width:28px;height:28px;flex:0 0 auto;vertical-align:middle}
+.tiny .sound-toggle{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:9px 14px;background:linear-gradient(#fff6df,#f1e5c5);border:2px solid #c9b584;color:#3d5c49;border-radius:16px;box-shadow:0 2px 0 #ae996b;font-size:14px;letter-spacing:0;min-height:48px}
+.tiny .sound-toggle[aria-pressed=true]{background:linear-gradient(#edf3df,#d7e5c7);border-color:#9db48b;box-shadow:0 2px 0 #7e956d}
+.tiny .sound-toggle:active{transform:translateY(2px);box-shadow:none}
+.tiny .sound-toggle:focus-visible{outline:3px solid #426450;outline-offset:3px}
+.tiny .hero-ready{display:flex;align-items:center;justify-content:center;gap:12px}
+.tiny .hero-ready>.tiny-icon{width:36px;height:36px}
+.tiny .timer{display:flex;align-items:center;justify-content:center;gap:6px}
+.tiny .timer>.tiny-icon{width:30px;height:30px}
+.tiny .hero-big-icon>.tiny-icon{width:72px;height:72px}
+.tiny .rescue-star>.tiny-icon{width:88px;height:88px}
+.tiny .rescue-map-toggle summary>.tiny-icon{width:26px;height:26px;margin-right:6px}
+.tiny .hero-next>.tiny-icon,.tiny .try-again-note>.tiny-icon{margin-right:5px}
+.tiny .tool-check>.tiny-icon{width:27px;height:27px}
+.tiny .badge-count,.tiny .captain-resources>span{display:inline-flex;align-items:center;gap:7px}
+.tiny .adventure-progress li>span>.tiny-icon{width:30px;height:30px}
+.tiny .rescue-hint strong>.tiny-icon{width:24px;height:24px}
+.tiny .choices button>.tiny-icon{margin-right:8px}
+/* Room-owned sequential expedition progress. */
+.tiny .expedition-complete{text-align:center}.tiny .completion-emblem{display:block;margin:10px auto}.tiny .completion-emblem>.tiny-icon{width:82px;height:82px}
+.tiny .unlock-card{display:flex;align-items:center;gap:18px;text-align:left;background:#e7f1f3;border:2px solid #acc8cf;border-radius:20px;overflow:hidden;margin:24px 0}.tiny .unlock-card>img{width:42%;height:170px;object-fit:cover}.tiny .unlock-card>div{padding:12px}.tiny .unlock-card h2{margin:8px 0;font-size:26px}.tiny .unlock-card p{font-size:16px!important;margin:0}.tiny .coming-next{display:block;padding:22px;text-align:center}.tiny .progression-actions{display:grid;gap:10px}.tiny .progression-actions .hero-ready{margin:0!important;font-size:21px;min-height:64px}
+.tiny .completed-world{border:3px solid #56896b}.tiny .completed-world .world-card-action{background:#e2efdc;color:#34593f;display:flex;align-items:center;justify-content:center;gap:7px}.tiny .adventure-world-card:disabled{opacity:1;cursor:default}.tiny .locked-world:not(article)>img{filter:saturate(.65)}.tiny .locked-world .world-card-lock{line-height:1.4}.tiny .expedition-map>p{font-size:18px}.tiny .expedition-map .illustrated-world-cards{grid-auto-columns:minmax(220px,70%)}
+.tiny .ice-resource-guide{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;background:#e8f2f4;border:1px solid #afcbd2;border-radius:16px;padding:12px 16px;margin:14px 0;color:#315360}.tiny .ice-resource-guide>p{width:100%;font-size:16px!important;text-align:center;margin:0}.tiny .heat-packs{display:flex;gap:6px}.tiny .heat-packs .tiny-icon{width:34px;height:34px}.tiny .pack-empty{opacity:.28;filter:grayscale(1)}.tiny .world-ice .floating-leaf{background:#fff;border-radius:50%;width:5px;height:5px}.tiny .world-ice .map-caption{background:#edf5f8}.tiny .world-ice .location-number{background:#4c859b}
+@media(max-width:600px){.tiny .unlock-card{display:block}.tiny .unlock-card>img{width:100%;height:160px}.tiny .unlock-card>div{padding:16px}.tiny .unlock-card h2{font-size:24px}.tiny .expedition-map .illustrated-world-cards{grid-auto-columns:88%}.tiny .expedition-complete .eyebrow{letter-spacing:1px}.tiny .ice-resource-guide{padding:12px}}
+
+.tiny .rescue-ice-kitten-ledge .scene-picture>.animal-art{left:78%;bottom:48%;width:18%;height:43%}
+@media(max-width:600px){.tiny .rescue-ice-kitten-ledge .scene-picture>.animal-art{left:78%;bottom:46%;width:23%;height:43%}}
+
+/* Forest gameplay polish: a visible trail, fewer readable choices and a reachable Ready action. */
+.tiny .hero-trail{display:flex;align-items:center;gap:12px;margin:0 0 14px;padding:8px 12px;border:1px solid #c6d6b9;border-radius:18px;background:#edf3e3;color:#395e48}
+.tiny .hero-trail ol{display:flex;list-style:none;padding:0;margin:0;flex:1;justify-content:space-between;gap:4px}
+.tiny .hero-trail li{position:relative;display:grid;place-items:center;min-width:0;width:52px;height:60px;border-radius:13px;background:#fffaf0}
+.tiny .hero-trail .animal-art{width:39px;height:52px;animation:none}
+.tiny .hero-trail .trail-home{background:#d5e7c8;border:1px solid #9eb88f}
+.tiny .hero-trail .trail-current{box-shadow:0 0 0 2px #d1a14b;background:#fff0c5}
+.tiny .hero-trail li>.tiny-icon{position:absolute;right:-2px;bottom:-2px;width:21px;height:21px;background:#f1f6e7;border-radius:50%}
+.tiny .hero-trail>strong{font-size:14px;white-space:nowrap}
+.tiny .little-hero .tool-choices{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tiny .little-hero .tool-choices button{min-width:0;min-height:132px;font-size:18px;padding:12px 7px;gap:6px}
+.tiny .little-hero .hero-submit{position:static;bottom:12px;z-index:4;box-shadow:0 5px 0 #b7832f,0 0 0 5px #fffdf5e8}
+.tiny .little-hero .hero-submit:disabled{opacity:1;background:#e5deca;border-color:#d2c6a9;color:#756c57;box-shadow:0 3px 0 #c9bb9b}
+.tiny .little-hero .hero-submit:disabled .tiny-icon{opacity:.55}
+.tiny .seat-restoring{max-width:600px;margin:40px auto;text-align:center}.tiny .seat-restoring .animal-art{height:170px;width:135px}
+.tiny .game-layout>*{min-width:0}.tiny .hero-clue>div{min-width:0}.tiny .hero-clue p,.tiny .friend-speech p,.tiny .audio-help,.tiny .world-card-copy strong{overflow-wrap:break-word}
+@media(max-width:600px){.tiny .room-bar{display:grid;grid-template-columns:1fr;gap:12px}.tiny .room-buttons{justify-content:flex-start;gap:6px}.tiny .room-buttons .text-button,.tiny .room-buttons .secondary{min-height:44px;padding:10px 12px;font-size:14px}.tiny .hero-trail{gap:8px;padding:7px 8px}.tiny .hero-trail li{width:39px;height:48px}.tiny .hero-trail .animal-art{width:30px;height:42px}.tiny .hero-trail>strong{font-size:12px}.tiny .little-hero .tool-choices button{min-height:115px;font-size:15px}.tiny .little-hero .tool-choices .tool-art{width:65px;height:65px}.tiny .little-hero .hero-submit{min-height:64px;font-size:23px}.tiny .hero-clue{gap:10px}.tiny .hero-clue .clue-picture{width:58px}.tiny .rescue-map-toggle summary{font-size:14px}.tiny .little-hero .friend-speech p{font-size:17px!important}}
+@media(max-width:360px){.tiny .hero-trail li{width:32px}.tiny .hero-trail .animal-art{width:26px}.tiny .hero-trail>strong{font-size:11px}.tiny .little-hero .tool-choices{gap:7px}.tiny .little-hero .tool-choices button{padding:10px 3px;font-size:14px}.tiny .little-hero .tool-choices .tool-art{width:56px;height:56px}.tiny .tool-check{right:3px;top:3px}.tiny .tool-check>.tiny-icon{width:20px;height:20px}}
+
+.tiny .world-forest.scene-bridge.scene-result .scene-picture>.animal-art{animation:forest-cross 4s ease-out both}
+.tiny .world-forest.scene-tree.scene-result .scene-picture>.animal-art{animation:forest-climb-down 3s ease-out both}
+.tiny .world-forest.scene-cave.scene-result .scene-picture::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 67% 65%,#ffe7a455,transparent 65%);pointer-events:none;animation:forest-light-up 1s ease-out both}
+.tiny .world-forest.scene-snow.scene-result .scene-picture{box-shadow:inset 0 0 40px #ffd99188}
+.tiny .world-forest.scene-flood.scene-result .scene-picture>.animal-art{animation:forest-water-bob 2.5s ease-in-out infinite}
+@keyframes forest-cross{from{transform:translateX(0)}to{transform:translateX(80%)}}
+@keyframes forest-climb-down{from{transform:translateY(0)}to{transform:translateY(90%)}}
+@keyframes forest-light-up{from{opacity:0}to{opacity:1}}
+@keyframes forest-water-bob{50%{transform:translateY(-7px) rotate(2deg)}}
+@media(prefers-reduced-motion:reduce){.tiny .world-forest .scene-picture>.animal-art,.tiny .world-forest .scene-picture::after{animation:none!important}}
+
+.tiny .little-hero .hero-submit.has-choice:not(:disabled){position:sticky}
+.tiny .little-hero .choices button{scroll-margin-block:100px}
+.tiny .hero-locked-status{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px;background:#e1edda;border:2px solid #9fbd91;border-radius:18px;margin-bottom:16px;color:#365b43}
+.tiny .hero-locked-status>.tool-art{width:60px;height:52px}.tiny .hero-locked-status>div{display:grid;gap:3px}.tiny .hero-locked-status strong{font-size:23px}.tiny .hero-locked-status span{font-size:16px}
+.tiny .world-forest.scene-snow.scene-result .scene-picture::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,#ffe3a030,transparent 70%);pointer-events:none}
+
+/* Living adventure presentation: all state comes from the existing snapshot. */
+.tiny-effects-scope{display:contents}
+[data-effects="off"] .tiny .world-motion,[data-effects="off"] .tiny .celebration{display:none!important}
+[data-effects="off"] .tiny *,[data-effects="off"] .tiny *::before,[data-effects="off"] .tiny *::after{animation:none!important;transition:none!important}
+.tiny .level-card{position:relative;display:block;min-height:300px;border:2px solid #9cae93;border-radius:24px;background:#183e39;color:#fff;isolation:isolate;box-shadow:0 9px 22px #15372825}
+.tiny .level-card>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform .6s ease}
+.tiny .level-card::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#082c3730,transparent 35%,#0c302aa8 68%,#082d2af5)}
+.tiny .level-card-top{position:absolute;inset:16px 16px auto;display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:800}
+.tiny .level-card-top>span{padding:7px 11px;border-radius:99px;background:#173d38d9;border:1px solid #e6edd070}
+.tiny .level-card .world-card-copy{position:absolute;inset:auto 20px 20px;display:flex;align-items:flex-start;gap:10px;padding:0;color:#fff}
+.tiny .level-card .world-card-copy>strong{font-size:28px;line-height:1.1;color:#fff;text-shadow:0 2px 6px #102d34}
+.tiny .level-card .world-card-copy>small{color:#e5eedf;font-size:15px}
+.tiny .level-card .world-card-action{padding:11px 18px;background:#ffdb78;border:1px solid #fff1ac;border-radius:12px;color:#233c32;font-weight:850;font-size:16px;min-height:44px;display:flex;align-items:center}
+.tiny .level-card .world-card-lock{background:#153c39bb;border:1px solid #d3ded875;color:#eff1e7;padding:8px 13px;border-radius:10px;font-size:14px}
+.tiny .level-card[aria-pressed="true"]{border-color:#f0bf50;box-shadow:0 0 0 3px #f0bf503a,0 9px 22px #15372825}
+.tiny .level-card:focus-visible{outline:3px solid #487bba;outline-offset:4px}
+.tiny .illustrated-world-cards,.tiny .expedition-map .illustrated-world-cards{grid-auto-columns:minmax(300px,58%);scroll-snap-type:x mandatory;padding:8px 5px 22px;scroll-padding:5px;overscroll-behavior-x:contain}
+.tiny .world-swipe-hint{font-size:14px;color:#526c59;margin:0 0 8px}
+@media(hover:hover){.tiny .level-card.available-world:not(:disabled):hover>img{transform:scale(1.035)}.tiny .level-card.available-world:not(:disabled):hover{border-color:#f0bf50}}
+.tiny .living-map .map-locations{z-index:3}
+.tiny .living-map .map-location{width:44px;transform:translate(-50%,-100%)}
+.tiny .living-map .location-label{display:none}
+.tiny .living-map .location-number{width:30px;height:34px;border-radius:50% 50% 50% 6px;background:#244b3ee8;color:#fff;border:2px solid #fffbe4;box-shadow:0 2px 5px #18382b66}
+.tiny .living-map .location-home .location-number{background:#448255}
+.tiny .living-map .active-location .location-number{background:#b77e22;box-shadow:0 0 0 4px #ffd57866,0 0 14px #ffd578;animation:living-marker 2s ease-in-out infinite}
+.tiny .map-traveler{position:absolute;width:9%;height:25%;transform:translate(-50%,-95%);z-index:4;pointer-events:none;filter:drop-shadow(0 3px 2px #142d4145)}
+.tiny .map-traveler .animal-art{width:100%;height:100%;object-fit:contain;animation:map-idle 3s ease-in-out infinite}
+.tiny .hero-walking .animal-art{animation:map-walk .32s ease-in-out infinite;animation-delay:0s}
+.tiny .village-friends{position:absolute;inset:0;list-style:none;margin:0;padding:0;pointer-events:none;z-index:5}
+.tiny .village-friends li{position:absolute;transform:translate(-50%,-80%);width:6%;height:18%}
+.tiny .village-friends .animal-art{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 2px #16382140)}
+.tiny .map-travel-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#eff3dd;padding:9px 14px;color:#37583d;font-size:14px}
+.tiny .map-travel-controls button{min-height:44px;padding:8px 18px;border:2px solid #648877;border-radius:99px;color:#244b3e;background:#fffbed;font-weight:800}
+.tiny .map-motion-off .world-motion{display:none}.tiny .map-motion-off .animal-art,.tiny .map-motion-off .location-number{animation:none!important}
+.tiny .expedition-complete>.illustrated-map{margin:14px 0 22px;width:100%}.tiny .expedition-complete>.illustrated-map .adventure-progress{display:none}
+.tiny .living-map[data-map-state="all-home"] .map-traveler{display:none}
+@keyframes living-marker{50%{box-shadow:0 0 0 6px #ffd57833,0 0 18px #ffd578}}
+@keyframes map-idle{50%{transform:translateY(-2px)}}
+@keyframes map-walk{50%{transform:translateY(-3px) rotate(2deg)}}
+@media(max-width:600px){.tiny .illustrated-world-cards,.tiny .expedition-map .illustrated-world-cards{grid-auto-columns:88%;gap:12px}.tiny .level-card{min-height:310px}.tiny .level-card .world-card-copy>strong{font-size:25px}.tiny .living-map .location-number{width:23px;height:26px;font-size:13px}.tiny .map-traveler{width:11%;height:29%}.tiny .village-friends li{width:7%;height:20%}.tiny .map-travel-controls{font-size:12px}.tiny .expedition-complete{padding:16px}}
+@media(prefers-reduced-motion:reduce){.tiny .map-traveler,.tiny .map-traveler .animal-art,.tiny .level-card>img{animation:none!important;transition:none!important}.tiny .level-card:hover>img{transform:none}}
+
+.tiny .travel-route{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}.tiny .travel-route polyline{fill:none;stroke:#ffe7a6;stroke-width:.7;stroke-dasharray:1 1;stroke-linecap:round;filter:drop-shadow(0 0 2px #ffdc79)}
+.tiny .living-map .glint-one{left:22%;top:57%}.tiny .living-map .glint-two{left:46%;top:91%}
