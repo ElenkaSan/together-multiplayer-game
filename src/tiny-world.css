@@ -263,8 +263,8 @@
 .tiny .map-traveler .animal-art{width:100%;height:100%;object-fit:contain;animation:map-idle 3s ease-in-out infinite}
 .tiny .hero-walking .animal-art{animation:map-walk .32s ease-in-out infinite;animation-delay:0s}
 .tiny .village-friends{position:absolute;inset:0;list-style:none;margin:0;padding:0;pointer-events:none;z-index:5}
-.tiny .village-friends li{position:absolute;transform:translate(-50%,-80%);width:6%;height:18%}
-.tiny .village-friends .animal-art{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 2px #16382140)}
+.tiny .village-friends li{position:absolute;transform:translate(-50%,-100%);width:6%;height:18%}
+.tiny .village-friends .animal-art{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 2px 2px #16382140)}
 .tiny .map-travel-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#eff3dd;padding:9px 14px;color:#37583d;font-size:14px}
 .tiny .map-travel-controls button{min-height:44px;padding:8px 18px;border:2px solid #648877;border-radius:99px;color:#244b3e;background:#fffbed;font-weight:800}
 .tiny .map-motion-off .world-motion{display:none}.tiny .map-motion-off .animal-art,.tiny .map-motion-off .location-number{animation:none!important}
