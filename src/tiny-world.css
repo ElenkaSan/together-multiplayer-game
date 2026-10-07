@@ -197,3 +197,39 @@
 
 .tiny .rescue-ice-kitten-ledge .scene-picture>.animal-art{left:78%;bottom:48%;width:18%;height:43%}
 @media(max-width:600px){.tiny .rescue-ice-kitten-ledge .scene-picture>.animal-art{left:78%;bottom:46%;width:23%;height:43%}}
+
+/* Forest gameplay polish: a visible trail, fewer readable choices and a reachable Ready action. */
+.tiny .hero-trail{display:flex;align-items:center;gap:12px;margin:0 0 14px;padding:8px 12px;border:1px solid #c6d6b9;border-radius:18px;background:#edf3e3;color:#395e48}
+.tiny .hero-trail ol{display:flex;list-style:none;padding:0;margin:0;flex:1;justify-content:space-between;gap:4px}
+.tiny .hero-trail li{position:relative;display:grid;place-items:center;min-width:0;width:52px;height:60px;border-radius:13px;background:#fffaf0}
+.tiny .hero-trail .animal-art{width:39px;height:52px;animation:none}
+.tiny .hero-trail .trail-home{background:#d5e7c8;border:1px solid #9eb88f}
+.tiny .hero-trail .trail-current{box-shadow:0 0 0 2px #d1a14b;background:#fff0c5}
+.tiny .hero-trail li>.tiny-icon{position:absolute;right:-2px;bottom:-2px;width:21px;height:21px;background:#f1f6e7;border-radius:50%}
+.tiny .hero-trail>strong{font-size:14px;white-space:nowrap}
+.tiny .little-hero .tool-choices{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tiny .little-hero .tool-choices button{min-width:0;min-height:132px;font-size:18px;padding:12px 7px;gap:6px}
+.tiny .little-hero .hero-submit{position:static;bottom:12px;z-index:4;box-shadow:0 5px 0 #b7832f,0 0 0 5px #fffdf5e8}
+.tiny .little-hero .hero-submit:disabled{opacity:1;background:#e5deca;border-color:#d2c6a9;color:#756c57;box-shadow:0 3px 0 #c9bb9b}
+.tiny .little-hero .hero-submit:disabled .tiny-icon{opacity:.55}
+.tiny .seat-restoring{max-width:600px;margin:40px auto;text-align:center}.tiny .seat-restoring .animal-art{height:170px;width:135px}
+.tiny .game-layout>*{min-width:0}.tiny .hero-clue>div{min-width:0}.tiny .hero-clue p,.tiny .friend-speech p,.tiny .audio-help,.tiny .world-card-copy strong{overflow-wrap:break-word}
+@media(max-width:600px){.tiny .room-bar{display:grid;grid-template-columns:1fr;gap:12px}.tiny .room-buttons{justify-content:flex-start;gap:6px}.tiny .room-buttons .text-button,.tiny .room-buttons .secondary{min-height:44px;padding:10px 12px;font-size:14px}.tiny .hero-trail{gap:8px;padding:7px 8px}.tiny .hero-trail li{width:39px;height:48px}.tiny .hero-trail .animal-art{width:30px;height:42px}.tiny .hero-trail>strong{font-size:12px}.tiny .little-hero .tool-choices button{min-height:115px;font-size:15px}.tiny .little-hero .tool-choices .tool-art{width:65px;height:65px}.tiny .little-hero .hero-submit{min-height:64px;font-size:23px}.tiny .hero-clue{gap:10px}.tiny .hero-clue .clue-picture{width:58px}.tiny .rescue-map-toggle summary{font-size:14px}.tiny .little-hero .friend-speech p{font-size:17px!important}}
+@media(max-width:360px){.tiny .hero-trail li{width:32px}.tiny .hero-trail .animal-art{width:26px}.tiny .hero-trail>strong{font-size:11px}.tiny .little-hero .tool-choices{gap:7px}.tiny .little-hero .tool-choices button{padding:10px 3px;font-size:14px}.tiny .little-hero .tool-choices .tool-art{width:56px;height:56px}.tiny .tool-check{right:3px;top:3px}.tiny .tool-check>.tiny-icon{width:20px;height:20px}}
+
+.tiny .world-forest.scene-bridge.scene-result .scene-picture>.animal-art{animation:forest-cross 4s ease-out both}
+.tiny .world-forest.scene-tree.scene-result .scene-picture>.animal-art{animation:forest-climb-down 3s ease-out both}
+.tiny .world-forest.scene-cave.scene-result .scene-picture::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 67% 65%,#ffe7a455,transparent 65%);pointer-events:none;animation:forest-light-up 1s ease-out both}
+.tiny .world-forest.scene-snow.scene-result .scene-picture{box-shadow:inset 0 0 40px #ffd99188}
+.tiny .world-forest.scene-flood.scene-result .scene-picture>.animal-art{animation:forest-water-bob 2.5s ease-in-out infinite}
+@keyframes forest-cross{from{transform:translateX(0)}to{transform:translateX(80%)}}
+@keyframes forest-climb-down{from{transform:translateY(0)}to{transform:translateY(90%)}}
+@keyframes forest-light-up{from{opacity:0}to{opacity:1}}
+@keyframes forest-water-bob{50%{transform:translateY(-7px) rotate(2deg)}}
+@media(prefers-reduced-motion:reduce){.tiny .world-forest .scene-picture>.animal-art,.tiny .world-forest .scene-picture::after{animation:none!important}}
+
+.tiny .little-hero .hero-submit.has-choice:not(:disabled){position:sticky}
+.tiny .little-hero .choices button{scroll-margin-block:100px}
+.tiny .hero-locked-status{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px;background:#e1edda;border:2px solid #9fbd91;border-radius:18px;margin-bottom:16px;color:#365b43}
+.tiny .hero-locked-status>.tool-art{width:60px;height:52px}.tiny .hero-locked-status>div{display:grid;gap:3px}.tiny .hero-locked-status strong{font-size:23px}.tiny .hero-locked-status span{font-size:16px}
+.tiny .world-forest.scene-snow.scene-result .scene-picture::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,#ffe3a030,transparent 70%);pointer-events:none}

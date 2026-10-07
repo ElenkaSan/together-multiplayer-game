@@ -23,8 +23,8 @@ export function brief(mode:Mode,index:number,slot:number,count:number,bonus:numb
   const pack=getAdventure(adventureId),resource=pack.mechanics?.resource;
   if(slot===0&&resource){const needsWarmth=resource.requiredRescueIds.includes(pack.rescues[index].id);return {role:'Team Captain',message:`${r.story} ${needsWarmth?'Our friend needs one heat pack.':'Our friend can travel without a heat pack.'} You have ${bonus} heat packs. Save them for cold friends.`,tasks:[{key:'support',title:'Keep the team warm',hint:needsWarmth?'Use one heat pack for this cold friend.':'Save the heat packs for later.',options:opts([['save','❄️ Save heat packs'],...(bonus>0?[['warm','🔥 Use 1 heat pack']]:[])])}]}}
   if(slot===0)return {role:'Team Captain',message:`Your rescue map: ${r.story} Helpers have clues about the right tool. You have ${bonus} kindness stars left. One star can cover one helper’s wrong or missing tool. Save some for later!`,tasks:[{key:'support',title:'Choose your team plan',hint:'Ask your helpers what they need, then decide.',options:opts([['save','⭐ Save our stars'],...(bonus>0?[['boost','💛 Spend 1 star to help']]:[])])}]};
-  const rescue=getAdventure(adventureId).rescues[index];
-  return {role:'Little Hero',message:`Your secret clue: ${rescue.clue} Tell your captain.`,tasks:[{key:'tool',title:'What should you bring?',hint:'Pick a tool, then tap Ready!',options:rescue.tools.map(id=>({value:id,label:`${tinyTools[id].icon} ${tinyTools[id].label}`}))}]};
+  const rescue=getAdventure(adventureId).rescues[index],clue=count>2&&rescue.privateClues?.length?rescue.privateClues[(slot-1)%rescue.privateClues.length]:rescue.clue;
+  return {role:'Little Hero',message:`Your secret clue: ${clue} Tell your captain.`,tasks:[{key:'tool',title:'What should you bring?',hint:'Pick a tool, then tap Ready!',options:rescue.tools.map(id=>({value:id,label:`${tinyTools[id].icon} ${tinyTools[id].label}`}))}]};
  }
  const responsibilities=['navigation','engineering','comms'].filter((_,i)=>i%count===slot%count);
  if(count>3 && slot>=3) responsibilities.push(['navigation','engineering','comms'][(slot-3)%3]);
