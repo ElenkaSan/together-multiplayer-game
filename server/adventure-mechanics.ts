@@ -1,3 +1,4 @@
+import {expeditionBrief,resolveExpedition} from './team-expeditions.js';
 import {iceBrief,resolveIce} from './ice-expedition.js';
 import type {Action,Brief} from './modes.js';
 export interface AdventureMechanic {
@@ -6,6 +7,8 @@ export interface AdventureMechanic {
 }
 // Register each genuinely new world's mechanic here; the room engine stays unchanged.
 const mechanics:Record<string,AdventureMechanic>={
- 'ice-rescue':{brief:iceBrief,resolve:resolveIce}
+ 'ice-rescue':{brief:iceBrief,resolve:resolveIce},
+ ...Object.fromEntries(['jungle-adventure','treasure-island'].map(id=>[id,{brief:(i:number,s:number,c:number)=>expeditionBrief(id,i,s,c),resolve:(i:number,a:Action[],b:number)=>resolveExpedition(id,i,a,b)}]))
 };
 export function mechanicFor(adventureId:string){return mechanics[adventureId]}
+

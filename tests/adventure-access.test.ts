@@ -7,13 +7,13 @@ import {getAdventure,availableAdventures} from '../shared/tiny-adventures';
 import {solutionFor} from '../server/tiny-adventures';
 import {AdventurePicker} from '../src/TinyWorld';
 
-test('fresh rooms can start either released adventure without completion; future packs remain unavailable',()=>{
+test('fresh rooms can start any released adventure without completion; future packs remain unavailable',()=>{
  for(const id of availableAdventures()){
   const e=new Engine(),{r,p}=e.create('tiny','Captain','c',id);e.join(r.code,'Hero','h');
   assert.deepEqual(e.view(r,p).progression?.completed,[]);r.players.forEach(x=>e.ready(r,x));e.start(r,p);
   assert.equal(r.phase,'briefing');assert.equal(r.tiny?.id,id);
  }
- assert.throws(()=>new Engine().create('tiny','C','c','jungle-adventure'),/not available/);
+ assert.throws(()=>new Engine().create('tiny','C','c','desert-rescue'),/not available/);
 });
 test('starting with Ice then choosing Forest preserves room results, seats and reconnect',()=>{
  const e=new Engine(),{r,p}=e.create('tiny','Captain','c','ice-rescue');const hero=e.join(r.code,'Hero','h').p;
@@ -30,8 +30,8 @@ test('starting with Ice then choosing Forest preserves room results, seats and r
  const html=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',completed:v.progression!.completed,results:v.progression!.results,onSelect:()=>{}}));
  assert.match(html,/Completed/);assert.match(html,/5\/5 Rescue Badges/);assert.doesNotMatch(html,/Locked|Unlocked|Complete Forest Rescue/);
 });
-test('fresh Adventure Select offers both Explore actions and describes difficulty without locks',()=>{
+test('fresh Adventure Select offers all Explore actions and describes difficulty without locks',()=>{
  const html=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',onSelect:()=>{}}));
- assert.equal((html.match(/<button[^>]*disabled/g)||[]).length,0);assert.equal((html.match(/Explore →/g)||[]).length,2);
+ assert.equal((html.match(/<button[^>]*disabled/g)||[]).length,0);assert.equal((html.match(/Explore →/g)||[]).length,4);
  assert.match(html,/Level 1 · Easy/);assert.match(html,/Level 2 · Easy\+/);assert.match(html,/Coming Soon/);assert.doesNotMatch(html,/Locked|Unlock/);
 });

@@ -15,8 +15,8 @@ test('completion has accessible unlock and Captain controls, with matching read-
 });
 test('Adventure Map marks completed Forest, playable Ice and locked future worlds',()=>{
  const html=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',completed:['forest-rescue'],onSelect:()=>{}}));
- assert.match(html,/Completed/);assert.match(html,/Explore →/);assert.match(html,/5\/5 friends home/);assert.match(html,/Easy\+/);assert.match(html,/Jungle Adventure: coming soon/);
- const readOnly=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',completed:['forest-rescue'],readOnly:true,onSelect:()=>{}}));assert.equal((readOnly.match(/<button[^>]*disabled=""/g)||[]).length,2);
+ assert.match(html,/Completed/);assert.match(html,/Explore →/);assert.match(html,/5\/5 friends home/);assert.match(html,/Easy\+/);assert.match(html,/Desert Rescue: coming soon/);
+ const readOnly=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',completed:['forest-rescue'],readOnly:true,onSelect:()=>{}}));assert.equal((readOnly.match(/<button[^>]*disabled=""/g)||[]).length,4);
 });
 test('Ice resource guide reads the server budget, including depletion',()=>{
  const {e,r,p}=completeForest();e.chooseAdventure(r,p,'ice-rescue');r.bonus=0;

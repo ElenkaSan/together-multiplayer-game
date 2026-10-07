@@ -1,4 +1,5 @@
 /** Public content, never answer keys. Original art uses stable keys, not round indices. */
+import {jungleAdventure,treasureIsland} from './new-adventures.js';
 export type ToolId='rope'|'ladder'|'lamp'|'blanket'|'boat';
 export type SceneId='bridge'|'tree'|'cave'|'snow'|'flood';
 export interface TinyTool {id:ToolId;label:string;icon:string}
@@ -13,10 +14,10 @@ export interface RescueContent {
 }
 export interface Adventure {
  id:string;title:string;world:string;intro:string;icon:string;
- environment:{renderer:'forest'|'ice';mapAsset?:string};rescues:RescueContent[];
+ environment:{renderer:'forest'|'ice'|'jungle'|'treasure';mapAsset?:string};rescues:RescueContent[];
  level?:number;nextId?:string;
  presentation?:{laterBriefingScale:number;successResultScale:number};
- mechanics?:{resource:{id:'heat-pack';label:string;total:number;requiredRescueIds:string[]};primary?:'routes';difficulty?:number;introduced?:string[]};
+ mechanics?:{resource?:{id:'heat-pack';label:string;total:number;requiredRescueIds:string[]};primary?:'routes'|'expedition';difficulty?:number;introduced?:string[]};
  policy:{maxAttempts:number;kindnessStars:number};
 }
 const tools:ToolId[]=['rope','ladder','lamp','blanket','boat'];
@@ -45,9 +46,9 @@ export const iceRescue:Adventure={
  {id:'ice-blizzard-finale',title:'Blizzard Rescue — Finale',story:'Blizzard Station is ahead. Plan our final crossing together.',icon:'❄️',friend:'Duckling',character:4,scene:'snow',clue:'',privateClues:['The beacon ridge leads straight to the station but is bitterly cold.','A tunnel protects us all the way to the station.','The lake shortcut has new cracks beneath the snow.','A saved Warm Pack keeps Duckling warm on the icy beacon ridge.','The tunnel reaches the same station without a Warm Pack.'],tools:[],mapPosition:[756,124],challenge:{kind:'finale',location:'Blizzard Station',choices:[{id:'beacon-ridge',label:'Beacon ridge',visual:'station'},{id:'shelter-tunnel',label:'Shelter tunnel',visual:'cave'},{id:'lake-shortcut',label:'Lake shortcut',visual:'cracks'}]},sounds:{success:'complete',hint:'hint'}}
  ]
 };
-export const adventures:Record<string,Adventure>={'forest-rescue':forestRescue,'ice-rescue':iceRescue};
+export const adventures:Record<string,Adventure>={'forest-rescue':forestRescue,'ice-rescue':iceRescue,'jungle-adventure':jungleAdventure,'treasure-island':treasureIsland};
 export function availableAdventures(){return Object.keys(adventures)}
-export function adventureDifficulty(level=1){return level===1?"Easy":level===2?"Easy+":level<=4?"Medium":level<=6?"Challenging":"Advanced"}
+export function adventureDifficulty(level=1){return level===1?"Easy":level===2?"Easy+":level===3?"Medium":level===4?"Medium+":level<=6?"Challenging":"Advanced"}
 export function adventureSkills(level=1){return level===1?"Clues • Tools • Teamwork":level===2?"Routes • Shared Warm Packs":level===3?"Different clues • Team decisions":level===4?"Exploration • Action sequences":level<=6?"Routes • Priorities • Combined decisions":"More clues • More teamwork • More strategy"}
 
 export const defaultAdventureId=forestRescue.id;

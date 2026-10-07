@@ -1,3 +1,5 @@
+import {expeditionStages} from '../shared/new-adventures.js';
+import {expeditionSolutions,expeditionHints} from './team-expeditions.js';
 import {iceRoutes} from './ice-expedition.js';
 import {getAdventure,tinyTools,type ToolId,type Adventure} from '../shared/tiny-adventures.js';
 export interface RescueOutcome {id:string;attempts:number;earnedBadge:boolean;hintUsed:boolean;kindnessUsed:boolean;crewHelp:boolean}
@@ -11,7 +13,8 @@ export const adventureSolutions:Record<string,Record<string,{tool:string;hint:st
  'bear-trail':{tool:'blanket',hint:'A blanket keeps our friend warm.'},
  'duckling-home':{tool:'boat',hint:'A boat floats on deep water.'}
  },
- 'ice-rescue':Object.fromEntries(Object.entries(iceRoutes).map(([id,rule])=>[id,{tool:rule.free||rule.warm!,hint:rule.hint}]))};
+ 'ice-rescue':Object.fromEntries(Object.entries(iceRoutes).map(([id,rule])=>[id,{tool:rule.free||rule.warm!,hint:rule.hint}])),
+ ...Object.fromEntries(Object.entries(expeditionSolutions).map(([id,plans])=>[id,Object.fromEntries(plans.map((plan,i)=>[expeditionStages(id)[i].id,{tool:Object.values(plan)[0],hint:expeditionHints[id][i]}]))]))};
 export function adventureState(id?:string):TinyAdventureState {const a=getAdventure(id);validateAdventure(a);return {id:a.id,attempt:1,hintUsed:false,kindnessUsed:false,completed:[]}}
 export function validateAdventure(a:Adventure){if(a.mechanics?.resource&&(a.mechanics.resource.total!==a.policy.kindnessStars||!a.mechanics.resource.requiredRescueIds.every(id=>a.rescues.some(r=>r.id===id))))throw Error('Invalid resource policy');if(!a.rescues.length||!Number.isInteger(a.policy.maxAttempts)||a.policy.maxAttempts<2||a.policy.maxAttempts>5||!Number.isInteger(a.policy.kindnessStars)||a.policy.kindnessStars<0)throw Error('Invalid adventure policy');const ids=new Set<string>();for(const r of a.rescues){const solution=adventureSolutions[a.id]?.[r.id];if(ids.has(r.id)||!solution||(r.challenge?!r.challenge.choices.some(c=>c.id===solution.tool):!r.tools.includes(solution.tool as ToolId))||!r.tools.every(t=>tinyTools[t]))throw Error('Invalid rescue content');ids.add(r.id)}}
 export function solutionFor(id:string,index:number){const a=getAdventure(id);return adventureSolutions[id][a.rescues[index].id]}

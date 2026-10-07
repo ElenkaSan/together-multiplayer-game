@@ -4,7 +4,7 @@ import {solutionFor} from './tiny-adventures.js';
 export type Mode = 'tiny'|'signal';
 export type Action = Record<string,string>;
 export interface Task { key:string; title:string; hint:string; options:{value:string;label:string}[] }
-export interface Brief {role:string; message:string; tasks:Task[];visuals?:string[]}
+export interface Brief {role:string; message:string; tasks:Task[];visuals?:string[];observations?:{text:string;icon:string}[]}
 export interface MissionRound {title:string; story:string; icon:string; target:string; hazard:string; power:string; frequency:string}
 export const rounds:Record<Mode,MissionRound[]> = {
  tiny:forestRescue.rescues.map((r,i)=>({title:r.title,story:r.story,icon:r.icon,target:r.scene,hazard:r.scene,power:solutionFor(forestRescue.id,i).tool,frequency:''})),
@@ -48,3 +48,4 @@ export function resolve(mode:Mode,index:number,actions:Action[],bonus:number,adv
  actions.forEach((a,i)=>brief(mode,index,i,actions.length,bonus).tasks.forEach(t=>{if(a[t.key]!==expected[t.key])errors.push(`Player ${i+1}: ${t.title}`)}));
  return {success:!errors.length,bonus,details:`Route ${r.target.toUpperCase()} · ${r.power} power · ${r.frequency} carrier · shield ${expected.shield.toUpperCase()}.${errors.length?' Unaligned systems: '+errors.join('; ')+'.':''}`,message:errors.length?'Link unstable. The emergency system preserves the crew; integrity drops by 1.':'Signal acquired. All systems aligned.'};
 }
+
