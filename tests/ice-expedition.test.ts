@@ -37,9 +37,9 @@ test('Blizzard Finale remains winnable at 2, 1 and 0 packs; saved warmth gives t
  }
 });
 test('one Team Assist completes Forest with 5 home, 4 badges and Ice unlock; replay explicitly offers all badges',()=>{
- const {e,r,p}=forest(true),v=e.view(r,p);assert.equal(r.phase,'finished');assert.equal(r.score,4);assert.equal(v.adventure?.completed.length,5);assert.equal(v.adventure?.completed.filter(c=>c.crewHelp).length,1);assert.ok(v.progression?.unlocked.includes('ice-rescue'));
+ const {e,r,p}=forest(true),v=e.view(r,p);assert.equal(r.phase,'finished');assert.equal(r.score,4);assert.equal(v.adventure?.completed.length,5);assert.equal(v.adventure?.completed.filter(c=>c.crewHelp).length,1);assert.ok(v.progression?.available.includes('ice-rescue'));
  const progress=renderToStaticMarkup(React.createElement(AdventureProgress,{view:v}));assert.match(progress,/4 \/ 5 Rescue Badges/);assert.match(progress,/1 Team Assist/);assert.doesNotMatch(progress,/tiny-icon-heart/);
- const html=renderToStaticMarkup(React.createElement(TinyProgression,{view:v,connected:true,pending:false,command:async()=>{}}));assert.match(html,/Continue to Ice Rescue/);assert.match(html,/Can you earn all 5 badges/);assert.match(progressionAudio(v),/1 Team Assist/);
+ const html=renderToStaticMarkup(React.createElement(TinyProgression,{view:v,connected:true,pending:false,command:async()=>{}}));assert.match(html,/Continue Adventure → Ice Rescue/);assert.match(html,/Can you earn all 5 badges/);assert.match(progressionAudio(v),/1 Team Assist/);
 });
 test('Ice retry and reconnect retain route, warmth and meaningful narration without Forest tool controls',()=>{
  const {e,r,p,h}=forest();e.chooseAdventure(r,p,'ice-rescue');r.players.forEach(x=>e.ready(r,x));e.start(r,p);
@@ -50,3 +50,4 @@ test('Ice retry and reconnect retain route, warmth and meaningful narration with
  const map=renderToStaticMarkup(React.createElement(MissionMap,{view:child}));assert.match(map,/ice-expedition-map/);assert.match(map,/Frozen Lake/);assert.match(map,/Blizzard Station/);assert.doesNotMatch(map,/forest-map|ice-map\.webp/);
  const rules=renderToStaticMarkup(React.createElement(()=>HeroInstructions({ice:true})));assert.match(rules,/Choose a route/);assert.doesNotMatch(rules,/Pick a tool/);
 });
+

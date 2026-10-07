@@ -14,7 +14,7 @@ export interface RescueContent {
 export interface Adventure {
  id:string;title:string;world:string;intro:string;icon:string;
  environment:{renderer:'forest'|'ice';mapAsset?:string};rescues:RescueContent[];
- level?:number;previousId?:string;nextId?:string;
+ level?:number;nextId?:string;
  presentation?:{laterBriefingScale:number;successResultScale:number};
  mechanics?:{resource:{id:'heat-pack';label:string;total:number;requiredRescueIds:string[]};primary?:'routes';difficulty?:number;introduced?:string[]};
  policy:{maxAttempts:number;kindnessStars:number};
@@ -33,7 +33,7 @@ export const forestRescue:Adventure={
  ]
 };
 export const iceRescue:Adventure={
- id:'ice-rescue',level:2,previousId:'forest-rescue',nextId:'jungle-adventure',title:'Ice Rescue',world:'Frostpeak Expedition',icon:'❄️',
+ id:'ice-rescue',level:2,nextId:'jungle-adventure',title:'Ice Rescue',world:'Frostpeak Expedition',icon:'❄️',
  intro:'Climb from the frozen lake to Blizzard Station. Share your clues, choose a route, and save warmth for the journey!',
  environment:{renderer:'ice',mapAsset:'/art/tiny/ice-expedition-map.webp'},policy:{maxAttempts:2,kindnessStars:2},
  mechanics:{primary:'routes',difficulty:2,introduced:['environmental clues','shared limited Warm Packs','safe route alternatives'],resource:{id:'heat-pack',label:'Warm Packs',total:2,requiredRescueIds:[]}},
@@ -46,8 +46,11 @@ export const iceRescue:Adventure={
  ]
 };
 export const adventures:Record<string,Adventure>={'forest-rescue':forestRescue,'ice-rescue':iceRescue};
-export function unlockedAdventures(completed:string[]){return Object.values(adventures).filter(a=>!a.previousId||completed.includes(a.previousId)).map(a=>a.id)}
+export function availableAdventures(){return Object.keys(adventures)}
+export function adventureDifficulty(level=1){return level===1?"Easy":level===2?"Easy+":level<=4?"Medium":level<=6?"Challenging":"Advanced"}
+export function adventureSkills(level=1){return level===1?"Clues • Tools • Teamwork":level===2?"Routes • Shared Warm Packs":level===3?"Different clues • Team decisions":level===4?"Exploration • Action sequences":level<=6?"Routes • Priorities • Combined decisions":"More clues • More teamwork • More strategy"}
 
 export const defaultAdventureId=forestRescue.id;
 export const futureWorlds=[['❄️','Ice Rescue'],['🌴','Jungle Adventure'],['🏝️','Treasure Island'],['🏜️','Desert Rescue'],['🌊','Ocean Adventure'],['🏰','Magic Kingdom'],['🌙','Moon Mission'],['☁️','Cloud Adventure'],['🌸','Meadow Rescue']];
 export function getAdventure(id=defaultAdventureId):Adventure {const a=adventures[id];if(!a)throw Error('This adventure is not available yet. Choose Forest Rescue.');return a}
+

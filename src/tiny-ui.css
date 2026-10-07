@@ -36,14 +36,14 @@
 .tiny .level-card-top {inset:16px 16px auto;font-size:13px;font-weight:650}
 .tiny .level-card-top>span {background:#fffaf0f2;color:#26363a;border:1px solid #ffffff60;padding:7px 12px;box-shadow:0 1px 4px #00000012}
 .tiny .level-card-top>span:last-child {background:var(--world-deep);color:#fff;border-color:#ffffff70}
-.tiny .locked-world .level-card-top>span:last-child {background:#26323bde}
+.tiny .coming-soon-world .level-card-top>span:last-child {background:#26323bde}
 .tiny .level-card .world-card-copy {inset:auto 20px 20px;gap:8px}
 .tiny .level-card .world-card-copy>strong {font-size:28px;letter-spacing:-.025em;line-height:1.1;text-shadow:0 1px 3px #00000055}
 .tiny .level-card .world-card-copy>small {font-size:15px;color:#fff5e5}
 .tiny .level-card .world-card-action {min-height:48px;margin-top:4px;border-radius:99px;padding:12px 20px;background:var(--world-light);color:#1c303a;border:1px solid #ffffff60;box-shadow:inset 0 1px 0 #ffffff70,0 2px 5px #00000018;font-size:16px;font-weight:700}
 .tiny .level-card .world-card-lock {color:#f2f4f5;background:transparent;padding:4px 0;border:0;font-size:14px}
-.tiny .locked-world {opacity:1;filter:none}
-.tiny .locked-world>img {filter:saturate(.8)}
+.tiny .coming-soon-world {opacity:1;filter:none}
+.tiny .coming-soon-world>img {filter:saturate(.8)}
 .tiny .level-card[aria-pressed="true"] {border-color:var(--world-deep);box-shadow:0 0 0 3px var(--world-light),0 5px 16px #162b3020}
 .tiny .world-swipe-hint {font-size:15px;color:var(--game-muted);margin-bottom:8px}
 /* Compact lobby entry. Same command handlers and form semantics. */
@@ -187,3 +187,4 @@
 @keyframes ice-snow-drift {to{background-position:59px 67px}}
 @media(max-width:600px){.tiny .ice-stop-pin{width:26px;height:28px;font-size:14px}.tiny .ice-stop-pin>.tiny-icon{width:22px;height:22px}.tiny .ice-stop-label{font-size:9px;padding:3px 4px}.tiny .ice-journey-status{font-size:12px}.tiny .route-art{height:90px}.tiny[data-world=ice] .choices button{flex-basis:100px;min-height:125px}.tiny .hero-trail .route-art{width:30px;height:38px}}
 @media(prefers-reduced-motion:reduce){.tiny .ice-aurora,.tiny .ice-snow-drift,.tiny .ice-stop-pin,.tiny .ice-team-scout{animation:none!important}}
+

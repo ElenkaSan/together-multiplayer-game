@@ -32,7 +32,7 @@ test('two independent clients share Forest unlock, map, Ice transition, retry an
    }
    return await wait(a,v=>v?.phase==='finished');
   };
-  const forest=await mission('forest-rescue');assert.equal(forest.progression.newlyUnlockedId,'ice-rescue');assert.equal((await command(b,{type:'adventure',adventureId:'ice-rescue'})).ok,false);
+  const forest=await mission('forest-rescue');assert.deepEqual(forest.progression.available,['forest-rescue','ice-rescue']);assert.equal((await command(b,{type:'adventure',adventureId:'ice-rescue'})).ok,false);
   assert.ok((await command(a,{type:'adventure-map'})).ok);await wait(b,v=>v?.progression.mapOpen);
   b.disconnect();b=await connect();const restore=await command(b,{type:'join',code:room.code,token:hero.token,name:''});assert.ok(restore.ok);assert.ok(restore.state.progression.mapOpen);
   assert.ok((await command(a,{type:'adventure',adventureId:'ice-rescue'})).ok);const lobby=await wait(b,v=>v?.phase==='lobby'&&v.adventure.id==='ice-rescue');assert.equal(lobby.me,hero.state.me);assert.equal(lobby.players.length,2);assert.equal(lobby.bonus,2);
@@ -40,3 +40,4 @@ test('two independent clients share Forest unlock, map, Ice transition, retry an
   await command(a,{type:'leave'});await command(b,{type:'leave'});
  }finally{sockets.forEach(s=>s.disconnect());child.kill()}
 });
+
