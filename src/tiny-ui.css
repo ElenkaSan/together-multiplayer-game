@@ -134,7 +134,8 @@
 .tiny .hero-audio .voice-settings-controls {width:33.333%;min-width:240px;max-width:320px;margin-inline:0;padding:16px}
 .tiny .voice-settings-controls small {overflow-wrap:break-word}
 /* Fixed edge shading stays over the swipe area without intercepting touch. */
-.tiny .world-carousel-frame {position:relative;min-width:0}
+.tiny .world-carousel-frame {position:relative;min-width:0;width:100%}
+.tiny .world-carousel-frame .illustrated-world-cards {width:100%}
 .tiny .world-carousel-frame::before,.tiny .world-carousel-frame::after {content:"";position:absolute;top:8px;bottom:20px;width:32px;z-index:2;pointer-events:none;border-radius:24px}
 .tiny .world-carousel-frame::before {left:0;background:linear-gradient(90deg,#17232d26,transparent)}
 .tiny .world-carousel-frame::after {right:0;background:linear-gradient(270deg,#17232d38,transparent)}
