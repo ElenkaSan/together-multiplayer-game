@@ -30,7 +30,7 @@
 .tiny label {color:var(--game-ink);font-weight:600;font-size:15px}
 .tiny .room-code {color:var(--world-deep)}
 /* Image-led world selection, using the existing artwork. */
-.tiny .illustrated-world-cards,.tiny .expedition-map .illustrated-world-cards {grid-auto-columns:minmax(280px,44%);gap:16px;scroll-snap-type:x mandatory;scroll-padding-inline:8px;padding:8px 8px 20px;scrollbar-width:thin;scrollbar-color:#a5afa9 transparent}
+.tiny .illustrated-world-cards,.tiny .expedition-map .illustrated-world-cards {grid-auto-columns:44%;gap:16px;scroll-snap-type:x mandatory;scroll-padding-inline:8px;padding:8px 8px 20px;scrollbar-width:thin;scrollbar-color:#a5afa9 transparent}
 .tiny .level-card {min-height:320px;padding:0;border:1px solid #ffffff90;border-radius:28px;overflow:hidden;box-shadow:0 5px 16px #162b3020;color:#fff;background:#22323a;scroll-snap-align:start;text-align:left}
 .tiny .level-card::after {background:linear-gradient(180deg,#0e1b2520 0,transparent 34%,#101d2a80 64%,#101d2aeb 100%)}
 .tiny .level-card-top {inset:16px 16px auto;font-size:13px;font-weight:650}
