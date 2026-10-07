@@ -1,5 +1,5 @@
 import {loadSoundPreference,saveSoundPreference} from './tiny-preferences';
-import {forestLocations,villageHomes,mapTravel,type MapSnapshot,type MapTravel} from './tiny-map-presentation';
+import {forestLocations,villageHomes,mapTravel,travelFrames,type MapSnapshot,type MapTravel} from './tiny-map-presentation';
 import {TinyIcon} from './TinyIcon';
 import {getAdventure,forestRescue,tinyTools,adventures,futureWorlds} from '../shared/tiny-adventures';
 import {createContext,useContext,useEffect,useRef,useState,type ReactNode} from 'react';
@@ -19,7 +19,7 @@ function IllustratedMap({view,compact=false,adventureId,connected=true}:{view?:V
  const [travel,setTravel]=useState<MapTravel|null>(null),[walking,setWalking]=useState(false);
  const identity=`${view?.code}:${a.id}:${view?.progression?.run}`,count=a.completed.length,phase=view?.phase||'preview',success=!!view?.result?.success;
  useEffect(()=>{const current={identity,round:active,completed:count,phase,success};const plan=forest?mapTravel(previous.current,current,motion):null;previous.current=current;if(plan)setTravel(plan);else if(!motion||phase!=='result')setTravel(null)},[identity,active,count,phase,success,motion,forest]);
- useEffect(()=>{setWalking(false);if(!travel||!motion||!traveler.current)return;const walkTimer=setTimeout(()=>setWalking(true),720);const points=travel.points;const frames=points.map(([x,y],i)=>({left:`${x}%`,top:`${y}%`,offset:.2+.8*i/(points.length-1)}));const anim=traveler.current.animate([{left:`${points[0][0]}%`,top:`${points[0][1]}%`,offset:0},...frames],{duration:3600,easing:'linear',fill:'forwards'});anim.onfinish=()=>setTravel(null);return()=>{clearTimeout(walkTimer);anim.cancel()}},[travel,motion]);
+ useEffect(()=>{setWalking(false);if(!travel||!motion||!traveler.current)return;let anim:Animation;try{anim=traveler.current.animate(travelFrames(travel.points),{duration:3600,easing:'linear',fill:'forwards'})}catch{setTravel(null);return}const walkTimer=setTimeout(()=>setWalking(true),720);anim.onfinish=()=>setTravel(null);return()=>{clearTimeout(walkTimer);anim.cancel()}},[travel,motion]);
  const doneCurrent=a.completed.some(x=>x.id===a.rescues[active]?.id),next=Math.min(active+(doneCurrent?1:0),a.total-1),allHome=count===a.total;
  const position=forest?(allHome?[86,84]:forestLocations[next]):[a.rescues[active].mapPosition[0]/9,a.rescues[active].mapPosition[1]/5.4];
  const kind=travel?a.rescues[travel.from].character:a.rescues[allHome?a.total-1:next].character;

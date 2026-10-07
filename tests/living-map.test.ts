@@ -4,7 +4,7 @@ import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {Engine} from '../server/engine';
 import {MissionMap,AdventurePicker} from '../src/TinyWorld';
-import {mapTravel,type MapSnapshot} from '../src/tiny-map-presentation';
+import {mapTravel,travelFrames,type MapSnapshot} from '../src/tiny-map-presentation';
 const before:MapSnapshot={identity:'room:forest:1',round:0,completed:0,phase:'locked',success:false};
 const after:MapSnapshot={...before,completed:1,phase:'result',success:true};
 test('travel only follows a newly observed successful rescue, never initial/reconnect/Oops/replay snapshots',()=>{
@@ -31,4 +31,8 @@ test('complete map has all five original friends home with no animation prerequi
 });
 test('clean world cards expose completion progress and action without a badge collection',()=>{
  const html=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',completed:['forest-rescue'],unlocked:['forest-rescue','ice-rescue'],onSelect:()=>{}}));assert.match(html,/5\/5 friends home/);assert.match(html,/Level 1/);assert.match(html,/Completed/);assert.match(html,/Explore again/);assert.match(html,/New/);assert.match(html,/Locked/);assert.doesNotMatch(html,/rescue badges|badge-count/);
+});
+
+test('all five travel paths have valid bounded monotonic Web Animation offsets',()=>{
+ for(let round=0;round<5;round++){const plan=mapTravel({...before,round,completed:round},{...after,round,completed:round+1},true)!;const frames=travelFrames(plan.points);assert.equal(frames[0].offset,0);assert.equal(frames.at(-1)!.offset,1);frames.forEach((f,i)=>{assert.ok(f.offset>=0&&f.offset<=1);if(i)assert.ok(f.offset>=frames[i-1].offset)})}
 });

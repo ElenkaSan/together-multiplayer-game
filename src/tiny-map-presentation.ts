@@ -15,3 +15,5 @@ export function mapTravel(previous:MapSnapshot|null,current:MapSnapshot,motion:b
  if(!motion||!previous||previous.identity!==current.identity||current.phase!=='result'||!current.success||current.completed!==previous.completed+1||previous.round!==current.round)return null;
  return {from:current.round,to:Math.min(current.round+1,4),points:trails[current.round]};
 }
+
+export function travelFrames(points:MapPoint[]){return [{left:`${points[0][0]}%`,top:`${points[0][1]}%`,offset:0},...points.map(([x,y],i)=>({left:`${x}%`,top:`${y}%`,offset:Math.min(1,.2+.8*i/(points.length-1))}))]}
