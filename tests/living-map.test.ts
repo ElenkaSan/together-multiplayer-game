@@ -41,6 +41,6 @@ test('Forest welcome places a waving Scout before the bridge without moving resc
  const html=renderToStaticMarkup(React.createElement(MissionMap,{adventureId:'forest-rescue'}));
  assert.match(html,/Bunny waving hello/);
  assert.match(html,/scout-greeting-paw/);
- assert.match(html,/left:15%;top:79%/);
+ assert.match(html,/left:13%;top:88%/);
  assert.match(html,/left:27%;top:78%/);
 });

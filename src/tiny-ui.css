@@ -127,3 +127,18 @@
 .tiny .setup .tiny-setup-world {width:100%;max-width:none;margin-inline:0}
 .tiny .setup .tiny-setup-world .adventure-map {width:100%;max-width:none}
 .tiny .setup .lobby-entry {scroll-margin-top:24px}
+/* Baseline-safe disclosure icon and a left-aligned compact settings card. */
+.tiny .hero-audio .voice-settings>summary::after {content:none}
+.tiny .voice-chevron {display:block;width:16px;height:16px;flex:0 0 16px;transition:transform .16s ease}
+.tiny .voice-settings[open] .voice-chevron {transform:rotate(180deg)}
+.tiny .hero-audio .voice-settings-controls {width:33.333%;min-width:240px;max-width:320px;margin-inline:0;padding:16px}
+.tiny .voice-settings-controls small {overflow-wrap:break-word}
+/* Fixed edge shading stays over the swipe area without intercepting touch. */
+.tiny .world-carousel-frame {position:relative;min-width:0}
+.tiny .world-carousel-frame::before,.tiny .world-carousel-frame::after {content:"";position:absolute;top:8px;bottom:20px;width:32px;z-index:2;pointer-events:none;border-radius:24px}
+.tiny .world-carousel-frame::before {left:0;background:linear-gradient(90deg,#17232d26,transparent)}
+.tiny .world-carousel-frame::after {right:0;background:linear-gradient(270deg,#17232d38,transparent)}
+.tiny .scout-greeting-paw {transform-origin:91px 172px}
+@keyframes scout-hello-wave {0%,40%,100%{transform:rotate(0deg)}10%,26%{transform:rotate(13deg)}18%,34%{transform:rotate(-8deg)}}
+@keyframes scout-hello-idle {0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.014)}}
+@media(max-width:600px){.tiny .hero-audio .voice-settings-controls{width:min(280px,100%);min-width:0}.tiny .world-carousel-frame::before,.tiny .world-carousel-frame::after{width:20px}}
