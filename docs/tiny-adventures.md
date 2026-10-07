@@ -1,6 +1,6 @@
 # Tiny Heroes adventures
 
-An Adventure is a room-scoped content pack containing an ordered list of rescue situations. Forest Rescue is the only released pack. The nine future worlds in the chooser are roadmap labels, not selectable or implemented games.
+An Adventure is a room-scoped content pack containing an ordered list of rescue situations. Forest Rescue (Level 1) and Ice Rescue (Level 2) are playable. Forest completion unlocks Ice for the entire room. Later illustrated worlds are locked Coming Soon previews.
 
 ## Content boundaries
 
@@ -21,7 +21,7 @@ Progress is the completed outcome ledger (friends home). Performance is the badg
 
 1. Add an original pack to the shared registry with a unique ID, stable rescue IDs, any ordered number of situations and at least two attempts. Use existing tool/scene illustration keys or provide optional `art.scene`, `art.character`, `art.clue` and `environment.mapAsset` paths. New custom illustration renderers/tools require a UI asset renderer, never a networking rewrite.
 2. Add the server-only solution and hint for each rescue ID. Validation rejects missing solutions, duplicate rescue IDs, invalid policy or answer tools outside the menu before room creation.
-3. Remove the corresponding roadmap label and run the adventure tests. The chooser automatically lists registered packs. Selection is sent only at creation; joining/reconnecting inherits the room's pack.
+3. Remove the corresponding roadmap label and run the adventure tests. The chooser automatically lists registered packs. A registered pack with previousId remains locked until that predecessor is completed. Set level, previousId and nextId to describe its route. The host chooses a playable pack after completion; joining/reconnecting inherits the room's pack and progress.
 4. Add original art/sound cues, keep touch targets large and clues short, and verify Read to me for introduction, retries, results and completion. Current generated sound cues are opt-in and narration never autoplays.
 
 The data-only extension test supplies a reordered, three-rescue pack and finishes it through the same engine. Full engine tests cover 2–6 players in both modes; real socket tests cover wrong-answer synchronization, retry, stale attempts and reconnect.
@@ -33,3 +33,13 @@ The original illustrated 2D assets in `public/art/tiny` were generated with the 
 The map uses HTML markers positioned by each rescue's `mapPosition` in normalized 900×540 coordinates over the complete image, preserving progress and current-step state. The original SVG renderer remains a fallback for content packs without `mapAsset`. All five scenes and the Captain use the same environment and hero artwork. CSS supplies subtle clouds, glints, drifting foliage, idle/reaction motion and marker glow, with reduced-motion support. Future cards are locked previews, not new playable packs. Text, tools, buttons, room commands, timers, narration and sound controls remain HTML and existing APIs.
 
 Shared `story` is a neutral question describing the rescue, without naming its solution. Private `clue` describes a useful property (strong/bendy, steps, light, warmth, floating), so players reason and communicate. Retry hints still reveal a tool after a missed attempt under the existing policy. No networking, phase, score, seat, reconnect or speech implementation is changed by this art update.
+
+## Sequential expedition
+
+The server stores completed adventure IDs, current run, map visibility and newly unlocked pack in Tiny rooms. Unlocks are derived from registered packs and their predecessor IDs; clients cannot submit completion or unlock flags. Only a host in the existing finished phase can open the shared Adventure Map or select an unlocked pack. Selection resets the existing round ledger, score, resource budget and readiness, while retaining every seat/token, including disconnected players. All clients enter the existing lobby and ready/start loop. Replay retains campaign completion. No new engine phase is introduced.
+
+Tiny submissions include adventureId and run, in addition to round and attempt. Ice requires these fields; mismatched fields reject delayed actions from a previous adventure or run. Forest retains legacy compatibility. Room snapshots project progression only for Tiny, leaving Signal Lost unchanged.
+
+Ice introduces one configured mechanic: two heat packs. The Captain may save or spend one during a rescue; Bear camp and Duckling shelter require warmth as well as the correct helper tools. Spending consumes a pack even if the tools miss, and cannot make a wrong tool succeed. Resource IDs, total, label and required rescue IDs belong to pack configuration. Additional types of future mechanics need a mode adapter/UI renderer, not new transport or networking. Public stories do not name tools; private clues tell cold friends to ask for warmth. Existing two attempts and crew assistance still guarantee completion even after resources run out; performance remains separate from progress.
+
+Progress is in-memory and room-scoped, like the existing game state. Reconnects and replay retain it; creating a new room or restarting the server resets it. No permanent account or browser-owned unlock authority is added. Original winter artwork uses separate optimized map/scene assets, while controls and narration remain interactive HTML.
