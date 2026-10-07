@@ -123,7 +123,7 @@
 .tiny .captain-icon .animal-art{width:33px;height:39px;animation:none}
 .tiny .captain-helper-tool .guide-icon{width:48px;height:48px}
 .tiny .progress-friend .animal-art{animation:none}.tiny .adventure-progress li{border-radius:12px;background:#fffdf3}
-.tiny .hero-lobby .animal-art{height:135px}.tiny .friends-parade .animal-art{height:130px}
+.tiny .hero-lobby>.hero-welcome>.animal-art{height:135px}.tiny .friends-parade .animal-art{height:130px}
 .tiny .timer{background:#e3ece7;color:#365e49;box-shadow:none;border:1px solid #c5d7c9;border-radius:12px}
 .tiny .sound-toggle{border-radius:12px;border-width:1px}
 .tiny-card-characters{background:linear-gradient(#c8e7df,#dae9bc);border-radius:18px}
