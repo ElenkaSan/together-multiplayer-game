@@ -30,7 +30,7 @@ test('complete map has all five original friends home with no animation prerequi
  const html=htmlMap(e.view(r,h));assert.match(html,/data-map-state="all-home"/);for(const name of ['scout','builder','guide','ranger','rescuer'])assert.match(html,new RegExp(`${name}-celebrate`));assert.match(html,/All friends home/);assert.doesNotMatch(html,/Skip/);
 });
 test('clean world cards expose completion progress and action without a badge collection',()=>{
- const html=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',completed:['forest-rescue'],unlocked:['forest-rescue','ice-rescue'],onSelect:()=>{}}));assert.match(html,/5\/5 friends home/);assert.match(html,/Level 1/);assert.match(html,/Completed/);assert.match(html,/Explore again/);assert.match(html,/New/);assert.match(html,/Locked/);assert.doesNotMatch(html,/rescue badges|badge-count/);
+ const html=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',completed:['forest-rescue'],unlocked:['forest-rescue','ice-rescue'],onSelect:()=>{}}));assert.match(html,/5\/5 friends home/);assert.match(html,/Level 1/);assert.match(html,/Completed/);assert.match(html,/Play again/);assert.match(html,/New/);assert.match(html,/Locked/);assert.doesNotMatch(html,/rescue badges|badge-count/);
 });
 
 test('all five travel paths have valid bounded monotonic Web Animation offsets',()=>{
