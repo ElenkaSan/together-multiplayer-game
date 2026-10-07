@@ -144,3 +144,27 @@
 @media(max-width:600px){.tiny .scene-tree .scene-picture>.animal-art{left:70%;bottom:43%;width:22%;height:43%}.tiny .scene-cave .scene-picture>.animal-art{left:67%;width:23%;height:60%}}
 
 .tiny .voice-settings{margin:8px 0 16px;color:#426450;font-size:14px}.tiny .voice-settings summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700}.tiny .voice-settings-controls{display:grid;gap:10px;padding:14px;background:#eef4e8;border:1px solid #cbdac3;border-radius:14px;max-width:440px}.tiny .voice-settings-controls label{font-weight:700}.tiny .voice-settings-controls select{width:100%;min-height:48px;border:1px solid #a4bea7;border-radius:10px;background:#fffef8;color:#293f38;padding:10px;font:inherit}.tiny .voice-settings-controls select:focus-visible{outline:3px solid #176faa;outline-offset:2px}.tiny .voice-settings-controls small{line-height:1.5}
+
+/* Shared expedition narration control: setup, Captain and Little Hero screens. */
+.tiny .read-to-me{position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:68px;max-width:100%;padding:10px 18px 10px 10px;border:2px solid #284d3e;border-radius:22px;background:linear-gradient(160deg,#477b60,#2f5947);color:#fff9e6;box-shadow:0 4px 0 #213f34,inset 0 1px 0 #ffffff35,0 7px 16px #233e2b18;font-size:20px;line-height:1.25;transition:background .18s,box-shadow .18s,transform .18s}
+.tiny .read-to-me .narration-emblem{display:grid;place-items:center;width:46px;height:46px;flex:0 0 46px;border-radius:15px;background:linear-gradient(145deg,#fff0bf,#eac477);color:#345341;box-shadow:inset 0 1px 0 #fff9e4,0 2px 0 #213f3440}
+.tiny .read-to-me .narration-emblem svg{width:30px;height:30px}
+.tiny .read-to-me .narration-label{text-align:left;letter-spacing:.1px}
+.tiny .read-to-me .narration-status{display:grid;place-items:center;width:26px;height:26px;flex:0 0 26px;border:1px solid #fff7d54a;border-radius:50%;color:#f4d48c}
+.tiny .read-to-me .narration-status svg{width:20px;height:20px}
+.tiny .read-to-me:hover:not(:disabled){background:linear-gradient(160deg,#52876a,#386650);box-shadow:0 4px 0 #213f34,inset 0 1px 0 #ffffff40,0 8px 18px #233e2b22}
+.tiny .read-to-me:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 #213f34,inset 0 1px 0 #ffffff35}
+.tiny .read-to-me:focus-visible{outline:3px solid #b37722;outline-offset:5px}
+.tiny .read-to-me[aria-pressed=true]{background:linear-gradient(160deg,#fff0c3,#f4dda1);color:#3a4e3d;border-color:#b99b59;box-shadow:0 4px 0 #987d45,inset 0 1px 0 #fffdf0}
+.tiny .read-to-me[aria-pressed=true] .narration-emblem{background:#fff8e5;color:#416d53}
+.tiny .read-to-me[aria-pressed=true] .narration-status{color:#426450;border-color:#b99b5980}
+.tiny .read-to-me[aria-pressed=true] .narration-wave{animation:narration-breathe 1.5s ease-in-out infinite}
+.tiny .read-to-me:disabled{opacity:.55;box-shadow:0 2px 0 #213f34;cursor:not-allowed}
+.tiny .hero-audio .audio-help{color:#526557;font-size:14px!important;line-height:1.5;margin:12px 0 0}
+.tiny .voice-settings summary{justify-content:center;gap:8px;color:#426450}
+.tiny .voice-settings summary::after{content:'⌄';font-size:18px;transition:transform .18s}
+.tiny .voice-settings[open] summary::after{transform:rotate(180deg)}
+.tiny .voice-settings-controls{margin-inline:auto;text-align:left;background:#fff9eb;border:1px solid #ddcfac;border-radius:18px;box-shadow:0 3px 0 #dfcfab33}
+.tiny .voice-settings-controls select:focus-visible{outline-color:#426450}
+@keyframes narration-breathe{50%{opacity:.4}}
+@media(max-width:600px){.tiny .read-to-me{gap:12px;font-size:20px}.tiny .read-to-me .narration-status{margin-left:auto}.tiny .read-to-me .narration-label{flex:1}}
