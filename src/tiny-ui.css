@@ -103,3 +103,22 @@
 @media(prefers-reduced-motion:reduce) {.tiny button,.tiny .level-card>img {transition:none!important}.tiny button:active,.tiny .level-card:hover,.tiny .level-card:hover>img {transform:none!important}}
 .tiny-effects-scope[data-effects="off"] .tiny button {transition:none!important}
 .tiny-effects-scope[data-effects="off"] .tiny .level-card:hover,.tiny-effects-scope[data-effects="off"] .tiny .level-card:hover>img {transform:none!important}
+/* Compact narration toolbar: settings left, explicit speech action right. */
+.tiny .hero-audio {display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:8px;margin-bottom:16px;text-align:left}
+.tiny .hero-audio .read-to-me {grid-column:2;grid-row:1;justify-self:end;align-self:start;width:auto;min-height:48px;padding:6px 12px;gap:8px;font-size:16px;white-space:nowrap;z-index:1}
+.tiny .hero-audio .narration-emblem {width:30px;height:30px;flex-basis:30px}
+.tiny .hero-audio .narration-emblem svg {width:21px;height:21px}
+.tiny .hero-audio .narration-status {display:none}
+.tiny .hero-audio .audio-help {grid-column:1/-1;grid-row:2;margin:0!important;font-size:13px!important;text-align:right}
+.tiny .hero-audio .voice-settings {grid-column:1/-1;grid-row:1;margin:0;padding:0;border:0;font-size:14px;color:var(--world-deep)}
+.tiny .hero-audio .voice-settings>summary {display:flex;align-items:center;justify-content:flex-start;gap:6px;width:max-content;max-width:calc(100% - 160px);min-height:48px;line-height:1.25;padding:8px 0;list-style:none;white-space:nowrap}
+.tiny .hero-audio .voice-settings>summary::-webkit-details-marker {display:none}
+.tiny .hero-audio .voice-settings>summary::after {display:inline-block;position:static;flex:none;line-height:1;font-size:18px;margin:0}
+.tiny .hero-audio .voice-settings-controls {max-width:none;margin:8px 0 0;background:var(--game-surface);box-shadow:none;border-color:var(--game-line)}
+.tiny .map-hero-pose {display:block;width:100%;height:100%}
+.tiny .scout-greeting {display:block;width:100%;height:100%;overflow:visible;animation:scout-hello-idle 3.6s ease-in-out infinite;transform-origin:50% 90%}
+.tiny .scout-greeting-paw {transform-origin:79px 148px;animation:scout-hello-wave 3.6s ease-in-out infinite}
+@keyframes scout-hello-wave {0%,40%,100%{transform:rotate(0deg)}10%,26%{transform:rotate(-13deg)}18%,34%{transform:rotate(9deg)}}
+@keyframes scout-hello-idle {0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@media(max-width:360px){.tiny .hero-audio .read-to-me{font-size:14px;padding-inline:8px;gap:6px}.tiny .hero-audio .voice-settings>summary{font-size:13px;max-width:calc(100% - 140px)}}
+@media(prefers-reduced-motion:reduce){.tiny .scout-greeting,.tiny .scout-greeting-paw{animation:none!important}}

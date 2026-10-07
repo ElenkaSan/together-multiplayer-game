@@ -36,3 +36,11 @@ test('clean world cards expose completion progress and action without a badge co
 test('all five travel paths have valid bounded monotonic Web Animation offsets',()=>{
  for(let round=0;round<5;round++){const plan=mapTravel({...before,round,completed:round},{...after,round,completed:round+1},true)!;const frames=travelFrames(plan.points);assert.equal(frames[0].offset,0);assert.equal(frames.at(-1)!.offset,1);frames.forEach((f,i)=>{assert.ok(f.offset>=0&&f.offset<=1);if(i)assert.ok(f.offset>=frames[i-1].offset)})}
 });
+
+test('Forest welcome places a waving Scout before the bridge without moving rescue marker one',()=>{
+ const html=renderToStaticMarkup(React.createElement(MissionMap,{adventureId:'forest-rescue'}));
+ assert.match(html,/Bunny waving hello/);
+ assert.match(html,/scout-greeting-paw/);
+ assert.match(html,/left:15%;top:79%/);
+ assert.match(html,/left:27%;top:78%/);
+});
