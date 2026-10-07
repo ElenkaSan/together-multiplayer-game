@@ -122,3 +122,8 @@
 @keyframes scout-hello-idle {0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
 @media(max-width:360px){.tiny .hero-audio .read-to-me{font-size:14px;padding-inline:8px;gap:6px}.tiny .hero-audio .voice-settings>summary{font-size:13px;max-width:calc(100% - 140px)}}
 @media(prefers-reduced-motion:reduce){.tiny .scout-greeting,.tiny .scout-greeting-paw{animation:none!important}}
+
+/* Setup sections share the same content edges as player requirements. */
+.tiny .setup .tiny-setup-world {width:100%;max-width:none;margin-inline:0}
+.tiny .setup .tiny-setup-world .adventure-map {width:100%;max-width:none}
+.tiny .setup .lobby-entry {scroll-margin-top:24px}
