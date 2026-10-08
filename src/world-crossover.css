@@ -73,3 +73,14 @@
 .home .left-wave{right:94px}.home .right-wave{left:94px}
 .home .transmission{font-size:10px;bottom:13px}
 @media(max-width:700px){.home .portal-worlds{max-width:440px;gap:28px}.home .portal-card{height:408px}.home .portal-art{height:198px;margin-left:16px;margin-right:16px}.home .portal-heroes .animal-art{height:184px}.home .portal-content h2{font-size:29px}.home .portal-content p{font-size:13px}.home .portal-tags span{font-size:10px}.home .mission-radar{top:20px}}
+
+/* Tactile portal handle shared by the two worlds. */
+.home .world-handle{width:48px;height:56px;border-radius:16px;border:1px solid #adbcaa;background:linear-gradient(104deg,#fff1c9 0 47%,#25373c 49% 100%);box-shadow:inset 0 1px 0 #ffffff90,inset 0 -2px 0 #07151d30,0 3px 10px #15252630;transition:box-shadow .15s,border-color .15s}
+.home .portal-grip{width:42px;height:42px;pointer-events:none}
+.home .grip-arrow{fill:none;stroke:#f5e8c3;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.home .grip-arrow{filter:drop-shadow(0 1px 1px #15252680)}
+.home .grip-seam{fill:none;stroke:#c7de9b;stroke-width:1.5;stroke-linecap:round}
+.home .grip-light{fill:#c7de9b;stroke:#557266;stroke-width:1}
+.home .world-handle:hover{border-color:#c4dca2;box-shadow:inset 0 1px 0 #ffffff90,0 3px 12px #15252640}
+.home .world-handle:active{box-shadow:inset 0 2px 4px #07151d35,0 1px 5px #15252630}
+@media(max-width:700px){.home .portal-grip{transform:rotate(90deg)}}

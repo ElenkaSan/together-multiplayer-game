@@ -40,6 +40,6 @@ export function WorldCrossover({onPlay,children,initialPosition=50}:{initialPosi
    <div className="portal-invite">{children}</div><div className="portal-footer"><span>No login. Just your team.</span><span>TOGETHER! · Made for shared moments.</span></div>
   </div>
   <svg className="world-boundary" aria-hidden="true"><path d={geometry.path}/><path className="boundary-hit" d={geometry.path} onPointerDown={start} onPointerMove={move}/></svg>
-  <div className="world-handle" role="slider" tabIndex={0} aria-label="Reveal the two worlds. Drag or use arrow keys. Escape centers the divider." aria-valuemin={20} aria-valuemax={80} aria-valuenow={position} aria-valuetext={`${position}% Tiny Heroes world, ${100-position}% Signal Lost world`} aria-orientation={geometry.mobile?'vertical':'horizontal'} onKeyDown={key} onPointerDown={start} onPointerMove={move}><span aria-hidden="true">‹ ›</span></div>
+  <div className="world-handle" role="slider" tabIndex={0} aria-label="Reveal the two worlds. Drag or use arrow keys. Escape centers the divider." aria-valuemin={20} aria-valuemax={80} aria-valuenow={position} aria-valuetext={`${position}% Tiny Heroes world, ${100-position}% Signal Lost world`} aria-orientation={geometry.mobile?'vertical':'horizontal'} onKeyDown={key} onPointerDown={start} onPointerMove={move}><svg className="portal-grip" viewBox="0 0 48 48" aria-hidden="true"><path className="grip-arrow" d="M16 18l-6 6 6 6M32 18l6 6-6 6"/><path className="grip-seam" d="M26 13l-4 22"/><circle className="grip-light" cx="24" cy="24" r="2.5"/></svg></div>
  </section>
 }
