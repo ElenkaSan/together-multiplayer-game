@@ -47,3 +47,11 @@
 .home .world-handle{width:32px;height:40px;border-radius:10px;background:#eeebd7;color:#778476;border:1px solid #b9c3b0}
 .home .world-handle span{font-size:18px}
 @media(max-width:700px){.home .scene-layout{padding:20px 20px}.home .portal-topbar{height:40px}.home .portal-topbar>span{font-size:9px}.home .portal-topbar>span{gap:8px}.home .portal-heading{padding-top:28px;margin-bottom:28px}.home .portal-heading h1{font-size:32px}.home .portal-worlds{grid-template-columns:1fr;gap:24px;max-width:370px}.home .portal-card{height:326px}.home .portal-art{height:163px}.home .portal-heroes .animal-art{height:151px}.home .portal-heading p{font-size:12px}.home .portal-footer{margin-top:30px}}
+
+/* Correct issues observed on the deployed desktop composition. */
+.home .portal-card{height:350px}
+.home .portal-heading{color:#fff;mix-blend-mode:difference}
+.home .portal-heading .eyebrow{color:#fff}
+.home .quick-join button,.home .quick-join>span{color:#fff;mix-blend-mode:difference}
+.home .portal-play{min-height:44px;bottom:0}
+@media(max-width:700px){.home .portal-card{height:368px}}
