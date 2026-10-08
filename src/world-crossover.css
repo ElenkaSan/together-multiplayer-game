@@ -55,3 +55,21 @@
 .home .quick-join button,.home .quick-join>span{color:#fff;mix-blend-mode:difference}
 .home .portal-play{min-height:44px;bottom:0}
 @media(max-width:700px){.home .portal-card{height:368px}}
+
+/* Larger fixed cards; the diagonal still changes only the aligned mask. */
+.home .portal-worlds{max-width:950px;gap:28px}
+.home .portal-card{height:430px}
+.home .portal-art{height:218px;margin-left:20px;margin-right:20px}
+.home .portal-heroes .animal-art{height:202px;width:30%;max-width:150px}
+.home .portal-content{padding:14px 20px 0}
+.home .portal-content h2{font-size:32px;margin-bottom:12px}
+.home .portal-content p{font-size:14px;min-height:40px}
+.home .portal-content small{font-size:12px;padding:15px 0}
+.home .portal-tags span{font-size:11px;padding:6px 10px}
+.home .portal-play{font-size:12px;width:64px;right:16px}
+.home .mission-radar{top:30px;width:126px;height:126px}
+.home .mission-radar span{font-size:54px}
+.home .signal-wave{top:34px;font-size:46px}
+.home .left-wave{right:94px}.home .right-wave{left:94px}
+.home .transmission{font-size:10px;bottom:13px}
+@media(max-width:700px){.home .portal-worlds{max-width:440px;gap:28px}.home .portal-card{height:408px}.home .portal-art{height:198px;margin-left:16px;margin-right:16px}.home .portal-heroes .animal-art{height:184px}.home .portal-content h2{font-size:29px}.home .portal-content p{font-size:13px}.home .portal-tags span{font-size:10px}.home .mission-radar{top:20px}}
