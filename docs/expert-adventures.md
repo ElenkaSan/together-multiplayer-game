@@ -33,3 +33,7 @@ The refined illustrated maps are static WebP backgrounds. HTML markers, characte
 The Mission Control Board lives in the room's server state. Failed attempts do not commit it. Successful stages commit their chosen plan; Team Assist commits a coherent recovery, marks assistance and gives no badge. Replay starts a fresh board while retaining session results. No supported equipment choice forces Team Assist: all four kits, both relay modes and five-badge completion are tested. This is room/session state, not an account profile or database record.
 
 Automated coverage includes every seat count, actual independent Socket.IO clients, owned controls, stale versions, free experimentation, alternatives, retries, assistance, reconnect, consistent deadlines and results, replay, narration, and all four complete Moon loadouts.
+
+## Moon route overlay
+
+The approved background is unchanged. SVG legs show traveled, next, and future sections of Moon Base → Crater Crossing → Solar Ridge → Lost Rover Valley → Earth Signal → Moon Base. These statuses derive only from the authoritative objective count; they never expose a mission answer. After objective five, the expedition rover returns along the southern foreground route in the existing 3.5-second skippable presentation. Reconnect, missed snapshots, Effects Off and reduced motion immediately place it home. The same map remains mounted through the result/completion transition; the completion panel omits a duplicate map. No server phase, deadline, badge, mission-board or multiplayer logic is changed.
