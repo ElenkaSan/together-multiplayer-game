@@ -24,7 +24,7 @@ test('two independent Socket.IO clients play Jungle then Treasure with retry, Re
     if(round===2){hero.disconnect();hero=await connect();const restored=await command(hero,{type:'join',code:created.code,token:joined.token,name:''});assert.ok(restored.ok);assert.deepEqual(restored.state.teamPlan,plan);assert.equal(restored.state.deadline,vc.deadline);vh=restored.state}
     assert.ok((await submit(hero,vh,{confirm:'ready'})).ok);const [a,b]=await Promise.all([wait(captain,v=>v?.phase==='result'&&v.round===round&&v.result.success),wait(hero,v=>v?.phase==='result'&&v.round===round&&v.result.success)]);assert.deepEqual(a.result,b.result);assert.equal(a.adventure.completed.length,round+1);
    }
-   const finished=await wait(hero,v=>v?.phase==='finished');assert.equal(finished.score,5);assert.equal(finished.adventure.completed.length,5);assert.equal(finished.progression.available.length,6);
+   const finished=await wait(hero,v=>v?.phase==='finished');assert.equal(finished.score,5);assert.equal(finished.adventure.completed.length,5);assert.equal(finished.progression.available.length,8);
   }
   assert.ok((await command(captain,{type:'adventure-map'})).ok);const map=await wait(hero,v=>v?.progression.mapOpen);assert.equal(map.progression.results['treasure-island'].badges,5);assert.equal(map.progression.completed.length,2);
  }finally{sockets.forEach(s=>s.disconnect());processServer.kill()}

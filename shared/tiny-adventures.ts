@@ -1,3 +1,4 @@
+import {magicKingdom,moonMission} from './expert-adventures.js';
 /** Public content, never answer keys. Original art uses stable keys, not round indices. */
 import {desertRescue,oceanAdventure} from './advanced-adventures.js';
 import {jungleAdventure,treasureIsland} from './new-adventures.js';
@@ -15,10 +16,10 @@ export interface RescueContent {
 }
 export interface Adventure {
  id:string;title:string;world:string;intro:string;icon:string;
- environment:{renderer:'forest'|'ice'|'jungle'|'treasure'|'desert'|'ocean';mapAsset?:string};rescues:RescueContent[];
+ environment:{renderer:'forest'|'ice'|'jungle'|'treasure'|'desert'|'ocean'|'magic'|'moon';mapAsset?:string};rescues:RescueContent[];
  level?:number;nextId?:string;
  presentation?:{laterBriefingScale:number;successResultScale:number};
- mechanics?:{resource?:{id:'heat-pack';label:string;total:number;requiredRescueIds:string[]};primary?:'routes'|'expedition'|'stations';difficulty?:number;introduced?:string[]};
+ mechanics?:{resource?:{id:'heat-pack';label:string;total:number;requiredRescueIds:string[]};primary?:'routes'|'expedition'|'stations'|'mechanisms';difficulty?:number;introduced?:string[]};
  policy:{maxAttempts:number;kindnessStars:number};
 }
 const tools:ToolId[]=['rope','ladder','lamp','blanket','boat'];
@@ -47,10 +48,10 @@ export const iceRescue:Adventure={
  {id:'ice-blizzard-finale',title:'Blizzard Rescue — Finale',story:'Blizzard Station is ahead. Plan our final crossing together.',icon:'❄️',friend:'Duckling',character:4,scene:'snow',clue:'',privateClues:['The beacon ridge leads straight to the station but is bitterly cold.','A tunnel protects us all the way to the station.','The lake shortcut has new cracks beneath the snow.','A saved Warm Pack keeps Duckling warm on the icy beacon ridge.','The tunnel reaches the same station without a Warm Pack.'],tools:[],mapPosition:[756,124],challenge:{kind:'finale',location:'Blizzard Station',choices:[{id:'beacon-ridge',label:'Beacon ridge',visual:'station'},{id:'shelter-tunnel',label:'Shelter tunnel',visual:'cave'},{id:'lake-shortcut',label:'Lake shortcut',visual:'cracks'}]},sounds:{success:'complete',hint:'hint'}}
  ]
 };
-export const adventures:Record<string,Adventure>={'forest-rescue':forestRescue,'ice-rescue':iceRescue,'jungle-adventure':jungleAdventure,'treasure-island':treasureIsland,'desert-rescue':desertRescue,'ocean-adventure':oceanAdventure};
+export const adventures:Record<string,Adventure>={'forest-rescue':forestRescue,'ice-rescue':iceRescue,'jungle-adventure':jungleAdventure,'treasure-island':treasureIsland,'desert-rescue':desertRescue,'ocean-adventure':oceanAdventure,'magic-kingdom':magicKingdom,'moon-mission':moonMission};
 export function availableAdventures(){return Object.keys(adventures)}
-export function adventureDifficulty(level=1){return level===1?"Easy":level===2?"Easy+":level===3?"Medium":level===4?"Medium+":level===5?"Hard":level===6?"Hard+":"Advanced"}
-export function adventureSkills(level=1){return level===1?"Clues • Tools • Teamwork":level===2?"Routes • Shared Warm Packs":level===3?"Different clues • Team decisions":level===4?"Exploration • Action sequences":level===5?"Priorities • Assignments • Team plans":level===6?"Team stations • Connected systems":"More clues • More teamwork • More strategy"}
+export function adventureDifficulty(level=1){return level===1?"Easy":level===2?"Easy+":level===3?"Medium":level===4?"Medium+":level===5?"Hard":level===6?"Hard+":level===8?"Expert":"Advanced"}
+export function adventureSkills(level=1){return level===1?"Clues • Tools • Teamwork":level===2?"Routes • Shared Warm Packs":level===3?"Different clues • Team decisions":level===4?"Exploration • Action sequences":level===5?"Priorities • Assignments • Team plans":level===6?"Team stations • Connected systems":level===7?"Discover • Transform • Connect":level===8?"Plan ahead • Equipment • Consequences":"More clues • More teamwork • More strategy"}
 
 export const defaultAdventureId=forestRescue.id;
 export const futureWorlds=[['❄️','Ice Rescue'],['🌴','Jungle Adventure'],['🏝️','Treasure Island'],['🏜️','Desert Rescue'],['🌊','Ocean Adventure'],['🏰','Magic Kingdom'],['🌙','Moon Mission'],['☁️','Cloud Adventure'],['🌸','Meadow Rescue']];
