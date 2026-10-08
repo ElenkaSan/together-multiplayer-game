@@ -57,5 +57,5 @@ test('child UI has picture clues, shared Captain plan and Read to Me without For
   const map=renderToStaticMarkup(React.createElement(ExpeditionMap,{view}));assert.match(map,new RegExp(`${getAdventure(id).environment.renderer}-map`));assert.equal((map.match(/stop-active/g)||[]).length,1);
   const publicContent=JSON.stringify(adventureSnapshot(r.tiny!,0));assert.doesNotMatch(publicContent,/Fresh scout tracks|old drawing shows|privateEvidence/);
  }
- assert.equal(availableAdventures().length,4);assert.equal(adventureDifficulty(4),'Medium+');
+ assert.equal(availableAdventures().length,6);assert.equal(adventureDifficulty(4),'Medium+');
 });

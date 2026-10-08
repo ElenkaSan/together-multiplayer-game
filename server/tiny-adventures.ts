@@ -1,3 +1,4 @@
+import {oceanPlans,oceanHints} from './advanced-evidence.js';
 import {expeditionStages} from '../shared/new-adventures.js';
 import {expeditionSolutions,expeditionHints} from './team-expeditions.js';
 import {iceRoutes} from './ice-expedition.js';
@@ -6,6 +7,7 @@ export interface RescueOutcome {id:string;attempts:number;earnedBadge:boolean;hi
 export interface TinyAdventureState {id:string;attempt:number;hintUsed:boolean;kindnessUsed:boolean;completed:RescueOutcome[]}
 // Answer keys and hint reveals remain on the server until a failed attempt.
 export const adventureSolutions:Record<string,Record<string,{tool:string;hint:string}>>={
+ 'ocean-adventure':Object.fromEntries(oceanPlans.map((plans,i)=>[expeditionStages('ocean-adventure')[i].id,{tool:plans[0].route,hint:oceanHints[i]}])),
  'forest-rescue':{
  'bunny-bridge':{tool:'rope',hint:'A rope can make the bridge steady.'},
  'kitten-tree':{tool:'ladder',hint:'A ladder helps us reach high places.'},

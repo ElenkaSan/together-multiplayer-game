@@ -1,6 +1,6 @@
 // Original pictograms: same warm ink, soft fill and simple silhouettes as Tiny Heroes.
 export function ExpeditionIcon({name}:{name:string}){let art;
- if(name==='symbols'||name.includes('-'))return <span className="expedition-symbol-strip">{(name.includes('-')?name.split('-'):['leaf','sun','river']).map((x,i)=><ExpeditionIcon name={x} key={i}/>)}</span>;
+ if(name==='symbols'||['leaf-sun-river','sun-river-leaf','river-leaf-sun'].includes(name))return <span className="expedition-symbol-strip">{(name.includes('-')?name.split('-'):['leaf','sun','river']).map((x,i)=><ExpeditionIcon name={x} key={i}/>)}</span>;
  if(['north','east','west'].includes(name))art=<><circle cx="48" cy="44" r="30" fill="#dbeee8"/><path d={name==='east'?'M22 44h50m-18-15 18 15-18 15':name==='west'?'M74 44H24m18-15L24 44l18 15':'M48 69V19m-16 17 16-17 16 17'} fill="none" strokeWidth="6"/></>;
  else if(name==='compass')art=<><circle cx="48" cy="44" r="30" fill="#f4d887"/><circle cx="48" cy="44" r="22" fill="#fff8de"/><path d="m48 20 9 24-9 23-9-23Z" fill="#dc9275"/><path d="m48 20 9 24h-9Z" fill="#518a83"/></>;
  else if(name==='leaf')art=<><path d="M24 66Q10 23 75 18Q81 73 24 66Z" fill="#78ad79"/><path d="M20 73 63 32M36 57V36M47 46h21" fill="none"/></>;
@@ -16,6 +16,20 @@ export function ExpeditionIcon({name}:{name:string}){let art;
  else if(name==='cliff')art=<><path d="m10 76 24-52 22 18 15-25 16 59Z" fill="#b8b1a2"/><path d="m49 42-8 14 12 10-7 9" fill="none"/></>;
  else if(name==='flower')art=<><path d="M47 72V41" stroke="#6d9973" strokeWidth="5"/><path d="M47 27q-24-22-25 3-22 15 6 22 8 27 22 2 26 8 21-15 9-23-16-16Z" fill="#fff7df"/><circle cx="46" cy="39" r="8" fill="#e8bf5a"/></>;
  else if(name==='tracks'||name==='scout')art=<><ellipse cx="33" cy="56" rx="12" ry="15" fill="#b2c99d"/><ellipse cx="63" cy="34" rx="12" ry="15" fill="#b2c99d"/><path d="m25 34 2-8m12 8 1-8m15-8 2-8m12 8 1-8" stroke="#8d9f78" strokeWidth="7"/></>;
+ else if(name==='water'||name==='depth'||name==='current')art=<><path d="M48 12Q12 49 26 68t43 0Q84 49 48 12Z" fill="#78c9d8"/><path d="M33 55q12-9 26 0" fill="none" stroke="#daf3f1" strokeWidth="5"/></>;
+ else if(['power','power-off','engine'].includes(name))art=<><rect x="18" y="25" width="60" height="43" rx="10" fill="#e9c879"/><path d="M38 25v-9h20v9" fill="#b1c8c7"/><path d="m51 32-16 22h14l-3 11 18-23H50Z" fill="#fff5d4"/>{name==='power-off'&&<path d="m18 17 63 60" stroke="#a96b5e" strokeWidth="6"/>}</>;
+ else if(name==='shield')art=<><path d="m48 13 29 12v25Q70 70 48 78 26 70 19 50V25Z" fill="#8bbac0"/><path d="m33 44 11 12 21-27" fill="none" stroke="#fff2cc" strokeWidth="6"/></>;
+ else if(name==='sonar')art=<><circle cx="48" cy="44" r="30" fill="#9acacc"/><circle cx="48" cy="44" r="20" fill="none"/><path d="M48 14v30l22 16" fill="none"/><circle cx="34" cy="32" r="4" fill="#f5da89"/></>;
+ else if(name==='light'||name==='beacon')art=<><path d="M38 66h20l-4 11H42Z" fill="#95b7b4"/><circle cx="48" cy="41" r="23" fill="#f4d278"/><path d="M48 8V2M14 39H6m76 0h8M23 17l-7-6m57 6 7-6" stroke="#d5b465" strokeWidth="4"/><path d="M40 54V38h16v16" fill="none"/></>;
+ else if(name==='blue'||name==='green'||name==='amber'||name==='signal')art=<><circle cx="48" cy="44" r="24" fill={name==='green'?'#8fbea4':name==='amber'?'#e9c271':'#80b8d2'}/><path d="M16 28q-12 16 0 32m64-32q12 16 0 32M26 35q-6 9 0 18m44-18q6 9 0 18" fill="none" stroke="#6e9295" strokeWidth="4"/></>;
+ else if(name==='supplies')art=<><rect x="16" y="31" width="64" height="45" rx="9" fill="#cba579"/><path d="M34 31V18h29v13M17 43h62M48 44v30" fill="none"/><rect x="42" y="44" width="13" height="15" rx="3" fill="#f2d583"/></>;
+ else if(name==='shelter')art=<><path d="m9 72 38-56 40 56Z" fill="#dfbc7a"/><path d="m31 72 16-29 19 29" fill="#88a7a4"/><path d="M47 16v56" fill="none"/></>;
+ else if(name==='builder')art=<><path d="m23 76 38-49 10 8-36 47Z" fill="#c59c70"/><path d="m39 25 14-15 30 22-15 19Z" fill="#a4b4ac"/></>;
+ else if(name==='wind')art=<><path d="M10 32h52q20 0 15-17t-19 0M10 47h63q18 0 10 16t-16 0M10 63h30" fill="none" stroke="#92b7bd" strokeWidth="5"/></>;
+ else if(name==='coral')art=<><path d="M48 76V25m0 32-22-9V30m22 16 22-12V20M26 43l-13-6V25m57 7 13-8V14" stroke="#dc9f8b" strokeWidth="9" fill="none"/></>;
+ else if(name==='submarine')art=<><path d="M19 33h49q35 24 0 45H19Z" fill="#ecc675"/><circle cx="65" cy="55" r="14" fill="#8dcbd3"/><path d="M32 33V19h18v14" fill="#e7bf6c"/></>;
+ else if(name==='look')art=<><path d="M8 44Q48 9 88 44 48 79 8 44Z" fill="#ffedc8"/><circle cx="48" cy="44" r="15" fill="#86b9b2"/><circle cx="48" cy="44" r="7" fill="#456264"/></>;
+ else if(name==='snow')art=<><path d="M48 12v65M20 26l56 35M20 61l56-35" stroke="#9ccbd5" strokeWidth="5"/></>;
  else if(name==='sound')art=<><path d="M20 34h13l17-13v46L33 55H20Z" fill="#7baca5"/><path d="M61 29q20 15 0 30M69 20q29 24 0 48" fill="none" stroke="#7baca5" strokeWidth="4"/></>;
  else art=<><path d="M30 76V15l38 5v26l-38-5" fill="#d7b765"/><path d="M30 15v61" fill="none" strokeWidth="4"/></>;
  return <svg className="expedition-icon" viewBox="0 0 96 88" aria-hidden="true"><g stroke="#615442" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">{art}</g></svg>}

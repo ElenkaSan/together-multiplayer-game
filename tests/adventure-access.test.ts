@@ -13,7 +13,7 @@ test('fresh rooms can start any released adventure without completion; future pa
   assert.deepEqual(e.view(r,p).progression?.completed,[]);r.players.forEach(x=>e.ready(r,x));e.start(r,p);
   assert.equal(r.phase,'briefing');assert.equal(r.tiny?.id,id);
  }
- assert.throws(()=>new Engine().create('tiny','C','c','desert-rescue'),/not available/);
+ assert.throws(()=>new Engine().create('tiny','C','c','magic-kingdom'),/not available/);
 });
 test('starting with Ice then choosing Forest preserves room results, seats and reconnect',()=>{
  const e=new Engine(),{r,p}=e.create('tiny','Captain','c','ice-rescue');const hero=e.join(r.code,'Hero','h').p;
@@ -32,6 +32,6 @@ test('starting with Ice then choosing Forest preserves room results, seats and r
 });
 test('fresh Adventure Select offers all Explore actions and describes difficulty without locks',()=>{
  const html=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',onSelect:()=>{}}));
- assert.equal((html.match(/<button[^>]*disabled/g)||[]).length,0);assert.equal((html.match(/Explore →/g)||[]).length,4);
+ assert.equal((html.match(/<button[^>]*disabled/g)||[]).length,0);assert.equal((html.match(/Explore →/g)||[]).length,6);
  assert.match(html,/Level 1 · Easy/);assert.match(html,/Level 2 · Easy\+/);assert.match(html,/Coming Soon/);assert.doesNotMatch(html,/Locked|Unlock/);
 });

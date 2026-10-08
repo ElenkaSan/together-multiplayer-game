@@ -18,10 +18,10 @@ function finish(e:Engine,r:Room,miss=false){start(e,r);for(let i=0;i<getAdventur
  }}
 for(const count of [2,3,4,5,6])test(`Forest unlocks Ice, transition retains ${count} seats and Ice completes through same phases`,()=>{
  const {e,r,p}=setup();for(let i=2;i<count;i++)e.join(r.code,'Hero '+i,'h'+i);
- const tokens=r.players.map(p=>p.token);assert.deepEqual(e.view(r,p).progression?.available,['forest-rescue','ice-rescue','jungle-adventure','treasure-island']);
+ const tokens=r.players.map(p=>p.token);assert.deepEqual(e.view(r,p).progression?.available,['forest-rescue','ice-rescue','jungle-adventure','treasure-island','desert-rescue','ocean-adventure']);
  assert.throws(()=>e.chooseAdventure(r,p,'ice-rescue'),/complete/);
- finish(e,r);assert.equal(r.phase,'finished');const v=e.view(r,p);assert.deepEqual(v.progression?.completed,['forest-rescue']);assert.deepEqual(v.progression?.available,['forest-rescue','ice-rescue','jungle-adventure','treasure-island']);
- assert.throws(()=>e.chooseAdventure(r,r.players[1],'ice-rescue'),/host/);assert.throws(()=>e.chooseAdventure(r,p,'desert-rescue'),/not available/);
+ finish(e,r);assert.equal(r.phase,'finished');const v=e.view(r,p);assert.deepEqual(v.progression?.completed,['forest-rescue']);assert.deepEqual(v.progression?.available,['forest-rescue','ice-rescue','jungle-adventure','treasure-island','desert-rescue','ocean-adventure']);
+ assert.throws(()=>e.chooseAdventure(r,r.players[1],'ice-rescue'),/host/);assert.throws(()=>e.chooseAdventure(r,p,'magic-kingdom'),/not available/);
  e.adventureMap(r,p);assert.equal(e.view(r,r.players[1]).progression?.mapOpen,true);
  e.chooseAdventure(r,p,'ice-rescue');assert.equal(r.phase,'lobby');assert.equal(r.bonus,2);assert.equal(r.tiny?.id,'ice-rescue');assert.deepEqual(r.players.map(p=>p.token),tokens);assert.ok(r.players.every(p=>!p.ready&&!p.action));
  finish(e,r);assert.equal(r.phase,'finished');assert.equal(r.score,5);assert.equal(r.bonus,0);assert.deepEqual(e.view(r,p).progression?.completed,['forest-rescue','ice-rescue']);
@@ -46,9 +46,9 @@ test('reconnect keeps unlocks, map and seats; stale Forest submissions cannot en
  const {e,r,p}=setup();finish(e,r);e.adventureMap(r,p);const hero=r.players[1];e.disconnect('h');e.join(r.code,'','h2',hero.token);assert.equal(e.view(r,hero).progression?.mapOpen,true);
  e.chooseAdventure(r,p,'ice-rescue');e.disconnect('h2');assert.equal(r.players.length,2);e.join(r.code,'','h3',hero.token);start(e,r);e.tick(r.deadline!+1);
  assert.throws(()=>e.submit(r,hero,0,{tool:'rope'},1,'forest-rescue',1),/adventure is closed/);assert.throws(()=>e.submit(r,hero,0,{tool:'rope'},1),/adventure is closed/);
- e.submit(r,hero,0,{route:'blue-shelf'},1,'ice-rescue',r.tinyProgress!.run);e.disconnect('h3');e.join(r.code,'','h4',hero.token);const v=e.view(r,hero);assert.equal(v.submitted,true);assert.equal(v.adventure?.id,'ice-rescue');assert.deepEqual(v.progression?.available,['forest-rescue','ice-rescue','jungle-adventure','treasure-island']);
+ e.submit(r,hero,0,{route:'blue-shelf'},1,'ice-rescue',r.tinyProgress!.run);e.disconnect('h3');e.join(r.code,'','h4',hero.token);const v=e.view(r,hero);assert.equal(v.submitted,true);assert.equal(v.adventure?.id,'ice-rescue');assert.deepEqual(v.progression?.available,['forest-rescue','ice-rescue','jungle-adventure','treasure-island','desert-rescue','ocean-adventure']);
 });
 test('future route remains locked until its playable pack is registered; Signal has no campaign fields',()=>{
- assert.ok(!availableAdventures().includes('desert-rescue'));const e=new Engine();const {r,p}=e.create('signal','S','s');assert.equal('progression' in e.view(r,p),false);assert.throws(()=>e.adventureMap(r,p),/host/);assert.throws(()=>e.chooseAdventure(r,p,'forest-rescue'),/host/);
+ assert.ok(!availableAdventures().includes('magic-kingdom'));const e=new Engine();const {r,p}=e.create('signal','S','s');assert.equal('progression' in e.view(r,p),false);assert.throws(()=>e.adventureMap(r,p),/host/);assert.throws(()=>e.chooseAdventure(r,p,'forest-rescue'),/host/);
 });
 
