@@ -47,7 +47,7 @@ test('Desert and Ocean independent network clients at 2, 3 and 6 seats: all miss
       const results=await Promise.all(clients.map(s=>wait(s,v=>v?.round===round&&v.phase==='result'&&v.adventure.attempt===attempt)));assert.ok(results.every(v=>JSON.stringify(v.result)===JSON.stringify(results[0].result)));assert.equal(results[0].result.success,!wrong);assert.equal(results[0].result.assisted,round===1&&attempt===2);if(round===0&&attempt===1)assert.equal(results[0].adventure.completed.length,0);
      }
     }
-    const finished=await Promise.all(clients.map(s=>wait(s,v=>v?.phase==='finished'&&v.adventure.id===id)));assert.ok(finished.every(v=>v.score===4&&v.adventure.completed.length===5&&v.progression.results[id].assists===1));assert.equal(finished[0].progression.available.length,8);
+    const finished=await Promise.all(clients.map(s=>wait(s,v=>v?.phase==='finished'&&v.adventure.id===id)));assert.ok(finished.every(v=>v.score===4&&v.adventure.completed.length===5&&v.progression.results[id].assists===1));assert.equal(finished[0].progression.available.length,10);
    }
    assert.ok((await command(clients[0],{type:'adventure-map'})).ok);await Promise.all(clients.map(s=>wait(s,v=>v?.progression.mapOpen)));assert.ok((await command(clients[0],{type:'replay'})).ok);const replay=await wait(clients[0],v=>v?.phase==='lobby');assert.equal(replay.adventure.completed.length,0);assert.equal(replay.ocean,null);assert.equal(replay.progression.results['ocean-adventure'].badges,4);
   })));

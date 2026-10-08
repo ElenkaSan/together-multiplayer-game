@@ -15,7 +15,7 @@ test('completion has accessible unlock and Captain controls, with matching read-
 });
 test('Adventure Map marks completed Forest, playable Ice and unbuilt future worlds',()=>{
  const html=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',completed:['forest-rescue'],onSelect:()=>{}}));
- assert.match(html,/Completed/);assert.match(html,/Explore →/);assert.match(html,/5\/5 friends home/);assert.match(html,/Easy\+/);assert.match(html,/Cloud Adventure: coming soon/);
+ assert.match(html,/Completed/);assert.match(html,/Explore →/);assert.match(html,/5\/5 friends home/);assert.match(html,/Easy\+/);assert.match(html,/Cloud Adventure/);assert.doesNotMatch(html,/coming soon/i);
  const readOnly=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',completed:['forest-rescue'],readOnly:true,onSelect:()=>{}}));assert.equal((readOnly.match(/<button[^>]*disabled=""/g)||[]).length,8);
 });
 test('Ice resource guide reads the server budget, including depletion',()=>{

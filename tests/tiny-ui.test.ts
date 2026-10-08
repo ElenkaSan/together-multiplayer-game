@@ -13,7 +13,7 @@ test('child guide exposes four keyboard-operable tiles and keeps detailed rules 
  assert.match(html,/<details class="hero-full-rules">/);
  assert.ok(!html.includes('<details open'));
 });
-test('world cards retain independent accents, native locks and completion progress',()=>{
+test('world cards retain independent accents, independent access and completion progress',()=>{
  const html=renderToStaticMarkup(createElement(AdventurePicker,{selected:'forest-rescue',onSelect:()=>{},completed:['forest-rescue']}));
  assert.ok(html.includes('data-world="forest"'));
  assert.ok(html.includes('data-world="ice"'));
@@ -21,7 +21,7 @@ test('world cards retain independent accents, native locks and completion progre
  assert.ok(html.includes('5/5 friends home'));
  assert.ok(html.includes('Explore →'));
  assert.ok(html.includes('Easy+'));
- assert.ok(html.includes('coming soon'));
+ assert.ok(html.includes('data-world="cloud"'));assert.ok(html.includes('data-world="meadow"'));assert.ok(!html.includes('coming soon')); 
  const locked=renderToStaticMarkup(createElement(AdventurePicker,{selected:'forest-rescue',onSelect:()=>{}}));
  assert.doesNotMatch(locked,/<button disabled="" data-world="ice"/);
 });

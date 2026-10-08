@@ -1,7 +1,8 @@
+import {isCollection,collectionStages,collectionPreview,type CollectionBoard} from './collection-adventures.js';
 import type {Adventure,RescueContent} from './tiny-adventures.js';
 import type {ExpeditionStage,PlanField,PlanChoice} from './new-adventures.js';
-export type ExpertId='magic-kingdom'|'moon-mission';
-export const isExpert=(id?:string):id is ExpertId=>id==='magic-kingdom'||id==='moon-mission';
+export type ExpertId='magic-kingdom'|'moon-mission'|'cloud-adventure'|'meadow-rescue';
+export const isExpert=(id?:string):id is ExpertId=>id==='magic-kingdom'||id==='moon-mission'||isCollection(id);
 const o=(value:string,label:string,icon=value):PlanChoice=>({value,label,icon});
 const f=(key:string,title:string,options:PlanChoice[]):PlanField=>({key,title,options});
 const binary=(key:string,title:string,a:string,b:string,icon:string)=>f(key,title,[o(a,a.replaceAll('-',' '),icon),o(b,b.replaceAll('-',' '),icon)]);
@@ -23,13 +24,14 @@ export const moonStages=[
  stage('moon-rover','Lost Rover Valley','Combine the evidence. Find and help the research rover.',[82,32],[f('search','Search area',[o('tracks','Wheel tracks','tracks'),o('glint','Rock glint','diamond')]),binary('method','Search method','scanner','tracks','sonar'),binary('recovery','Bring rover home','tow','repair','builder'),binary('source','Recovery power','relay','stored','power'),binary('stabilizer','Research rover','brace','free','shield'),binary('link','Rover connection','paired','silent','signal')]),
  stage('moon-signal','Earth Signal','Bring our rover home and restore the Earth link.',[80,68],[binary('returnRoute','Return route','surveyed','shortcut','map'),binary('power','Antenna power','relay','stored','power'),binary('antenna','Antenna aim','earth','ridge','compass'),f('exchange','Communication order',[o('request-confirm-send','Request · Confirm · Send','signal'),o('send-request-confirm','Send · Request · Confirm','signal')]),binary('rover','Rover return','escort','leave','rover'),binary('engine','Signal engine','off','on','engine')])
 ];
-export function expertStages(id:string){return id==='magic-kingdom'?magicStages:moonStages}
+export function expertStages(id:string){return isCollection(id)?collectionStages(id):id==='magic-kingdom'?magicStages:moonStages}
 export function expertFields(id:string,round:number,slot:number,count:number){return expertStages(id)[round].fields.filter((_,i)=>i%count===slot)}
-export interface MoonBoard {mobility?:string;supply?:string;crossing?:string;relay?:string;rover?:string;connection?:string;objectives:string[];assisted:string[]}
+export interface MoonBoard extends CollectionBoard {mobility?:string;supply?:string;crossing?:string;relay?:string;rover?:string;connection?:string;objectives:string[];assisted:string[]}
 export interface MechanismPreview {kind:string;values:number[];labels:string[];beam?:[number,number][];power?:number;capacity?:number}
 const n=(s:Record<string,string>,k:string)=>Number(s[k]||0),mod=(v:number)=>(v%3+3)%3;
 // Observable physics/rules only. Goals and validation live on the server.
 export function expertPreview(id:string,round:number,s:Record<string,string>,board:MoonBoard):MechanismPreview{
+ if(isCollection(id))return collectionPreview(id,round,s,board);
  if(id==='magic-kingdom'){
  if(round===0){let shape=mod(n(s,'source')+n(s,'shapeTurn')),color=mod(n(s,'color')+n(s,'colorTurn'));if(s.lens==='swap')[shape,color]=[color,shape];return {kind:'transform',values:[shape,color],labels:['Circle','Triangle','Diamond']}}
  if(round===1){let x=10,y=80;const beam:[number,number][]=[[x,y]];for(const key of ['a','b','c','d']){if(!s[key])break;if(s[key]==='up')y-=17;else x+=18;beam.push([x,y])}return {kind:'mirrors',values:[x,y],labels:[s.filter||'No filter',s.gate||'No exit'],beam}}
@@ -42,4 +44,4 @@ export function expertPreview(id:string,round:number,s:Record<string,string>,boa
 }
 function create(id:ExpertId,title:string,world:string,level:number,renderer:'magic'|'moon',intro:string,nextId?:string):Adventure {const stages=expertStages(id);return {id,title,world,level,nextId,icon:'',intro,environment:{renderer,mapAsset:`/art/tiny/${renderer}-map.webp`},mechanics:{primary:'mechanisms',difficulty:level,introduced:renderer==='magic'?['discover transformations','live linked mechanisms']:['multi-round planning','persistent mission control board']},policy:{maxAttempts:2,kindnessStars:0},rescues:stages.map((s,i):RescueContent=>({id:s.id,title:s.location,story:s.story,icon:'',friend:s.location,character:i,scene:'tree',clue:'',tools:[],mapPosition:[s.position[0]*9,s.position[1]*5.4],challenge:{kind:i===4?'finale':'navigation',location:s.location,choices:s.fields[0].options.map(o=>({id:o.value,label:o.label,visual:'station'}))},sounds:{success:i===4?'complete':'rescue',hint:'hint'}}))}}
 export const magicKingdom=create('magic-kingdom','Magic Kingdom','The Lost Kingdom of Light',7,'magic','Discover and transform together. Restore the Heart of Light!','moon-mission');
-export const moonMission=create('moon-mission','Moon Mission','The Lunar Rescue Expedition',8,'moon','Think ahead together. Find the research rover and restore our connection to Earth!');
+export const moonMission=create('moon-mission','Moon Mission','The Lunar Rescue Expedition',8,'moon','Think ahead together. Find the research rover and restore our connection to Earth!','cloud-adventure');

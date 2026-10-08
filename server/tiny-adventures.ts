@@ -9,7 +9,7 @@ export interface RescueOutcome {id:string;attempts:number;earnedBadge:boolean;hi
 export interface TinyAdventureState {id:string;attempt:number;hintUsed:boolean;kindnessUsed:boolean;completed:RescueOutcome[]}
 // Answer keys and hint reveals remain on the server until a failed attempt.
 export const adventureSolutions:Record<string,Record<string,{tool:string;hint:string}>>={
- ...Object.fromEntries(['magic-kingdom','moon-mission'].map(id=>[id,Object.fromEntries(expertStages(id).map((s,i)=>[s.id,{tool:s.fields[0].options[0].value,hint:expertHints[id][i]}]))])),
+ ...Object.fromEntries(['magic-kingdom','moon-mission','cloud-adventure','meadow-rescue'].map(id=>[id,Object.fromEntries(expertStages(id).map((s,i)=>[s.id,{tool:s.fields[0].options[0].value,hint:expertHints[id][i]}]))])),
  'ocean-adventure':Object.fromEntries(oceanPlans.map((plans,i)=>[expeditionStages('ocean-adventure')[i].id,{tool:plans[0].route,hint:oceanHints[i]}])),
  'forest-rescue':{
  'bunny-bridge':{tool:'rope',hint:'A rope can make the bridge steady.'},
