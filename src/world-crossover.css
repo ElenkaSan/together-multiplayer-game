@@ -91,3 +91,9 @@
 .home .quick-join input{width:168px;min-width:168px;padding:10px 14px;letter-spacing:1px;font-size:13px;color:#26372f}
 .home .quick-join input::placeholder{color:#697265;opacity:1;letter-spacing:.8px}
 @media(max-width:700px){.home .quick-join{flex-wrap:wrap;justify-content:center;row-gap:12px}.home .quick-join input{max-width:100%}}
+
+/* Homepage readability and the original mint-to-meadow character backdrop. */
+.home .portal-topbar>span,.home .portal-footer{font-size:11px}
+.home .portal-heading .eyebrow{font-size:12px}
+.home .forest-layer .portal-forest{background:linear-gradient(180deg,#c7e5d8 0%,#dcebbb 100%)}
+@media(max-width:700px){.home .world-handle{background:linear-gradient(14deg,#25373c 0 49%,#fff1c9 51% 100%)}}

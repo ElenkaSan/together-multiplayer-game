@@ -12,7 +12,7 @@ test('diagonal is continuous, bounded and reversible on desktop and mobile',()=>
   assert.ok(mobile?b.y>a.y:b.x>a.x);
   assert.ok(Math.abs(mobile?b.y-a.y:b.x-a.x)<40);
  }
- assert.equal(clampReveal(-1),20);assert.equal(clampReveal(100),80);
+ assert.equal(clampReveal(-1),0);assert.equal(clampReveal(101),100);
 });
 test('homepage uses aligned whole-card layers and integrated accessible handle',()=>{
  const source=readFileSync(new URL('../src/WorldCrossover.tsx',import.meta.url),'utf8');
@@ -24,4 +24,13 @@ test('homepage uses aligned whole-card layers and integrated accessible handle',
  assert.match(css,/space-layer\{position:absolute;inset:0/);
  assert.match(css,/prefers-reduced-motion/);
  assert.doesNotMatch(css,/portal-card[^}]*transform:/);
+});
+
+test('diagonal can reach the screen edges in both orientations',()=>{
+ for(const mobile of [false,true]){
+  const w=mobile?390:1440,h=mobile?1450:900;
+  const start=revealGeometry(w,h,0,mobile),end=revealGeometry(w,h,100,mobile);
+  assert.equal(mobile?start.y:start.x,0);
+  assert.equal(mobile?end.y:end.x,mobile?h:w);
+ }
 });
