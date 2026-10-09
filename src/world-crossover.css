@@ -109,3 +109,5 @@
 @media(min-width:701px) and (max-width:1250px){.home .forest-backdrop{background-size:100% auto;background-position:center top;background-color:#faf3df}}
 /* Keep warm tag z-index inside its own world so the masked space layer covers it. */
 .home .forest-layer{isolation:isolate}
+
+.home .portal-topbar .brand-exclamation{color:#ADF66B}

@@ -31,7 +31,7 @@ export function WorldCrossover({onPlay,children,initialPosition=50}:{initialPosi
  const cards=(world:'forest'|'space',visual=false)=><div className="portal-worlds"><WorldCard game="tiny" world={world} visual={visual} onPlay={onPlay}/><WorldCard game="signal" world={world} visual={visual} onPlay={onPlay}/></div>;
  return <section ref={scene} className="world-crossover" data-effects={sound.enabled?'on':'off'} style={{'--space-clip':geometry.clip,'--handle-x':`${geometry.x}px`,'--handle-y':`${geometry.y}px`} as React.CSSProperties}>
   <div className="scene-backdrop forest-backdrop" aria-hidden="true"/><div className="scene-backdrop space-backdrop" aria-hidden="true"/>
-  <div className="scene-layout"><div className="portal-topbar"><strong>TOGETHER!</strong><span>Small screens. Big teamwork. <em>● Connected</em></span></div>
+  <div className="scene-layout"><div className="portal-topbar"><strong>TOGETHER<span className="brand-exclamation">!</span></strong><span>Small screens. Big teamwork. <em>● Connected</em></span></div>
    <div className="portal-heading"><span className="eyebrow">THE CO-OP GAME NIGHT</span><h1>Different devices.<br/>Same adventure.</h1><p>Pick your world. Invite your people. Win together.</p></div>
    <div className="aligned-worlds">
     <div className="world-layer forest-layer">{cards('forest')}</div>
