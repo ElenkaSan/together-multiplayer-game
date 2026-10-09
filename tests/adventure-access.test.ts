@@ -27,11 +27,18 @@ test('starting with Ice then choosing Forest preserves room results, seats and r
  const tokens=r.players.map(x=>x.token);e.adventureMap(r,p);e.chooseAdventure(r,p,'forest-rescue');assert.deepEqual(r.players.map(x=>x.token),tokens);
  e.disconnect('h');e.join(r.code,'','h2',hero.token);const v=e.view(r,hero);
  assert.equal(v.adventure?.id,'forest-rescue');assert.equal(v.progression?.results['ice-rescue'].badges,5);
- const html=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',completed:v.progression!.completed,results:v.progression!.results,onSelect:()=>{}}));
+ const html=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'ice-rescue',completed:v.progression!.completed,results:v.progression!.results,onSelect:()=>{}}));
  assert.match(html,/Completed/);assert.match(html,/5\/5 Rescue Badges/);assert.doesNotMatch(html,/Locked|Unlocked|Complete Forest Rescue/);
 });
-test('fresh Adventure Select offers all Explore actions and describes difficulty without locks',()=>{
- const html=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:'forest-rescue',onSelect:()=>{}}));
- assert.equal((html.match(/<button[^>]*disabled/g)||[]).length,0);assert.equal((html.match(/Explore →/g)||[]).length,10);
- assert.match(html,/Level 1 · Easy/);assert.match(html,/Level 2 · Easy\+/);assert.match(html,/Level 9 · Expert\+/);assert.match(html,/Level 10 · Master Challenge/);assert.doesNotMatch(html,/Coming Soon/);assert.doesNotMatch(html,/Locked|Unlock/);
+test('fresh Adventure Select offers every released world in the fan and its active Explore action',()=>{
+ for(const id of availableAdventures()){
+  const a=getAdventure(id);
+  const html=renderToStaticMarkup(React.createElement(AdventurePicker,{selected:id,onSelect:()=>{}}));
+  assert.equal((html.match(/<button[^>]*disabled/g)||[]).length,0);
+  assert.equal((html.match(/Explore →/g)||[]).length,10);
+  assert.equal((html.match(/class="fan-thumbnail"/g)||[]).length,10);
+  assert.ok(html.includes(a.title));
+  assert.match(html,/Previous adventure/);assert.match(html,/Next adventure/);
+  assert.doesNotMatch(html,/Coming Soon|Locked|Unlock/);
+ }
 });

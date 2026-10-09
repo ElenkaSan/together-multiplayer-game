@@ -14,6 +14,7 @@ import type {Mode,Action} from '../server/modes';
 import './style.css';
 import './tiny-world.css';
 import './tiny-ui.css';
+import './components/ui/image-fan-carousel.css';
 import './collection-adventure.css';
 import {FriendScene,AdventurePicker,RescueHint,CaptainClues,Animal,MissionMap,Celebration,SoundToggle,TinyRoundEffects,TinySoundProvider,useTinySound} from './TinyWorld';
 import {HeroInstructions,TinyMissionRules,ReadToMe,captainAudio,TinyHeroExperience} from './TinyHeroExperience';
