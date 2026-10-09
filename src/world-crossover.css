@@ -84,3 +84,10 @@
 .home .world-handle:hover{border-color:#c4dca2;box-shadow:inset 0 1px 0 #ffffff90,0 3px 12px #15252640}
 .home .world-handle:active{box-shadow:inset 0 2px 4px #07151d35,0 1px 5px #15252630}
 @media(max-width:700px){.home .portal-grip{transform:rotate(90deg)}}
+
+/* Readable invite labels follow the same page diagonal, without blend modes. */
+.home .quick-join>span,.home .quick-join button{position:relative;mix-blend-mode:normal;color:#26372f}
+.home .quick-join>span::after,.home .quick-join button::after{content:attr(data-reveal-text);position:absolute;inset:0;color:#f0f4ef;clip-path:var(--text-clip);pointer-events:none;display:flex;align-items:center;justify-content:center}
+.home .quick-join input{width:168px;min-width:168px;padding:10px 14px;letter-spacing:1px;font-size:13px;color:#26372f}
+.home .quick-join input::placeholder{color:#697265;opacity:1;letter-spacing:.8px}
+@media(max-width:700px){.home .quick-join{flex-wrap:wrap;justify-content:center;row-gap:12px}.home .quick-join input{max-width:100%}}
