@@ -1,8 +1,8 @@
 .tiny .image-fan-carousel{max-width:900px;margin:0 auto;min-width:0}
 .tiny .fan-stage{position:relative;min-height:460px;display:grid;place-items:center;padding:36px 0 36px;isolation:isolate;touch-action:pan-y}
 .tiny .fan-ring{position:absolute;inset:0;pointer-events:none;transform-style:preserve-3d}
-.tiny .fan-orbit{position:absolute;inset:0;display:grid;place-items:center;transform-style:preserve-3d;transform:rotateY(var(--fan-angle));transition:transform .85s cubic-bezier(.22,1,.36,1);pointer-events:none}
-.tiny .fan-thumbnail,.tiny .fan-thumbnail:hover,.tiny .fan-thumbnail:active{position:relative;width:112px;height:136px;padding:0;min-height:44px;overflow:hidden;border-radius:18px;border:2px solid #fff9ed;background:#f2ebd9;box-shadow:0 12px 24px #253b3426;transform:translateZ(var(--fan-radius)) rotateY(var(--fan-counter)) rotateX(12deg) rotateZ(var(--fan-lean));transition:transform .85s cubic-bezier(.22,1,.36,1),border-color .2s;pointer-events:auto}
+.tiny .fan-orbit{position:absolute;inset:0;display:grid;place-items:center;transform-style:preserve-3d;transform:rotateX(-18deg) rotateY(var(--fan-angle));transition:transform .85s cubic-bezier(.22,1,.36,1);pointer-events:none}
+.tiny .fan-thumbnail,.tiny .fan-thumbnail:hover,.tiny .fan-thumbnail:active{position:relative;width:112px;height:136px;padding:0;min-height:44px;overflow:hidden;border-radius:18px;border:2px solid #fff9ed;background:#f2ebd9;box-shadow:0 12px 24px #253b3426;transform:translateZ(var(--fan-radius)) rotateY(var(--fan-counter)) rotateX(38deg) rotateZ(var(--fan-lean));transition:transform .85s cubic-bezier(.22,1,.36,1),border-color .2s;pointer-events:auto}
 .tiny .fan-thumbnail img{width:100%;height:100%;object-fit:cover;display:block}
 .tiny .fan-thumbnail span{position:absolute;bottom:4px;right:4px;min-width:20px;border-radius:20px;background:#fff9e8;color:#253b34;font-size:11px;font-weight:800}
 .tiny .fan-thumbnail[aria-pressed=true]{border-color:#d8ac4d}
@@ -46,3 +46,5 @@
 .tiny [data-effects=off] .fan-card-surface{transform:none;transition:none}
 .tiny [data-effects=off] .fan-card-light{display:none}
 @media(max-width:700px){.tiny .fan-navigation{gap:8px;flex-wrap:wrap}.tiny .fan-navigation span{max-width:145px;font-size:12px}.tiny .fan-card-surface,.tiny .fan-card-light,.tiny .fan-card-sheen{border-radius:24px}}
+
+.tiny .fan-thumbnail:disabled{cursor:default}
