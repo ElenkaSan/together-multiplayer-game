@@ -20,7 +20,6 @@
 
 .tiny .fan-featured.illustrated-world-cards[hidden]{display:none!important}
 
-.tiny .fan-navigation .fan-auto{width:auto;min-height:44px;padding:0 12px;border-radius:22px;font-size:12px;white-space:nowrap;display:flex;align-items:center;gap:5px}
 .tiny .image-fan-carousel[data-motion=off] .fan-orbit,.tiny .image-fan-carousel[data-motion=off] .fan-thumbnail{transition:none}
 .tiny .image-fan-carousel[data-motion=off] .fan-featured{animation:none}
 @media(prefers-reduced-motion:reduce){.tiny .fan-orbit{transition:none}}
@@ -28,7 +27,7 @@
 
 /* Featured adventure: quiet halo, travelling rim light and pointer depth. */
 .tiny .fan-featured{perspective:1200px;--card-tilt-x:0deg;--card-tilt-y:0deg}
-.tiny .fan-card-surface{position:relative;border-radius:26px;transform:rotateX(var(--card-tilt-x)) rotateY(var(--card-tilt-y));transition:transform .25s ease;box-shadow:0 12px 32px #253b342b,0 0 0 2px var(--world-light,#e3c76d),0 0 32px color-mix(in srgb,var(--world-light,#e3c76d) 35%,transparent);isolation:isolate}
+.tiny .fan-card-surface{position:relative;border-radius:26px;transform:rotateX(var(--card-tilt-x)) rotateY(var(--card-tilt-y));transition:transform .12s ease-out;box-shadow:0 12px 32px #253b342b,0 0 0 2px var(--world-light,#e3c76d),0 0 32px color-mix(in srgb,var(--world-light,#e3c76d) 35%,transparent);isolation:isolate}
 .tiny .fan-card-surface:before{content:"";position:absolute;inset:-22px;z-index:-1;border-radius:40px;background:radial-gradient(ellipse,color-mix(in srgb,var(--world-light,#e3c76d) 25%,transparent),transparent 72%);pointer-events:none}
 .tiny .fan-card-surface .adventure-world-card{display:block;box-shadow:inset 0 1px 0 #fff8;position:relative}
 .tiny .fan-card-light{position:absolute;inset:-1px;border-radius:26px;overflow:hidden;pointer-events:none;z-index:3}
