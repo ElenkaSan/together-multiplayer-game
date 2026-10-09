@@ -112,3 +112,6 @@
 
 .home .portal-topbar .brand-exclamation{color:#ADF66B}
 .home .portal-topbar>strong{color:#829990}
+
+.home .portal-topbar>strong{position:relative;color:#17242b}
+.home .portal-topbar>strong::after{content:attr(data-reveal-text) / "";position:absolute;inset:0;color:#829990;clip-path:var(--text-clip);pointer-events:none}
