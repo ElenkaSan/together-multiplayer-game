@@ -102,3 +102,8 @@
 .home .forest-layer .portal-play::after{content:attr(data-reveal-text) / "";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#e7edeb;clip-path:var(--text-clip);pointer-events:none}
 .home .space-layer .portal-tiny .portal-play{background:none;border:0;box-shadow:none;color:#e7edeb}
 @media(max-width:700px){.home .world-handle{background:linear-gradient(166deg,#fff1c9 0 49%,#25373c 51% 100%)}}
+
+/* Badge palettes follow the masked world, including the Tiny Heroes card. */
+.home .space-layer .portal-tiny .portal-tags span{background:#101c2ae8;color:#edf5fa;border-color:#b6c6c040}
+/* Fit the whole sprig composition on tablet rather than cropping its sides. */
+@media(min-width:701px) and (max-width:1250px){.home .forest-backdrop{background-size:100% auto;background-position:center top;background-color:#faf3df}}
