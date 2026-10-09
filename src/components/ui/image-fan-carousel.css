@@ -20,8 +20,30 @@
 
 .tiny .fan-featured.illustrated-world-cards[hidden]{display:none!important}
 
-.tiny .fan-navigation .fan-auto{width:44px;min-height:44px;font-size:18px}
+.tiny .fan-navigation .fan-auto{width:auto;min-height:44px;padding:0 12px;border-radius:22px;font-size:12px;white-space:nowrap;display:flex;align-items:center;gap:5px}
 .tiny .image-fan-carousel[data-motion=off] .fan-orbit,.tiny .image-fan-carousel[data-motion=off] .fan-thumbnail{transition:none}
 .tiny .image-fan-carousel[data-motion=off] .fan-featured{animation:none}
 @media(prefers-reduced-motion:reduce){.tiny .fan-orbit{transition:none}}
 .tiny [data-effects=off] .fan-orbit{transition:none}
+
+/* Featured adventure: quiet halo, travelling rim light and pointer depth. */
+.tiny .fan-featured{perspective:1200px;--card-tilt-x:0deg;--card-tilt-y:0deg}
+.tiny .fan-card-surface{position:relative;border-radius:26px;transform:rotateX(var(--card-tilt-x)) rotateY(var(--card-tilt-y));transition:transform .25s ease;box-shadow:0 12px 32px #253b342b,0 0 0 2px var(--world-light,#e3c76d),0 0 32px color-mix(in srgb,var(--world-light,#e3c76d) 35%,transparent);isolation:isolate}
+.tiny .fan-card-surface:before{content:"";position:absolute;inset:-22px;z-index:-1;border-radius:40px;background:radial-gradient(ellipse,color-mix(in srgb,var(--world-light,#e3c76d) 25%,transparent),transparent 72%);pointer-events:none}
+.tiny .fan-card-surface .adventure-world-card{display:block;box-shadow:inset 0 1px 0 #fff8;position:relative}
+.tiny .fan-card-light{position:absolute;inset:-1px;border-radius:26px;overflow:hidden;pointer-events:none;z-index:3}
+.tiny .fan-card-light i{position:absolute;display:block;background:linear-gradient(90deg,transparent,var(--world-light,#e3c76d),#fff9ed,transparent);opacity:.75;filter:drop-shadow(0 0 3px var(--world-light,#e3c76d))}
+.tiny .fan-card-light i:nth-child(1){top:0;left:-50%;height:2px;width:50%;animation:fan-rim-horizontal 4s ease-in-out infinite}
+.tiny .fan-card-light i:nth-child(2){right:0;top:-50%;width:2px;height:50%;background:linear-gradient(180deg,transparent,var(--world-light,#e3c76d),#fff9ed,transparent);animation:fan-rim-vertical 4s ease-in-out 1s infinite}
+.tiny .fan-card-light i:nth-child(3){bottom:0;left:-50%;height:2px;width:50%;animation:fan-rim-horizontal 4s ease-in-out 2s infinite reverse}
+.tiny .fan-card-light i:nth-child(4){left:0;top:-50%;width:2px;height:50%;background:linear-gradient(180deg,transparent,var(--world-light,#e3c76d),#fff9ed,transparent);animation:fan-rim-vertical 4s ease-in-out 3s infinite reverse}
+.tiny .fan-card-sheen{position:absolute;inset:0;border-radius:26px;pointer-events:none;background:linear-gradient(125deg,#fff2,transparent 40%);opacity:.5;transition:opacity .3s}
+.tiny .fan-featured:hover .fan-card-sheen,.tiny .fan-featured:focus-within .fan-card-sheen{opacity:1}
+@keyframes fan-rim-horizontal{0%,15%{left:-50%;opacity:0}40%{opacity:.8}80%,100%{left:100%;opacity:0}}
+@keyframes fan-rim-vertical{0%,15%{top:-50%;opacity:0}40%{opacity:.8}80%,100%{top:100%;opacity:0}}
+.tiny .image-fan-carousel[data-motion=off] .fan-card-surface{transform:none;transition:none}
+.tiny .image-fan-carousel[data-motion=off] .fan-card-light{display:none}
+@media(prefers-reduced-motion:reduce){.tiny .fan-card-surface{transform:none;transition:none}.tiny .fan-card-light{display:none}.tiny .fan-card-sheen{transition:none}}
+.tiny [data-effects=off] .fan-card-surface{transform:none;transition:none}
+.tiny [data-effects=off] .fan-card-light{display:none}
+@media(max-width:700px){.tiny .fan-navigation{gap:8px;flex-wrap:wrap}.tiny .fan-navigation span{max-width:145px;font-size:12px}.tiny .fan-card-surface,.tiny .fan-card-light,.tiny .fan-card-sheen{border-radius:24px}}
