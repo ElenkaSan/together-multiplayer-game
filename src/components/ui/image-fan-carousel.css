@@ -18,3 +18,5 @@
 .tiny [data-effects=off] .fan-thumbnail,.tiny [data-effects=off] .fan-featured{transition:none;animation:none}
 
 .tiny .fan-featured.illustrated-world-cards[hidden]{display:none!important}
+/* Preserve orbital placement when global game-button hover/press styles apply. */
+.tiny .fan-thumbnail:hover,.tiny .fan-thumbnail:active{transform:translate(-50%,-50%) translate(var(--fan-x),var(--fan-y)) rotateX(18deg) scale(var(--fan-scale))}
