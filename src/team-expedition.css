@@ -51,3 +51,5 @@
 /* Contain summary progress so Safari cannot wrap the map around its float. */
 .tiny .rescue-map-toggle>summary{display:flow-root}
 .tiny .rescue-map-toggle>.expedition-living-map{clear:both;width:100%;max-width:100%;margin-inline:auto}
+
+.tiny .share-clues{margin-bottom:24px}.clue-sharing-list{display:grid;gap:12px}.clue-sharing-list article{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--world-soft,#eff3e9)}.clue-sharing-list article>div{min-width:0;flex:1}.clue-sharing-list p{margin:0 0 10px;overflow-wrap:anywhere}.clue-sharing-list button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px}.clue-sharing-list button .tiny-icon{width:24px;height:24px}.team-clues{margin-top:16px}.share-clues>.hero-audio{margin-top:16px}@media(max-width:600px){.clue-sharing-list .expedition-icon{width:48px;height:48px}.clue-sharing-list button{width:100%}}
