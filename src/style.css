@@ -24,3 +24,6 @@
 
 .app :where([class*="card"],[class*="panel"],[class*="modal"],.tiny-setup-world,.hero-lobby,.world-carousel-frame,.map-travel-controls,.ice-resource-guide,.expedition-complete,.friendship-compass-panel){border-radius:0!important;box-shadow:none!important}
 .app .fan-card-surface::before,.app .fan-card-light{display:none!important}
+
+/* Aligned crossover copies use spans as well as native buttons. */
+.app.home .world-crossover .portal-play,.app.home .world-crossover .world-handle{border-radius:0!important;box-shadow:none!important}
