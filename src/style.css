@@ -27,3 +27,43 @@
 
 /* Aligned crossover copies use spans as well as native buttons. */
 .app.home .world-crossover .portal-play,.app.home .world-crossover .world-handle{border-radius:0!important;box-shadow:none!important}
+
+/* Signal Lost: restrained mission-console light, using the original navy/lime palette. */
+.app.signal{
+ --border:#30434e;--muted:#a0b3c4;
+ background-color:#07111b;
+ background-image:radial-gradient(ellipse at 78% 4%,#adf66b0d,transparent 44%),radial-gradient(ellipse at 8% 38%,#20364470,transparent 54%),repeating-linear-gradient(0deg,transparent 0 5px,#a0b3c403 5px 6px);
+}
+.app.signal>header{background:#09141b88;border-bottom-color:#82999033}
+.app.signal .brand span{color:#adf66b}
+.app.signal :is(.panel,.player-requirements){
+ background:radial-gradient(ellipse at 100% 0,#adf66b07,transparent 60%),linear-gradient(135deg,#142430,#111d29 65%);
+ border-color:#354b55;position:relative;
+}
+.app.signal :is(.panel,.player-requirements)::before{
+ content:"";position:absolute;left:0;top:-1px;width:48px;height:2px;background:#adf66b99;pointer-events:none;
+}
+.app.signal :is(.panel,.player-requirements):focus-within{border-color:#829990}
+.app.signal :is(h1,h2,h3){color:#edf5fa}
+.app.signal .setup>h1{color:#edf5fa}
+.app.signal .eyebrow,.app.signal .room-code{color:#adf66b}
+.app.signal .connection{color:#c4d6cb;background:#adf66b08;border-color:#adf66b38}
+.app.signal input{background:#09151f;border-color:#3b505c;color:#edf5fa}
+.app.signal input::placeholder{color:#96aaba;opacity:1}
+.app.signal :is(input,button,summary):focus-visible{outline-color:#adf66b}
+.app.signal .primary{background:#adf66b;color:#102014;border:1px solid #adf66b}
+.app.signal .primary:hover:not(:disabled){background:#bdf98a}
+.app.signal .secondary,.app.signal .choices button{background:#0b1822;border-color:#40545e}
+.app.signal .secondary:hover:not(:disabled),.app.signal .choices button:hover:not(:disabled){background:#182a30;border-color:#829990}
+.app.signal .choices button.selected{background:#adf66b19;border-color:#adf66b;color:#d5fbb6}
+.app.signal .timer{background:#adf66b;color:#102014;border:1px solid #adf66b}
+.app.signal .mission-stage{background:linear-gradient(120deg,#152732,#101d27);border-color:#40545e}
+.app.signal .result.success{border-color:#8cbe64;background:linear-gradient(120deg,#1b3029,#111d29)}
+.app.signal .mission-summary span,.app.signal .round-track span{background:#0a1721;border-color:#3d525d}
+.app.signal .round-track .current{background:#adf66b;color:#102014;border-color:#adf66b}
+.app.signal footer{border-top-color:#82999033}
+.home .space-layer .portal-signal{background:radial-gradient(ellipse at 65% 0,#adf66b0c,transparent 65%),#0c171d;border-color:#536b6b}
+.home .space-layer .portal-signal .portal-content{background:linear-gradient(140deg,#142127,#0c171d 75%)}
+.home .space-layer .portal-signal .portal-play{color:#adf66b}
+.home .space-layer .portal-signal .portal-tags span{border-color:#82999070}
+@media(forced-colors:active){.app.signal :is(.panel,.player-requirements)::before{background:CanvasText}}
