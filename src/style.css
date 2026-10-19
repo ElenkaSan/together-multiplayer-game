@@ -67,3 +67,18 @@
 .home .space-layer .portal-signal .portal-play{color:#adf66b}
 .home .space-layer .portal-signal .portal-tags span{border-color:#82999070}
 @media(forced-colors:active){.app.signal :is(.panel,.player-requirements)::before{background:CanvasText}}
+
+/* The same diagonal mask reveals brighter circuitry and reversible scan portraits. */
+.app.home .space-backdrop{background-image:url('/art/home/mission-console-lit.svg')}
+.app.home .space-layer .portal-tiny .portal-heroes{filter:none}
+.app.home .space-layer .portal-tiny .portal-heroes .animal-art{
+ filter:grayscale(1) invert(1) contrast(1.12) sepia(1) saturate(2.8) hue-rotate(35deg) brightness(1.12) drop-shadow(0 0 5px #adf66b55);
+}
+.app.home .space-layer .portal-tiny .portal-heroes::after{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ background:repeating-linear-gradient(0deg,transparent 0 5px,#adf66b22 5px 6px);mix-blend-mode:soft-light;
+}
+.app.home .space-layer .portal-tiny .world-atmosphere{
+ background:linear-gradient(120deg,#0c171d22,#16302555),repeating-linear-gradient(0deg,transparent 0 9px,#adf66b0e 9px 10px);
+}
+@media(forced-colors:active){.app.home .space-layer .portal-tiny .portal-heroes .animal-art{filter:none}.app.home .space-layer .portal-tiny .portal-heroes::after{display:none}}
