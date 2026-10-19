@@ -82,3 +82,6 @@
  background:linear-gradient(120deg,#0c171d22,#16302555),repeating-linear-gradient(0deg,transparent 0 9px,#adf66b0e 9px 10px);
 }
 @media(forced-colors:active){.app.home .space-layer .portal-tiny .portal-heroes .animal-art{filter:none}.app.home .space-layer .portal-tiny .portal-heroes::after{display:none}}
+
+/* Homepage headings share the DM Sans family. */
+.app.home .portal-heading h1,.app.home .portal-content h2{font-family:'DM Sans',sans-serif}
