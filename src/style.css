@@ -9,3 +9,18 @@
 .tiny .hero-full-rules{margin:22px 0;text-align:left}.tiny .hero-full-rules summary{min-height:48px;display:list-item;cursor:pointer;font-weight:700;padding:12px 4px}.tiny .hero-full-rules .rules-content{font-size:17px;line-height:1.6}.tiny .little-hero .hero-full-rules p{font-size:17px}.tiny .audio-help{font-size:15px!important;margin:10px 0 18px;line-height:1.4}.tiny .setup .read-to-me{width:100%}
 
 .player-requirements{padding:18px 22px;border:1px solid var(--border);border-radius:16px;margin:22px 0 28px;background:var(--panel)}.player-requirements strong{font-size:20px}.player-requirements p{font-size:17px!important;margin:9px 0!important;line-height:1.5}.player-requirements small{font-size:15px;color:var(--muted)}
+
+/* Sharp, flat UI chrome. Illustrated assets and circular status dots stay intact. */
+.app :where(button,input,select,textarea,dialog,[role="dialog"],[role="alertdialog"],.panel,.world,.portal-card,.portal-art,.portal-content,.portal-invite,.portal-tags span,.portal-topbar em,.connection,.player-requirements,.adventure-world-card,.world-card-copy,.world-card-action,.world-card-lock,.level-card-top span,.fan-thumbnail,.fan-thumbnail span,.fan-card-surface,.fan-card-light,.hero-guide li,.guide-tile,.hero-full-rules,.voice-settings-controls,.mission-stage,.friend-scene,.friend-speech,.hero-clue,.private-panel,.expedition-team-plan,.expedition-observations>div,.clue-sharing-list article,.rescue-map-toggle,.adventure-map,.illustrated-map,.expedition-living-map,.ice-expedition-world,.expedition-scene,.expert-scene,.adventure-progress,.map-caption span,.timer,.avatar,.error,.notice,.mission-summary span,.unlock-card,.mechanism-illustration,.mission-control-board li,.expert-team li,.power-blocks>span,.hero-trail,.rescue-hint,.round-track span,.expedition-progress li,.expedition-stops li>span,.expedition-stops strong){
+ border-radius:0!important;
+ box-shadow:none!important;
+}
+.app :where(.panel,.world,.portal-card,.portal-invite,.player-requirements,.adventure-world-card,.fan-thumbnail,.voice-settings-controls,.hero-guide li,.hero-full-rules,.mission-stage,.hero-clue,.expedition-team-plan,.expedition-observations>div,.clue-sharing-list article,.rescue-map-toggle,.adventure-map,.illustrated-map,.expedition-living-map,.ice-expedition-world,.adventure-progress,.unlock-card,.mechanism-illustration,.mission-control-board li,.expert-team li){
+ border:1px solid var(--game-line,var(--border,#a6b3ab));
+}
+.app .portal-card{border-color:#9f8c6b}
+.app .space-layer .portal-card{border-color:#50666c}
+.app :where(.fan-featured-halo,.fan-edge-light,.fan-rim-light){display:none!important}
+
+.app :where([class*="card"],[class*="panel"],[class*="modal"],.tiny-setup-world,.hero-lobby,.world-carousel-frame,.map-travel-controls,.ice-resource-guide,.expedition-complete,.friendship-compass-panel){border-radius:0!important;box-shadow:none!important}
+.app .fan-card-surface::before,.app .fan-card-light{display:none!important}
