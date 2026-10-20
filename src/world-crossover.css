@@ -4,7 +4,7 @@
 
 /* Reference reproduction: cream woodland / graphite mission console. */
 .home .scene-layout{max-width:1100px;padding:22px 42px 18px}
-.home .forest-backdrop{background-color:#f8f1df;background-image:url('/art/home/woodland-details.svg');background-size:cover;background-position:center}
+.home .forest-backdrop{background-color:var(--tiny-page-background);background-image:url('/art/home/woodland-details.svg');background-size:cover;background-position:center}
 .home .space-backdrop{background-image:url('/art/home/mission-console.svg');background-position:center;background-color:#0c171d}
 .home .portal-topbar{height:48px;border-bottom:1px solid #82938b33;display:flex;align-items:flex-start;justify-content:space-between;font-size:18px;position:relative;z-index:3;color:#17242b}
 .home .portal-topbar>span{font-size:10px;display:flex;align-items:center;gap:18px;color:#829990}
@@ -106,7 +106,7 @@
 /* Badge palettes follow the masked world, including the Tiny Heroes card. */
 .home .space-layer .portal-tiny .portal-tags span{background:#101c2ae8;color:#edf5fa;border-color:#b6c6c040}
 /* Fit the whole sprig composition on tablet rather than cropping its sides. */
-@media(min-width:701px) and (max-width:1250px){.home .forest-backdrop{background-size:100% auto;background-position:center top;background-color:#faf3df}}
+@media(min-width:701px) and (max-width:1250px){.home .forest-backdrop{background-size:100% auto;background-position:center top;background-color:var(--tiny-page-background)}}
 /* Keep warm tag z-index inside its own world so the masked space layer covers it. */
 .home .forest-layer{isolation:isolate}
 

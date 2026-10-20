@@ -5,7 +5,7 @@
   --game-line:#d8d5cc; --world-deep:#24533f; --world-light:#f0cc76;
   --world-soft:#edf3ee; --world-focus:#926014;
   --accent:var(--world-deep); --accent-text:#fff; --border:var(--game-line); --muted:var(--game-muted);
-  color:var(--game-ink); background:#f4f1e9!important;
+  color:var(--game-ink); background:var(--tiny-page-background)!important;
 }
 .tiny[data-world="ice"],.tiny [data-world="ice"] {--world-deep:#183e58;--world-light:#b1e9f3;--world-soft:#eaf3f8;--world-focus:#226384}
 .tiny [data-world="jungle"] {--world-deep:#165543;--world-light:#f1c374;--world-soft:#eaf2ea}
