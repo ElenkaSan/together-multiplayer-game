@@ -39,8 +39,8 @@
 @keyframes living-light-y{0%{opacity:0;transform:translateY(0)}5%,20%{opacity:.8}25%,100%{opacity:0;transform:translateY(350%)}}
 @keyframes living-light-x-back{0%{opacity:0;transform:translateX(0)}5%,20%{opacity:.8}25%,100%{opacity:0;transform:translateX(-350%)}}
 @keyframes living-light-y-back{0%{opacity:0;transform:translateY(0)}5%,20%{opacity:.8}25%,100%{opacity:0;transform:translateY(-350%)}}
-.app.tiny .living-adventure-cards .fan-light-trail{position:absolute;left:0;top:42%;width:100%;height:34%;z-index:0;pointer-events:none}
-.app.tiny .living-adventure-cards[data-layout=compact] .fan-light-trail{top:42%;height:34%}
+.app.tiny .living-adventure-cards .fan-light-trail{position:absolute;left:0;top:76%;width:100%;height:32%;z-index:0;pointer-events:none}
+.app.tiny .living-adventure-cards[data-layout=compact] .fan-light-trail{top:76%;height:32%}
 .app.tiny .living-adventure-cards .fan-navigation{display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 0 24px;position:relative;z-index:8;min-height:72px}
 .app.tiny .living-adventure-cards .fan-navigation button{width:48px;min-height:48px;flex:none;border:1px solid #bcc8b7;background:#fff9eccc;color:#2b503c;font-size:21px}
 .app.tiny .living-adventure-cards .fan-navigation span{font-size:13px;font-weight:600;text-align:center;color:#425b49;max-width:220px}
@@ -54,5 +54,5 @@
 @media(prefers-reduced-motion:reduce){.app.tiny .living-adventure-cards *{animation:none!important;transition:none!important}.app.tiny .living-adventure-cards .fan-card-light{display:none!important}.app.tiny .living-adventure-cards .fan-card-surface,.app.tiny .living-adventure-cards .adventure-world-card>img{transform:none}}
 
 /* Glass silhouette is local to Living Adventure Cards. */
-.app.tiny .living-adventure-cards :is(.fan-card-surface,.adventure-world-card,.fan-card-light,.fan-card-sheen,.fan-thumbnail){border-radius:18px!important}
+.app.tiny .living-adventure-cards :is(.fan-card-surface,.adventure-world-card,.fan-card-light,.fan-card-sheen,.fan-thumbnail){border-radius:0!important}
 .app.tiny .living-adventure-cards .fan-navigation{z-index:30}
