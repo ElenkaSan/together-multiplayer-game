@@ -48,8 +48,8 @@
 .app.tiny .adventure-picker:after{display:none}
 
 @media(max-width:600px){.app.tiny .living-adventure-cards .level-card-top{font-size:10px;inset:10px 10px auto}.app.tiny .living-adventure-cards .level-card-top>span{padding:6px}.app.tiny .living-adventure-cards .world-card-copy{inset:auto 0 0;padding:22px 16px 18px;gap:7px}.app.tiny .living-adventure-cards .fan-navigation{gap:10px}.app.tiny .living-adventure-cards .fan-navigation span{max-width:170px;font-size:12px}}
-.app.tiny .living-adventure-cards[data-motion=off] .fan-card-surface{transform:none;transition:none}
-.app.tiny .living-adventure-cards[data-motion=off] .adventure-world-card>img{transform:none;transition:none}
+
+
 .app.tiny .living-adventure-cards[data-motion=off] .fan-card-light{display:none!important}
 @media(prefers-reduced-motion:reduce){.app.tiny .living-adventure-cards *{animation:none!important;transition:none!important}.app.tiny .living-adventure-cards .fan-card-light{display:none!important}.app.tiny .living-adventure-cards .fan-card-surface,.app.tiny .living-adventure-cards .adventure-world-card>img{transform:none}}
 
@@ -58,11 +58,15 @@
 .app.tiny .living-adventure-cards .fan-navigation{z-index:30}
 
 /* Separate pointer-driven surface: never replaces fan-orbit positioning transforms. */
-.app.tiny .living-adventure-cards .fan-tilt-hitbox{position:relative;width:100%;height:100%;pointer-events:auto}
+.app.tiny .living-adventure-cards .fan-tilt-hitbox{position:relative;width:100%;height:100%;pointer-events:auto;perspective:1200px;transform-style:preserve-3d;user-select:none}
 .app.tiny .living-adventure-cards .fan-tilt-surface{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:box-shadow .2s ease-out}
 .app.tiny .living-adventure-cards .fan-preview-surface{box-shadow:0 8px 18px #24453326!important}
 .app.tiny .living-adventure-cards .fan-tilt-surface[data-tilting=on]{box-shadow:inset 0 1px 0 #fff9de,0 16px 30px #24453338!important}
 .app.tiny .living-adventure-cards .fan-thumbnail img{transform:translate(var(--card-image-x,0px),var(--card-image-y,0px)) scale(1.035)}
 .app.tiny .living-adventure-cards .fan-thumbnail:hover{transform:none}
-.app.tiny .living-adventure-cards[data-motion=off] .fan-tilt-surface{transform:none!important;transition:none}
-@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.app.tiny .living-adventure-cards .fan-tilt-surface{transform:none!important}.app.tiny .living-adventure-cards .fan-thumbnail img{transform:none}}
+.app.tiny .living-adventure-cards .fan-tilt-hitbox[data-tilt=off] .fan-tilt-surface{transform:none!important;transition:none}
+@media(prefers-reduced-motion:reduce){.app.tiny .living-adventure-cards .fan-tilt-surface{transform:none!important}.app.tiny .living-adventure-cards .fan-thumbnail img{transform:none}}
+
+/* Muting audio must not override a direct pointer interaction. Ambient effects remain off. */
+.app.tiny .living-adventure-cards .fan-tilt-hitbox[data-tilt=on] .adventure-world-card>img{transform:translate(var(--card-image-x,0px),var(--card-image-y,0px)) scale(1.035)!important}
+.app.tiny .living-adventure-cards .fan-tilt-debug{position:absolute;top:48px;left:10px;z-index:10;white-space:pre;font:12px/1.5 monospace;color:#fff;background:#14382ee8;padding:8px;pointer-events:none}
