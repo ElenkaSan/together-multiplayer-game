@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {adventureCardLayout,adventurePreviewPosition} from '../src/components/ui/adventure-card-layout';
+import {adventureCardLayout,adventurePreviewPosition,adventureCursorPosition} from '../src/components/ui/adventure-card-layout';
 for(const width of [248,284,320,339,354,390,600,700,768,820,900,1000])test(`living arc fits ${width}px with large adjacent previews`,()=>{
  const l=adventureCardLayout(width);
  assert.ok(l.cardWidth<=width-24);assert.ok(l.cardHeight>=360);
@@ -16,4 +16,13 @@ for(const width of [248,284,320,339,354,390,600,700,768,820,900,1000])test(`livi
  }
  assert.equal(adventurePreviewPosition(width,0).opacity,0);
  assert.equal(adventurePreviewPosition(width,4).opacity,0);
+});
+
+test('pointer tilt follows local cursor coordinates independently and clamps outside bounds',()=>{
+ const rect={left:100,top:200,width:300,height:400};
+ assert.deepEqual(adventureCursorPosition(rect,250,400),{x:0,y:0});
+ assert.deepEqual(adventureCursorPosition(rect,100,200),{x:-1,y:-1});
+ assert.deepEqual(adventureCursorPosition(rect,400,600),{x:1,y:1});
+ assert.deepEqual(adventureCursorPosition(rect,700,-50),{x:1,y:-1});
+ assert.deepEqual(adventureCursorPosition(rect,325,300),{x:.5,y:-.5});
 });

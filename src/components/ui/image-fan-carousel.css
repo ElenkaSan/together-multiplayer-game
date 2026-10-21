@@ -12,7 +12,7 @@
 .app.tiny .living-adventure-cards .fan-thumbnail span{position:absolute;bottom:4px;right:4px;min-width:22px;min-height:22px;display:grid;place-items:center;background:#fff9e9ee;color:#294e3b;font-size:11px;font-weight:800}
 .app.tiny .living-adventure-cards .fan-featured.illustrated-world-cards{position:relative;z-index:20;display:block!important;width:var(--living-card-width)!important;overflow:visible!important;padding:0!important;margin:0!important;mask-image:none!important;-webkit-mask-image:none!important;perspective:1100px;scroll-snap-type:none}
 .app.tiny .living-adventure-cards .fan-featured[hidden]{display:none!important}
-.app.tiny .living-adventure-cards .fan-card-surface{position:relative;isolation:isolate;transform:translateY(var(--card-lift,0px)) rotateX(var(--card-tilt-x)) rotateY(var(--card-tilt-y));transition:transform .18s ease-out;box-shadow:inset 0 1px 0 #fff,0 10px 22px #22443024!important;border:1px solid #fff8d9!important}
+.app.tiny .living-adventure-cards .fan-card-surface{position:relative;isolation:isolate;box-shadow:inset 0 1px 0 #fff,0 10px 22px #22443024!important;border:1px solid #fff8d9!important}
 .app.tiny .living-adventure-cards .fan-card-surface::before{display:none!important}
 .app.tiny .living-adventure-cards .adventure-world-card{display:block;width:100%!important;min-width:0!important;max-width:none!important;height:var(--living-card-height);min-height:0!important;margin:0;overflow:hidden;border:1px solid #fff9e8a6!important;box-shadow:inset 0 1px 0 #ffffff77!important}
 .app.tiny .living-adventure-cards .adventure-world-card:hover{transform:none}
@@ -46,7 +46,7 @@
 .app.tiny .living-adventure-cards .fan-navigation span{font-size:13px;font-weight:600;text-align:center;color:#425b49;max-width:220px}
 .app.tiny .living-adventure-cards :is(.fan-thumbnail,.adventure-world-card,.fan-navigation button):focus-visible{outline:3px solid #386b4d;outline-offset:5px}
 .app.tiny .adventure-picker:after{display:none}
-@media(hover:hover) and (pointer:fine){.app.tiny .living-adventure-cards[data-motion=on] .fan-featured:hover{--card-lift:-4px}}
+
 @media(max-width:600px){.app.tiny .living-adventure-cards .level-card-top{font-size:10px;inset:10px 10px auto}.app.tiny .living-adventure-cards .level-card-top>span{padding:6px}.app.tiny .living-adventure-cards .world-card-copy{inset:auto 0 0;padding:22px 16px 18px;gap:7px}.app.tiny .living-adventure-cards .fan-navigation{gap:10px}.app.tiny .living-adventure-cards .fan-navigation span{max-width:170px;font-size:12px}}
 .app.tiny .living-adventure-cards[data-motion=off] .fan-card-surface{transform:none;transition:none}
 .app.tiny .living-adventure-cards[data-motion=off] .adventure-world-card>img{transform:none;transition:none}
@@ -56,3 +56,13 @@
 /* Glass silhouette is local to Living Adventure Cards. */
 .app.tiny .living-adventure-cards :is(.fan-card-surface,.adventure-world-card,.fan-card-light,.fan-card-sheen,.fan-thumbnail){border-radius:0!important}
 .app.tiny .living-adventure-cards .fan-navigation{z-index:30}
+
+/* Separate pointer-driven surface: never replaces fan-orbit positioning transforms. */
+.app.tiny .living-adventure-cards .fan-tilt-hitbox{position:relative;width:100%;height:100%;pointer-events:auto}
+.app.tiny .living-adventure-cards .fan-tilt-surface{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:box-shadow .2s ease-out}
+.app.tiny .living-adventure-cards .fan-preview-surface{box-shadow:0 8px 18px #24453326!important}
+.app.tiny .living-adventure-cards .fan-tilt-surface[data-tilting=on]{box-shadow:inset 0 1px 0 #fff9de,0 16px 30px #24453338!important}
+.app.tiny .living-adventure-cards .fan-thumbnail img{transform:translate(var(--card-image-x,0px),var(--card-image-y,0px)) scale(1.035)}
+.app.tiny .living-adventure-cards .fan-thumbnail:hover{transform:none}
+.app.tiny .living-adventure-cards[data-motion=off] .fan-tilt-surface{transform:none!important;transition:none}
+@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.app.tiny .living-adventure-cards .fan-tilt-surface{transform:none!important}.app.tiny .living-adventure-cards .fan-thumbnail img{transform:none}}
