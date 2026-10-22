@@ -39,3 +39,13 @@ test('secondary fingers cannot replace or release the active contact',()=>{
  assert.equal(end.contact,start.contact);assert.ok(!end.reset);
  assert.ok(!adventureCardTouch(null,'down',point(200,300,2,false)).track);
 });
+
+test('Explore finger tap never starts tilt or moves the native click target',()=>{
+ const start=adventureCardTouch(null,'down',{...point(220,450),action:true});
+ assert.equal(start.contact,null);assert.equal(start.track,false);assert.equal(start.reset,false);
+ const move=adventureCardTouch(start.contact,'move',point(223,451));
+ assert.equal(move.track,false);
+ const end=adventureCardTouch(move.contact,'up',point(223,451));
+ assert.equal(end.track,false);assert.equal(end.reset,false);
+ assert.equal(adventureCardTouch(end.contact,'down',point(120,230)).track,true);
+});

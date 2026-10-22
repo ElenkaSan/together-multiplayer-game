@@ -72,3 +72,8 @@
 .app.tiny .living-adventure-cards .fan-tilt-debug{position:absolute;top:48px;left:10px;z-index:10;white-space:pre;font:12px/1.5 monospace;color:#fff;background:#14382ee8;padding:8px;pointer-events:none}
 
 .app.tiny .living-adventure-cards .fan-tilt-surface{-webkit-transform-style:preserve-3d;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+
+/* Keep the native Explore target stationary during touch/hover activation. */
+.app.tiny .living-adventure-cards .world-card-action{touch-action:manipulation}
+.app.tiny .living-adventure-cards .world-card-action:hover,.app.tiny .living-adventure-cards .world-card-action:active{transform:none}
+.app.tiny .living-adventure-cards .world-card-action:focus-visible{outline:3px solid #f8e7ad;outline-offset:3px}

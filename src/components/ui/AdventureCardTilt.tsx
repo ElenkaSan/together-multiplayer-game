@@ -28,12 +28,13 @@ export function AdventureCardTilt({children,enabled,limit,className,debug=false}
  const interact=(phase:'down'|'move'|'up'|'cancel',e:PointerEvent<HTMLDivElement>)=>{
   received.current=true;updateDebug();
   if(!enabled)return;
+  const action=!!(e.target as Element).closest('[data-no-card-tilt]');
   if(e.pointerType==='mouse'){
-   if(phase==='move')apply(e);
+   if(phase==='move'&&!action)apply(e);
    if(phase==='cancel')reset();
    return;
   }
-  const next=adventureCardTouch(touch.current,phase,{id:e.pointerId,x:e.clientX,y:e.clientY,primary:e.isPrimary});
+  const next=adventureCardTouch(touch.current,phase,{id:e.pointerId,x:e.clientX,y:e.clientY,primary:e.isPrimary,action});
   touch.current=next.contact;
   if(next.reset)reset();
   if(next.track)apply(e);
