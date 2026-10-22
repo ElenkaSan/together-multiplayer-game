@@ -93,3 +93,8 @@
 .app.tiny .setup>.choose-world-button{border-color:#46684f;background:#f3e6b8;color:#244936}
 .app .choose-world-button>span{font-size:22px;line-height:1}
 .app .setup>.choose-world-button:focus-visible{outline:3px solid #ba8b30;outline-offset:4px}
+
+/* Portrait expedition maps (Levels 3–10) have a quieter desktop footprint. */
+@media(min-width:1000px){
+ .app.tiny :is(.expedition-living-map,.collection-map){width:80%;margin-inline:auto}
+}
