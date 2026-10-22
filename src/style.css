@@ -98,3 +98,7 @@
 @media(min-width:1000px){
  .app.tiny :is(.expedition-living-map,.collection-map){width:80%;margin-inline:auto}
 }
+
+@media(min-width:1000px){
+ .app.tiny .tiny-setup-world[data-expedition=true] .world-topline{width:80%;margin-inline:auto}
+}

@@ -5,7 +5,7 @@ import {adventureCursorPosition} from './adventure-card-layout';
 import {adventureCardTouch,type CardTouch} from './adventure-card-touch';
 
 /** Outer hitbox is stable. Only its visible inner surface receives pointer transforms. */
-export function AdventureCardTilt({children,enabled,limit,className,debug=false}:{children:ReactNode;enabled:boolean;limit:number;className:string;debug?:boolean}){
+export function AdventureCardTilt({children,action,enabled,limit,className,debug=false}:{children:ReactNode;action?:ReactNode;enabled:boolean;limit:number;className:string;debug?:boolean}){
  const pointerX=useMotionValue(0),pointerY=useMotionValue(0),lift=useMotionValue(0);
  const targetX=useTransform(pointerY,[-1,1],[limit,-limit]);
  const targetY=useTransform(pointerX,[-1,1],[-limit,limit]);
@@ -45,5 +45,6 @@ export function AdventureCardTilt({children,enabled,limit,className,debug=false}
    {children}<span className="fan-card-light" aria-hidden="true"><i/><i/><i/><i/></span><span className="fan-card-sheen" aria-hidden="true"/>
    {showDebug&&<output className="fan-tilt-debug" ref={debugOutput} aria-hidden="true">{'pointerX: 0\npointerY: 0\nrotateX: 0°\nrotateY: 0°\npointer events received: NO'}</output>}
   </m.div>
+  {action&&<div className="fan-card-action-layer" data-no-card-tilt="">{action}</div>}
  </div>
 }

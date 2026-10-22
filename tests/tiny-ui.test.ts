@@ -32,6 +32,7 @@ test('each world exposes a native Explore button separate from the tilting artwo
  assert.equal((html.match(/<article data-world=/g)||[]).length,10);
  assert.equal((html.match(/<button class="world-card-action" type="button" data-no-card-tilt="" aria-label="Explore /g)||[]).length,10);
  assert.match(html,/aria-label="Explore Jungle Adventure"/);
+ assert.equal((html.match(/class="fan-card-action-layer"/g)||[]).length,10);
  assert.doesNotMatch(html,/<button[^>]*class="adventure-world-card/);
 });
 test('Explore activates its own adventure callback for every world',()=>{
@@ -39,7 +40,8 @@ test('Explore activates its own adventure callback for every world',()=>{
  const picker=AdventurePicker({selected:'forest-rescue',onSelect:id=>{selected=id}});
  const carousel=picker.props.children[2];
  for(const item of carousel.props.items){
-  const action=item.content.props.children[2].props.children.at(-1);
+  const action=item.action;
+  assert.equal(item.content.props.children[2].props.children.at(-1).props.className,'world-card-action-space');
   assert.equal(action.type,'button');assert.equal(action.props['data-no-card-tilt'],'');
   action.props.onClick();assert.equal(selected,item.id);
  }

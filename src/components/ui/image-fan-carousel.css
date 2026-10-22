@@ -39,8 +39,6 @@
 @keyframes living-light-y{0%{opacity:0;transform:translateY(0)}5%,20%{opacity:.8}25%,100%{opacity:0;transform:translateY(350%)}}
 @keyframes living-light-x-back{0%{opacity:0;transform:translateX(0)}5%,20%{opacity:.8}25%,100%{opacity:0;transform:translateX(-350%)}}
 @keyframes living-light-y-back{0%{opacity:0;transform:translateY(0)}5%,20%{opacity:.8}25%,100%{opacity:0;transform:translateY(-350%)}}
-.app.tiny .living-adventure-cards .fan-light-trail{position:absolute;left:0;top:76%;width:100%;height:32%;z-index:0;pointer-events:none}
-.app.tiny .living-adventure-cards[data-layout=compact] .fan-light-trail{top:76%;height:32%}
 .app.tiny .living-adventure-cards .fan-navigation{display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 0 24px;position:relative;z-index:8;min-height:72px}
 .app.tiny .living-adventure-cards .fan-navigation button{width:48px;min-height:48px;flex:none;border:1px solid #bcc8b7;background:#fff9eccc;color:#2b503c;font-size:21px}
 .app.tiny .living-adventure-cards .fan-navigation span{font-size:13px;font-weight:600;text-align:center;color:#425b49;max-width:220px}
@@ -77,3 +75,10 @@
 .app.tiny .living-adventure-cards .world-card-action{touch-action:manipulation}
 .app.tiny .living-adventure-cards .world-card-action:hover,.app.tiny .living-adventure-cards .world-card-action:active{transform:none}
 .app.tiny .living-adventure-cards .world-card-action:focus-visible{outline:3px solid #f8e7ad;outline-offset:3px}
+
+/* Explore is a stable sibling of the rotating artwork, not part of its 3D plane. */
+.app.tiny .living-adventure-cards .fan-featured .fan-tilt-hitbox{transform-style:flat;-webkit-transform-style:flat}
+.app.tiny .living-adventure-cards .fan-card-action-layer{position:absolute;left:24px;bottom:24px;z-index:30;pointer-events:none}
+.app.tiny .living-adventure-cards .fan-card-action-layer .world-card-action{pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:0;font-weight:700;line-height:1.4}
+.app.tiny .living-adventure-cards .world-card-action-space{height:44px;min-height:44px;margin-top:4px;flex:none}
+@media(max-width:600px){.app.tiny .living-adventure-cards .fan-card-action-layer{left:18px;bottom:20px}}
