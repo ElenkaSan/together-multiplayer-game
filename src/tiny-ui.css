@@ -155,10 +155,11 @@
 .tiny .ice-journey-status>.tiny-icon {width:30px;height:30px}
 .tiny .ice-stops {list-style:none;margin:0;padding:0;position:absolute;inset:0}
 .tiny .ice-stops>li {position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;max-width:24%}
-.tiny .ice-stop-pin {display:grid;place-items:center;background:#edf9ff;border:2px solid #f7ffff;box-shadow:0 3px 7px #102b5550;color:#254765;font-size:18px;font-weight:800;border-radius:10px 10px 10px 2px;width:34px;height:36px}
-.tiny .ice-stop-pin>.tiny-icon {width:28px;height:28px}
-.tiny .ice-stop-home .ice-stop-pin {background:#7fb6bd}
-.tiny .ice-stop-current .ice-stop-pin {border-color:#f3cf82;background:#fcf0c9;animation:ice-stop-glow 2.8s ease-in-out infinite}
+.tiny :is(.ice-stop-pin,.expedition-stops li>span,.collection-markers li>span) {display:grid;place-items:center;background:#edf9ff;border:2px solid #f7ffff;box-shadow:0 3px 7px #102b5550!important;color:#254765;font-size:18px;font-weight:800;border-radius:10px 10px 10px 2px!important;width:34px;height:36px;flex-shrink:0}
+.tiny :is(.ice-stop-pin,.expedition-stops li>span,.collection-markers li>span)>.tiny-icon {width:28px;height:28px}
+.tiny :is(.ice-stop-home .ice-stop-pin,.expedition-stops .stop-complete>span,.collection-markers .done>span) {background:#7fb6bd!important}
+.tiny :is(.ice-stop-current .ice-stop-pin,.expedition-stops .stop-active>span,.collection-markers .active>span) {border-color:#f3cf82;background:#fcf0c9}
+.tiny .ice-stop-current .ice-stop-pin {animation:ice-stop-glow 2.8s ease-in-out infinite}
 .tiny .ice-stop-label {font-size:11px;font-weight:700;line-height:1.2;background:#f6fbffee;border-radius:8px;padding:4px 6px;box-shadow:0 1px 4px #182d441f;color:#22405a;text-align:center;white-space:normal}
 .tiny .ice-team-scout {position:absolute;width:9%;height:16%;object-fit:contain;transform:translate(-50%,-100%);animation:map-idle 3s ease-in-out infinite;filter:drop-shadow(0 2px 2px #29455733)}
 .tiny .ice-travelled-path {position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -185,6 +186,6 @@
 @keyframes ice-stop-glow {50%{box-shadow:0 0 12px #fae5a5}}
 @keyframes ice-aurora-drift {to{opacity:.55;transform:translateX(3%)}}
 @keyframes ice-snow-drift {to{background-position:59px 67px}}
-@media(max-width:600px){.tiny .ice-stop-pin{width:26px;height:28px;font-size:14px}.tiny .ice-stop-pin>.tiny-icon{width:22px;height:22px}.tiny .ice-stop-label{font-size:9px;padding:3px 4px}.tiny .ice-journey-status{font-size:12px}.tiny .route-art{height:90px}.tiny[data-world=ice] .choices button{flex-basis:100px;min-height:125px}.tiny .hero-trail .route-art{width:30px;height:38px}}
+@media(max-width:600px){.tiny :is(.ice-stop-pin,.expedition-stops li>span,.collection-markers li>span){width:26px;height:28px;font-size:14px}.tiny :is(.ice-stop-pin,.expedition-stops li>span,.collection-markers li>span)>.tiny-icon{width:22px;height:22px}.tiny .ice-stop-label{font-size:9px;padding:3px 4px}.tiny .ice-journey-status{font-size:12px}.tiny .route-art{height:90px}.tiny[data-world=ice] .choices button{flex-basis:100px;min-height:125px}.tiny .hero-trail .route-art{width:30px;height:38px}}
 @media(prefers-reduced-motion:reduce){.tiny .ice-aurora,.tiny .ice-snow-drift,.tiny .ice-stop-pin,.tiny .ice-team-scout{animation:none!important}}
 
