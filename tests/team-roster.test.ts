@@ -1,0 +1,24 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import {Engine} from '../server/engine';
+import {TeamRoster} from '../src/TeamRoster';
+for(const count of [2,6])test(`joined hero sees all ${count} public teammates and current status without private clues`,()=>{
+ const e=new Engine(),{r,p}=e.create('tiny','Captain Test','captain-test','jungle-adventure');
+ for(let i=1;i<count;i++)e.join(r.code,`Hero ${i}`,`hero-${i}`);
+ const hero=r.players[1];
+ e.ready(r,hero);
+ let html=renderToStaticMarkup(React.createElement(TeamRoster,{view:e.view(r,hero),expedition:true,compact:true}));
+ assert.match(html,/aria-label="Your team"/);assert.match(html,/compact-team-roster/);
+ assert.match(html,new RegExp(`${count} / 6 players`));assert.match(html,/Captain Test/);assert.match(html,/Hero 1<!-- --> \(you\)|Hero 1 \(you\)/);
+ for(let i=1;i<count;i++)assert.ok(html.includes(`Hero ${i}`));
+ assert.match(html,/Team Captain/);assert.match(html,/Little Hero/);assert.match(html,/>Ready</);
+ assert.doesNotMatch(html,/crew-note/);
+ r.players.forEach(x=>{if(!x.ready)e.ready(r,x)});e.start(r,p);
+ const view=e.view(r,hero);html=renderToStaticMarkup(React.createElement(TeamRoster,{view,expedition:true,compact:true}));
+ for(const clue of view.brief?.observations||[])assert.ok(!html.includes(clue.text));
+ e.disconnect('captain-test');
+ html=renderToStaticMarkup(React.createElement(TeamRoster,{view:e.view(r,hero),expedition:true,compact:true}));
+ assert.match(html,/Reconnecting/);assert.match(html,/Captain Test/);
+});
