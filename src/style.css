@@ -13,7 +13,7 @@
 
 
 /* Sharp, flat UI chrome. Illustrated assets and circular status dots stay intact. */
-.app :where(button,input,select,textarea,dialog,[role="dialog"],[role="alertdialog"],.panel,.world,.portal-card,.portal-art,.portal-content,.portal-invite,.portal-tags span,.portal-topbar em,.connection,.player-requirements,.adventure-world-card,.world-card-copy,.world-card-action,.world-card-lock,.level-card-top span,.fan-thumbnail,.fan-thumbnail span,.fan-card-surface,.fan-card-light,.hero-guide li,.guide-tile,.hero-full-rules,.voice-settings-controls,.mission-stage,.friend-scene,.friend-speech,.hero-clue,.private-panel,.expedition-team-plan,.expedition-observations>div,.clue-sharing-list article,.rescue-map-toggle,.adventure-map,.illustrated-map,.expedition-living-map,.ice-expedition-world,.expedition-scene,.expert-scene,.adventure-progress,.map-caption span,.timer,.avatar,.error,.notice,.mission-summary span,.unlock-card,.mechanism-illustration,.mission-control-board li,.expert-team li,.power-blocks>span,.hero-trail,.rescue-hint,.round-track span,.expedition-progress li,.expedition-stops li>span,.expedition-stops strong){
+.app :where(button,input,select,textarea,dialog,[role="dialog"],[role="alertdialog"],.panel,.world,.portal-card,.portal-art,.portal-content,.portal-invite,.portal-tags span,.portal-topbar em,.connection,.player-requirements,.adventure-world-card,.world-card-copy,.world-card-action,.world-card-lock,.level-card-top span,.fan-thumbnail,.fan-thumbnail span,.fan-card-surface,.fan-card-light,.hero-guide li,.guide-tile,.hero-full-rules,.voice-settings-controls,.mission-stage,.friend-scene,.friend-speech,.hero-clue,.private-panel,.expedition-team-plan,.expedition-observations>div,.clue-sharing-list article,.rescue-map-toggle,.collection-map,.collection-markers li>span,.collection-markers strong,.collection-markers .storm-marker>.tiny-icon,.adventure-map,.illustrated-map,.expedition-living-map,.ice-expedition-world,.expedition-scene,.expert-scene,.adventure-progress,.map-caption span,.timer,.avatar,.error,.notice,.mission-summary span,.unlock-card,.mechanism-illustration,.mission-control-board li,.expert-team li,.power-blocks>span,.hero-trail,.rescue-hint,.round-track span,.expedition-progress li,.expedition-stops li>span,.expedition-stops strong){
  border-radius:0!important;
  box-shadow:none!important;
 }
@@ -87,3 +87,9 @@
 
 /* Homepage headings share the DM Sans family. */
 .app.home .portal-heading h1,.app.home .portal-content h2{font-family:'DM Sans',sans-serif}
+
+/* Visible exit from an Adventure, with the same sharp game controls. */
+.app .setup>.choose-world-button{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:12px 18px;margin:0 0 28px;border:2px solid var(--border);background:var(--panel);color:inherit;font-size:16px;font-weight:750;line-height:1.25}
+.app.tiny .setup>.choose-world-button{border-color:#46684f;background:#f3e6b8;color:#244936}
+.app .choose-world-button>span{font-size:22px;line-height:1}
+.app .setup>.choose-world-button:focus-visible{outline:3px solid #ba8b30;outline-offset:4px}

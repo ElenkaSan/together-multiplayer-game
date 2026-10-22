@@ -27,7 +27,7 @@ export function CollectionMap({view,adventureId,connected=true}:{view?:View;adve
  {!cloud&&count===5?<div className={`reunion-friends ${sequence>=0?'gathering':''}`} aria-label="All five original Tiny Heroes at Great Friendship Tree">{heroPositions.map(([x,y],i)=><div key={i} style={{left:`${x}%`,top:`${y}%`,'--hero-delay':`${i*.12}s`} as React.CSSProperties}><Animal kind={i} expression="celebrate"/></div>)}</div>:<div className={`collection-traveler ${travel?'traveling':''}`} style={{left:`${to[0]}%`,top:`${to[1]}%`,'--start-x':`${from[0]}%`,'--start-y':`${from[1]}%`,'--end-x':`${to[0]}%`,'--end-y':`${to[1]}%`} as React.CSSProperties}>{cloud?<SkyShip/>:<Animal kind={current} expression={view?.phase==='result'&&view.result?.retry?'oops':travel?'happy':'idle'}/>}</div>}
  </div>
  {(travel||sequence>=0)&&motion&&<div className="collection-transition" role="status"><span>{sequence>=0?['Water flows again.','Deliveries reach the tree.','Celebration lights shine.','Everyone comes together!'][sequence]:`On to ${stages[travel!.to].location}!`}</span><button className="secondary" onClick={()=>{setTravel(null);setSequence(-1)}}>Skip →</button></div>}
- <div className="map-caption"><span>{cloud?'Cloud Adventure · Level 9':'Meadow Rescue · Master Challenge'}</span><span>{count} / 5 {cloud?'skyway steps':'meadow systems'} restored</span></div>
+ <div className="map-caption"><span>{cloud?'Cloud Adventure · Level 9':'Meadow Rescue · Level 10 · Master Challenge'}</span><span>{count} / 5 {cloud?'skyway steps':'meadow systems'} restored</span></div>
  </div>
 }
 function MeadowLayers({count,sequence}:{count:number;sequence:number}){return <div className="meadow-restoration" aria-label={`${count} meadow systems restored`}>
