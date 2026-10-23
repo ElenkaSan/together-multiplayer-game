@@ -234,3 +234,14 @@
 @media(prefers-reduced-motion:reduce){.app.tiny .rescue-map-toggle>summary,.app.tiny .rescue-map-toggle>summary::after{transition:none}}
 .tiny-effects-scope[data-effects="off"] .app.tiny .rescue-map-toggle>summary,
 .tiny-effects-scope[data-effects="off"] .app.tiny .rescue-map-toggle>summary::after{transition:none}
+
+
+/* Illustrated public choices: larger silhouettes, no answer or safety indicators. */
+.app.tiny .expedition-choices .expedition-illustration{width:104px;height:96px;object-fit:contain}
+.app.tiny .clue-sharing-list .expedition-illustration,
+.app.tiny .expedition-observations .expedition-illustration{width:88px;height:80px}
+@media(max-width:600px){
+ .app.tiny .expedition-choices .expedition-illustration{width:80px;height:76px}
+ .app.tiny .clue-sharing-list .expedition-illustration,
+ .app.tiny .expedition-observations .expedition-illustration{width:68px;height:64px}
+}
