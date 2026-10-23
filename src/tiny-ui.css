@@ -213,3 +213,24 @@
 
 /* Inset Level 3–10 map headings without adding gutters around the artwork. */
 .app.tiny .rescue-map-toggle:has(>.expedition-living-map,>.collection-map)>summary{padding-inline:16px}
+
+/* Every Living Map header is a clear native disclosure control. */
+.app.tiny .rescue-map-toggle>summary{
+ position:relative;list-style:none;padding-inline:16px 52px;min-height:52px;
+ background:var(--world-soft);cursor:pointer;
+ transition:background .16s ease;
+}
+.app.tiny .rescue-map-toggle>summary::-webkit-details-marker{display:none}
+.app.tiny .rescue-map-toggle>summary::marker{content:""}
+.app.tiny .rescue-map-toggle>summary::after{
+ content:"";position:absolute;right:20px;top:50%;width:10px;height:10px;
+ border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+ transform:translateY(-70%) rotate(45deg);pointer-events:none;
+ transition:transform .16s ease;
+}
+.app.tiny .rescue-map-toggle[open]>summary::after{transform:translateY(-30%) rotate(225deg)}
+.app.tiny .rescue-map-toggle:has(>.expedition-living-map,>.collection-map)>summary{padding-inline:16px 52px}
+@media(hover:hover){.app.tiny .rescue-map-toggle>summary:hover{background:#e3ece5}}
+@media(prefers-reduced-motion:reduce){.app.tiny .rescue-map-toggle>summary,.app.tiny .rescue-map-toggle>summary::after{transition:none}}
+.tiny-effects-scope[data-effects="off"] .app.tiny .rescue-map-toggle>summary,
+.tiny-effects-scope[data-effects="off"] .app.tiny .rescue-map-toggle>summary::after{transition:none}
