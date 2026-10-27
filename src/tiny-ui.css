@@ -245,3 +245,9 @@
  .app.tiny .clue-sharing-list .expedition-illustration,
  .app.tiny .expedition-observations .expedition-illustration{width:68px;height:64px}
 }
+
+/* Keep rescue-trail pictures together in the centre instead of spreading them apart. */
+.app.tiny .hero-trail ol{justify-content:center;gap:8px;min-width:0}
+.app.tiny .hero-trail li{flex:0 1 auto}
+@media(max-width:600px){.app.tiny .hero-trail ol{gap:6px}}
+@media(max-width:360px){.app.tiny .hero-trail ol{gap:4px}}
