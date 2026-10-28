@@ -261,3 +261,12 @@
 .app.tiny .clue-sharing-list article>div>span{display:inline-flex;align-items:center;gap:6px;color:var(--world-deep);font-weight:600}
 .app.tiny .clue-sharing-list article>div>span>.tiny-icon{width:22px;height:22px}
 @media(max-width:600px){.app.tiny .bulk-clue-share>button{width:100%}}
+
+
+/* Invite URLs lead straight to a name-first joining panel. */
+.app.tiny .invite-landing{width:100%;max-width:480px;margin:0 auto}
+.app.tiny .invite-landing .lobby-entry{padding:24px}
+/* Identical outer height in every location and at every breakpoint. */
+.app.tiny .sound-toggle,.app.tiny .room-buttons .sound-toggle,
+.app .room-buttons .copy-invite-button{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;height:48px;min-height:48px;padding-block:8px;line-height:20px;font-size:14px;white-space:nowrap}
+.app.tiny .sound-toggle>.tiny-icon{width:26px;height:26px;flex:0 0 26px}
