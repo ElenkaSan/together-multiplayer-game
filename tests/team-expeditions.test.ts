@@ -53,7 +53,7 @@ test('child UI has picture clues, shared Captain plan and Read to Me without For
  for(const id of ['jungle-adventure','treasure-island']){
   const {e,r,p}=start(id);e.tick(r.deadline!+1);e.submit(r,p,0,expeditionSolutions[id][0],1,id,1);const view=e.view(r,r.players[1]);
   const html=renderToStaticMarkup(React.createElement(TeamExpeditionExperience,{view,actions:{},setActions:()=>{},connected:true,pending:false,remaining:40,command:async()=>{}}));
-  assert.match(html,/Read to me/);assert.match(html,/Ready — I agree/);assert.match(html,/Captain’s plan/);assert.match(html,/expedition-icon/);assert.doesNotMatch(html,/Pick a tool|Warm Packs|kindness stars/);assert.match(expeditionNarration(view),/Captain’s plan/);
+  assert.match(html,/Read to me/);assert.match(html,/I agree — Ready/);assert.match(html,/Let’s rethink/);assert.match(html,/Captain’s plan/);assert.match(html,/expedition-icon/);assert.doesNotMatch(html,/Pick a tool|Warm Packs|kindness stars/);assert.match(expeditionNarration(view),/Captain’s plan/);
   const map=renderToStaticMarkup(React.createElement(ExpeditionMap,{view}));assert.match(map,new RegExp(`${getAdventure(id).environment.renderer}-map`));assert.equal((map.match(/stop-active/g)||[]).length,1);
   const publicContent=JSON.stringify(adventureSnapshot(r.tiny!,0));assert.doesNotMatch(publicContent,/Fresh scout tracks|old drawing shows|privateEvidence/);
  }
