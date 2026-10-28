@@ -251,3 +251,13 @@
 .app.tiny .hero-trail li{flex:0 1 auto}
 @media(max-width:600px){.app.tiny .hero-trail ol{gap:6px}}
 @media(max-width:360px){.app.tiny .hero-trail ol{gap:4px}}
+
+
+/* One explicit send action for small teams: clue pictures are not selectable answers. */
+.app.tiny .bulk-clue-share{margin-top:16px}
+.app.tiny .bulk-clue-share>button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px}
+.app.tiny .bulk-clue-share>button>.tiny-icon{width:26px;height:26px}
+.app.tiny .bulk-clue-share>p{font-size:14px;margin:8px 0}
+.app.tiny .clue-sharing-list article>div>span{display:inline-flex;align-items:center;gap:6px;color:var(--world-deep);font-weight:600}
+.app.tiny .clue-sharing-list article>div>span>.tiny-icon{width:22px;height:22px}
+@media(max-width:600px){.app.tiny .bulk-clue-share>button{width:100%}}

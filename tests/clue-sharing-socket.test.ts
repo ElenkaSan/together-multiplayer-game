@@ -18,7 +18,7 @@ test('real clue sharing over two independent sockets survives refresh and suppor
    for(let round=0;round<5;round++){
     let vc=await wait(captain,v=>v?.phase==='action'&&v.adventure.id===id&&v.round===round),vh=await wait(hero,v=>v?.phase==='action'&&v.adventure.id===id&&v.round===round);
     assert.equal(vc.clues.received.length,0);
-    const shareAll=async()=>{for(const clue of vh.clues.own){const result=await command(hero,{type:'share-clue',clue:clue.index,round,attempt:vh.adventure.attempt,adventureId:id,run:vh.progression.run,text:'FORGED'});assert.ok(result.ok)}await wait(captain,v=>v?.clues?.allShared);};await shareAll();
+    const shareAll=async()=>{const result=await command(hero,{type:'share-all-clues',round,attempt:vh.adventure.attempt,adventureId:id,run:vh.progression.run,text:'FORGED',clues:[999]});assert.ok(result.ok);const shared=await wait(captain,v=>v?.clues?.allShared);assert.equal(shared.clues.received.length,vh.clues.own.length);assert.ok(shared.clues.received.every((c:any)=>c.text!=='FORGED'));};await shareAll();
     const before=await command(hero,{type:'share-clue',clue:999,round,attempt:vh.adventure.attempt,adventureId:id,run:vh.progression.run});assert.equal(before.ok,false);
     assert.equal(vc.deadline,vh.deadline);assert.notDeepEqual(vc.brief.observations,vh.brief.observations);
     const submit=(s:Socket,v:any,action:object)=>command(s,{type:'submit',round,attempt:v.adventure.attempt,adventureId:id,run:v.progression.run,action});
