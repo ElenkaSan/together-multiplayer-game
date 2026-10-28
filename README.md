@@ -190,3 +190,95 @@ If the project grows, the architecture can be extended without rewriting the gam
 ### Summary
 
 This repository follows a classic authoritative-server game architecture: an in-memory Node server coordinates rooms, validates actions, and drives game progression, while a React client renders the game state and captures player interaction. The design is intentionally lightweight, fast to run, and well-suited for small cooperative multiplayer sessions without requiring infrastructure beyond a Node host.
+
+
+# System Design / Architecture Overview
+
+## Overview
+
+This project is a real-time cooperative multiplayer web game for 2–6 players on independent devices. Players join a room by code, ready up, and complete shared objectives coordinated by a single authoritative server.
+
+The system is intentionally lightweight:
+- no login
+- no database
+- no user accounts
+- room state is kept in memory
+- multiplayer coordination is handled in real time using Socket.IO
+
+## High-level architecture
+
+The application is split into three layers:
+
+- Frontend: React + TypeScript + Vite (`src/`)
+- Shared game logic: TypeScript definitions and rules (`shared/`)
+- Backend: Express + Socket.IO server (`server/`)
+
+## Client layer
+
+The browser client renders the game UI, room flow, and player interactions. It is responsible for:
+- creating and joining rooms
+- displaying lobby and phase transitions
+- rendering game state and decisions
+- sending actions to the server
+- updating views from server snapshots
+
+## Shared layer
+
+The `shared/` folder defines the canonical game rules and data structures used by both the client and server. This includes mission definitions, round logic, clues, and gameplay constraints.
+
+## Server layer
+
+The server is the authoritative source of truth. It manages:
+- room creation and lifecycle
+- seat assignment and host transfer
+- player readiness
+- validation of actions and duplicate submissions
+- reconnect and timeout handling
+- round progression and result resolution
+
+Key files:
+- `server/index.ts`
+- `server/engine.ts`
+- `server/modes.ts`
+
+## Real-time communication
+
+The game uses Socket.IO to synchronize room state across players. Clients send intent (join, ready, submit action), and the server validates and broadcasts the updated authoritative state.
+
+## State model
+
+Each room is an in-memory state machine with the flow:
+- lobby
+- briefing
+- action
+- locked
+- result
+- next briefing / finished
+
+The room lifecycle includes reconnects, expiry, and pause behavior when player count drops below the minimum requirement.
+
+## Deployment model
+
+The project is designed for a single-process Node deployment:
+- `npm run build`
+- `npm start`
+
+No database is required for the current version. Deployment is simple and suitable for lightweight hosting providers.
+
+## Design trade-offs
+
+Strengths:
+- fast local setup
+- low operational cost
+- simple multiplayer model
+- clear separation between UI and game logic
+
+Trade-offs:
+- room state is ephemeral
+- no persistence across server restarts
+- no built-in lobby/chat/account systems
+- limited scaling beyond a single server instance
+
+## Summary
+
+This is an authoritative-server multiplayer game architecture: the browser client handles UX and interaction, while the Node server owns validation and game state progression. The design prioritizes simplicity, speed, and low infrastructure requirements over persistence and large-scale online infrastructure.
