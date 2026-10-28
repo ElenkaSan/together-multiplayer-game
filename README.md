@@ -43,6 +43,40 @@ npm run build
 
 Engine tests cover five rounds for each player count in both modes, snapshot privacy, host transfer, reconnect, invalid/stale/duplicate orders, missing submissions, pause/resume, capacity, expiry and progression. Browser and physical-device checks still need the live deployment. No database or paid resource is required for this version.
 
+┌─────────────────────────────────────────────────────────────────────┐
+│                         Browser / Client                          │
+│  React + TypeScript + Vite                                          │
+│  - room join / create                                               │
+│  - lobby + game UI                                                 │
+│  - ready state                                                     │
+│  - submit actions                                                  │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │ Socket.IO
+                               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                       Authoritative Server                         │
+│  Node.js + Express + Socket.IO                                      │
+│  - room lifecycle                                                   │
+│  - seat assignment                                                  │
+│  - validity checks / duplicate rejection                             │
+│  - reconnect + timeout handling                                     │
+│  - round progression                                                │
+└──────────────┬───────────────────────┬──────────────────────────────┘
+               │                       │
+               ▼                       ▼
+┌──────────────────────┐   ┌─────────────────────────────────────┐
+│ Game Logic / Modes   │   │ In-memory Room State               │
+│ server/modes.ts      │   │ room code, seats, readiness,       │
+│ server/*.ts          │   │ phase, actions, result, timeouts    │
+└──────────────────────┘   └─────────────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                     Shared Domain / Rules                          │
+│  shared/*.ts                                                       │
+│  mission definitions, rules, turn structure, scenario metadata     │
+└─────────────────────────────────────────────────────────────────────┘
+
 ## Architecture
 
 ### Overview
