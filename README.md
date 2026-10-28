@@ -78,6 +78,36 @@ Engine tests cover five rounds for each player count in both modes, snapshot pri
 └─────────────────────────────────────────────────────────────────────┘
 
 ## Architecture
+flowchart LR
+    subgraph Client["Frontend (React + Vite)"]
+        UI["src/ UI Components\nRoomEntry, TinyHeroExperience,\nTeamExpedition, CollectionAdventure, ..."]
+        SocketClient["Socket.IO Client"]
+    end
+
+    subgraph Shared["Shared Game Layer"]
+        Rules["shared/*.ts\nMission data, round rules,\nscenario definitions"]
+    end
+
+    subgraph Server["Backend (Node.js + Express + Socket.IO)"]
+        HTTP["Express HTTP server\n/health, room endpoints"]
+        Engine["server/engine.ts\nRoom lifecycle, seats, readiness,\nvalidation, reconnects"]
+        Modes["server/modes.ts\nGame mode orchestration"]
+        ModeLogic["Mode-specific logic\nserver/*.ts\ntiny-adventures, team-expeditions,\ncollection-mechanisms, expert-mechanisms"]
+        Store["In-memory Room Store\nCurrent room state"]
+    end
+
+    UI --> SocketClient
+    SocketClient -->|join room / ready / submit action| Engine
+    HTTP --> Engine
+
+    Engine --> Store
+    Engine --> Modes
+    Modes --> ModeLogic
+    ModeLogic --> Rules
+    Rules --> UI
+
+    Engine -->|state snapshots| SocketClient
+    SocketClient -->|render state| UI
 
 ### Overview
 
