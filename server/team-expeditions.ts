@@ -28,5 +28,5 @@ export function resolveExpedition(id:string,index:number,actions:Action[],bonus:
 export const expeditionHints:Record<string,string[]>={
  'desert-rescue':desertHints,
  'jungle-adventure':['Stream tracks and the leaf sign match. Avoid flooded ground and falling stones.','Fasten the vine. Scout checks. Then the team crosses.','Read left to right: leaf, sun, river.','Look uphill for the dry entrance and white flower.','Garden passage. Leaf, sun, river. Align signs, open gate, enter.'],
- 'treasure-island':['The shell sign and rock arch show the sheltered landing.','Search the cabin with the compass sign and metal rattle.','Read left to right: moon, parrot, star.','High cave: lift latch, turn wheel, open door. Or jungle: find shell signs, follow them, enter the chamber.','Twin palms, east, crescent beach.']
+ 'treasure-island':['Choose Arch cove: the shell sign stands beside the rock arch. Soft sand sinks under our feet; Surf beach has a strong current.','Search the cabin with the compass sign and metal rattle.','Read left to right: moon, parrot, star.','High cave: lift latch, turn wheel, open door. Or jungle: find shell signs, follow them, enter the chamber.','Twin palms, east, crescent beach.']
 };

@@ -61,3 +61,12 @@
  .app.tiny :is(.world-jungle,.world-treasure) .expedition-stops li:first-child>span{flex-shrink:0}
  .app.tiny :is(.world-jungle,.world-treasure) .expedition-stops li:first-child>strong{min-width:0;overflow-wrap:normal}
 }
+
+/* Coral Cove: anchor the whole marker on the western rocks, clear of the hero. */
+.app.tiny .world-treasure .expedition-stops li:first-child{left:8px!important;transform:translateY(-50%);max-width:calc(31% - 16px)}
+.app.tiny .world-treasure .expedition-stops li:first-child>span{flex-shrink:0}
+.app.tiny .world-treasure .expedition-stops li:first-child>strong{min-width:0;overflow-wrap:normal}
+@media(max-width:700px){
+ .app.tiny .world-treasure .expedition-stops li:first-child{flex-direction:column;align-items:flex-start;gap:4px}
+ .app.tiny .world-treasure .expedition-stops li:first-child>strong{box-sizing:border-box;max-width:100%}
+}

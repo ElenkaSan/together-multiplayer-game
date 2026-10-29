@@ -59,3 +59,7 @@ test('child UI has picture clues, shared Captain plan and Read to Me without For
  }
  assert.equal(availableAdventures().length,10);assert.equal(adventureDifficulty(4),'Medium+');
 });
+
+test('Coral Cove accepts the sheltered arch and rejects sinking sand and strong surf',()=>{
+ for(const route of ['arch','sand','surf'])assert.equal(resolve('tiny',0,[{route},{confirm:'ready'}],0,'treasure-island').success,route==='arch');
+});

@@ -11,7 +11,7 @@ export function expeditionPicture(name:string,label=''){
  if(t==='captain’s cabin')return 'cabin';
  if(t==='flooded hold')return 'hold';
  if(t==='broken deck')return 'deck';
- if(t==='twin palms')return 'palms';
+ if(t==='twin palms'||t.includes('two palms together'))return 'palms';
  if(t==='old mast')return 'mast';
  if(t==='rock arch'||t==='arch cove')return 'arch';
  if(t==='surf beach'||t==='crescent beach'||t==='soft sand')return 'beach';
@@ -34,7 +34,7 @@ export const hasExpeditionDrawing=(name:string,label='')=>scenes.has(expeditionP
 export function ExpeditionIllustration({name,label=''}:{name:string;label?:string}){
  const id=useId().replace(/:/g,''),p=expeditionPicture(name,label),paint=(s:string)=>`url(#${id}-${s})`;
  const tile=atlasPicture(p),atlas=Object.values(illustrationAtlases).find(a=>a.pictures.includes(tile));
- if(atlas){const index=atlas.pictures.indexOf(tile);return <svg className="expedition-icon expedition-illustration expedition-painted" viewBox="0 0 100 100" aria-hidden="true" data-picture={p} style={{overflow:'hidden'}}><image href={atlas.asset} x={-(index%4)*100} y={-Math.floor(index/4)*100} width="400" height="400"/>{p==='power-off'&&<path d="m16 16 68 68" fill="none" stroke="#ac665c" strokeWidth="5"/>}</svg>;}
+ if(atlas){const index=atlas.pictures.indexOf(tile);return <svg className="expedition-icon expedition-illustration expedition-painted" viewBox={p==='parrot'||p==='leaf'?'0 -14 100 114':'0 0 100 100'} aria-hidden="true" data-picture={p} style={{overflow:'hidden'}}><image href={atlas.asset} x={-(index%4)*100} y={-Math.floor(index/4)*100} width="400" height="400"/>{p==='power-off'&&<path d="m16 16 68 68" fill="none" stroke="#ac665c" strokeWidth="5"/>}</svg>;}
  const plant=(x:number,y:number,s=1)=><g transform={`translate(${x} ${y}) scale(${s})`}><path d="M0 0q-5-15 0-32M0-11q-18-16-22-8 4 13 22 14M0-20q8-20 18-16 3 12-18 20" fill="#4d8861" stroke="#37664b" strokeWidth="1.5"/><path d="M0-16q-12-20-21-16 2 13 21 18M0-6q13-16 25-12-4 11-25 16" fill="#80ad69" stroke="#547c4e" strokeWidth="1.5"/></g>;
  const rocks=(x:number,y:number,s=1)=><g transform={`translate(${x} ${y}) scale(${s})`}><path d="m-16 0 5-16 15-5L18-7l-4 10Z" fill="#a9b2ad"/><path d="m-11-16 15-5 2 16-22 5Z" fill="#d2d8c9"/><path d="m6-5 12-2-4 10-30-3Z" fill="#788e87"/></g>;
  const water=<><path d="M65 33q-35 18 7 33t-17 52h69q28-30-6-48T96 33Z" fill={paint('water')}/><path d="M74 42q-19 9 10 21m-9 15q31 7 8 22" fill="none" stroke="#d1f3ec" strokeWidth="3"/><path d="M43 110h26m35-17h20" stroke="#9cddd8" strokeWidth="2"/></>;

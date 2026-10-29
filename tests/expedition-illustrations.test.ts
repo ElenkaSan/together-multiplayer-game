@@ -43,3 +43,9 @@ test('direction and broad-leaf clues use literal illustrations instead of an unr
  assert.equal(expeditionPicture('flag','The broad-leaf marker stands beside the stream.'),'leaf-marker');assert.match(draw('flag','The broad-leaf marker stands beside the stream.'),/data-picture="leaf-marker"/);
  assert.equal(expeditionPicture('flag','The scout brings back a green flag when the crossing is safe.'),'flag');assert.doesNotMatch(draw('flag','Read the door pictures from left to right.'),/Leaf · Sun · River|correct|data-picture="leaf"/);
 });
+
+test('whole leaf and parrot artwork include the top beyond the atlas grid; twin-palms clue shows palms',()=>{
+ for(const name of ['leaf','parrot'])assert.match(draw(name),/viewBox="0 -14 100 114"/);
+ assert.equal(expeditionPicture('leaf','The drawing shows two palms together.'),'palms');
+ assert.match(draw('leaf','The drawing shows two palms together.'),/data-picture="palms"/);
+});
