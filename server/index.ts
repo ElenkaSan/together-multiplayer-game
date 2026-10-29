@@ -1,11 +1,22 @@
 import express from 'express';
+import {readFile} from 'node:fs/promises';
+import {withShareMetadata,type ShareGame} from './share-metadata.js';
 import {createServer} from 'node:http';
 import {Server} from 'socket.io';
 import {resolve as pathResolve} from 'node:path';
 import {Engine} from './engine.js';
 const app=express();const http=createServer(app);const io=new Server(http,{maxHttpBufferSize:10000});
 const engine=new Engine(r=>{for(const p of r.players)if(p.socketId)io.to(p.socketId).emit('state',engine.view(r,p))},Number(process.env.ACTION_MS)||60000,Number(process.env.BRIEFING_MS)||7000,Number(process.env.RESULT_MS)||12000);
-app.get('/health',(_,res)=>res.json({ok:true}));app.use(express.static(pathResolve('dist')));app.get('/{*path}',(_,res)=>res.sendFile(pathResolve('dist/index.html')));
+app.get('/health',(_,res)=>res.json({ok:true}));
+app.get('/',async(req,res,next)=>{
+ try{
+  let game:ShareGame=req.query.game==='tiny'||req.query.game==='signal'?req.query.game:null;
+  if(typeof req.query.room==='string'){try{game=engine.get(req.query.room).mode}catch{}}
+  const html=await readFile(pathResolve('dist/index.html'),'utf8');
+  res.set('Cache-Control','no-store').type('html').send(withShareMetadata(html,game));
+ }catch(error){next(error)}
+});
+app.use(express.static(pathResolve('dist')));app.get('/{*path}',(_,res)=>res.sendFile(pathResolve('dist/index.html')));
 io.on('connection',socket=>{let seat:{code:string;token:string}|null=null;let windowAt=Date.now(),events=0;
  socket.on('command',(data,ack)=>{if(typeof ack!=='function')return;try{if(Date.now()-windowAt>10000){windowAt=Date.now();events=0}if(++events>40)throw Error('Too many requests. Try again shortly.');if(!data||typeof data!=='object')throw Error('Invalid request.');
  if(data.type==='room-info'){const r=engine.get(data.code);ack({ok:true,code:r.code,mode:r.mode});return}
