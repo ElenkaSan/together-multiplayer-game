@@ -53,3 +53,11 @@
 .tiny .rescue-map-toggle>.expedition-living-map{clear:both;width:100%;max-width:100%;margin-inline:auto}
 
 .tiny .share-clues{margin-bottom:24px}.clue-sharing-list{display:grid;gap:12px}.clue-sharing-list article{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--world-soft,#eff3e9)}.clue-sharing-list article>div{min-width:0;flex:1}.clue-sharing-list p{margin:0 0 10px;overflow-wrap:anywhere}.clue-sharing-list button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px}.clue-sharing-list button .tiny-icon{width:24px;height:24px}.team-clues{margin-top:16px}.share-clues>.hero-audio{margin-top:16px}@media(max-width:600px){.clue-sharing-list .expedition-icon{width:48px;height:48px}.clue-sharing-list button{width:100%}}
+/* Keep the landing marker left of the hero on narrow Jungle and Treasure maps. */
+@media(max-width:700px){
+ .app.tiny .world-jungle{--landing-label-edge:36%}
+ .app.tiny .world-treasure{--landing-label-edge:32%}
+ .app.tiny :is(.world-jungle,.world-treasure) .expedition-stops li:first-child{left:8px!important;transform:translateY(-50%);max-width:calc(var(--landing-label-edge) - 16px)}
+ .app.tiny :is(.world-jungle,.world-treasure) .expedition-stops li:first-child>span{flex-shrink:0}
+ .app.tiny :is(.world-jungle,.world-treasure) .expedition-stops li:first-child>strong{min-width:0;overflow-wrap:normal}
+}
