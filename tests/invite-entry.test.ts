@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createElement} from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {RoomEntry} from '../src/RoomEntry';
-import {readInviteCode,shouldRestoreSeat} from '../src/invite-entry';
+import {readInviteCode,shouldRestoreSeat,inviteModeFor,readInviteGame,makeInviteLink} from '../src/invite-entry';
 const props={name:'Hero',code:'SURWEW',connected:true,pending:false,createLabel:'Create Room',onName:()=>{},onCode:()=>{},onEnter:(_:'join'|'create')=>{}};
 test('invite panel puts focused name, prefilled code, Join and Create in that order',()=>{
  const html=renderToStaticMarkup(createElement(RoomEntry,{...props,invite:true}));
@@ -27,4 +27,17 @@ test('invite code is normalized and malformed links do not enable invitation mod
 });
 test('different invitation takes precedence over stored seat; same-room and ordinary reconnect still restore',()=>{
  assert.ok(shouldRestoreSeat({code:'SURWEW'},'SURWEW'));assert.ok(shouldRestoreSeat({code:'SURWEW'},''));assert.equal(shouldRestoreSeat({code:'ABC234'},'SURWEW'),false);assert.equal(shouldRestoreSeat(null,'SURWEW'),false);
+});
+
+test('Signal invitations identify the correct game without a Tiny map icon',()=>{
+ const html=renderToStaticMarkup(createElement(RoomEntry,{...props,invite:true,game:'signal'}));assert.match(html,/Join Signal Lost/);assert.match(html,/entry-signal-mark/);assert.doesNotMatch(html,/tiny-icon-map|Join the rescue/);assert.match(html,/id="name"[^>]*autofocus/);
+ const tiny=renderToStaticMarkup(createElement(RoomEntry,{...props,invite:true,game:'tiny',tiny:true}));assert.match(tiny,/Join Tiny Heroes/);assert.match(tiny,/tiny-icon-map/);
+ const unknown=renderToStaticMarkup(createElement(RoomEntry,{...props,invite:true}));assert.match(unknown,/Join your team/);assert.doesNotMatch(unknown,/tiny-icon-map|Signal Lost|Tiny Heroes/);
+});
+test('room theme ignores a stale room response and accepts only supported games',()=>{
+ assert.equal(inviteModeFor('ABC234',{code:'ABC234',mode:'signal'}),'signal');assert.equal(inviteModeFor('ABC234',{code:'ABC234',mode:'tiny'}),'tiny');assert.equal(inviteModeFor('ABC234',{code:'SURWEW',mode:'tiny'}),null);assert.equal(inviteModeFor('ABC234',null),null);assert.equal(inviteModeFor('ABC234',{code:'ABC234',mode:'forged'} as any),null);
+});
+test('new invitation URLs retain game identity while legacy room-only URLs remain valid',()=>{
+ for(const mode of ['tiny','signal'] as const){const link=makeInviteLink('https://game.example','ABC234',mode),url=new URL(link);assert.equal(readInviteCode(url.search),'ABC234');assert.equal(readInviteGame(url.search),mode);assert.equal(url.origin,'https://game.example');}
+ assert.equal(readInviteGame('?room=ABC234'),null);assert.equal(readInviteGame('?game=forged'),null);assert.equal(readInviteCode('?room=ABC234'),'ABC234');
 });

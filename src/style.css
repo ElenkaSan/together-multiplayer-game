@@ -105,3 +105,15 @@
 @media(min-width:1000px){
  .app.tiny .tiny-setup-world[data-expedition=true] .world-topline{width:80%;margin-inline:auto}
 }
+
+/* Name-first invitations inherit the room's server-confirmed game palette. */
+.app .invite-landing{width:100%;max-width:480px;margin:0 auto}
+.app .invite-landing .panel{display:flex;flex-direction:column;gap:8px;padding:24px}
+.app .invite-landing .entry-heading{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.app .invite-landing .entry-heading h2{font-size:26px;margin:0 0 4px}
+.app .invite-landing .entry-heading span{font-size:14px;color:var(--muted)}
+.app .invite-landing .entry-heading>.tiny-icon{width:40px;height:40px;flex-shrink:0}
+.app.signal .invite-landing .entry-heading .entry-signal-mark{color:#adf66b;font-size:24px;white-space:nowrap}
+.app .invite-landing input{min-width:0;margin-bottom:8px}
+.app .invite-landing :is(.primary,.secondary){margin:0;min-height:52px}
+.app .invite-landing small{margin-top:8px}
