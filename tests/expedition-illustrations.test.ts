@@ -37,3 +37,9 @@ test('painted atlases exist and keep exact 4 by 4 tile coordinates',async()=>{
  const {statSync}=await import('node:fs');
  for(const a of Object.values(illustrationAtlases)){assert.equal(a.pictures.length,16);assert.ok(statSync(`public${a.asset}`).size>10000);for(let i=0;i<a.pictures.length;i++){const h=draw(a.pictures[i]);assert.ok(h.includes(a.asset));assert.ok(h.includes(`x="${-(i%4)*100}"`));assert.ok(h.includes(`y="${-Math.floor(i/4)*100}"`));}}
 });
+
+test('direction and broad-leaf clues use literal illustrations instead of an unrelated flag',()=>{
+ for(const text of ['Read the door pictures from left to right.','Read the stones from left to right.','Read the panel from left to right.']){assert.equal(expeditionPicture('flag',text),'read-left-right');assert.match(draw('flag',text),/data-picture="read-left-right"/);}
+ assert.equal(expeditionPicture('flag','The broad-leaf marker stands beside the stream.'),'leaf-marker');assert.match(draw('flag','The broad-leaf marker stands beside the stream.'),/data-picture="leaf-marker"/);
+ assert.equal(expeditionPicture('flag','The scout brings back a green flag when the crossing is safe.'),'flag');assert.doesNotMatch(draw('flag','Read the door pictures from left to right.'),/Leaf · Sun · River|correct|data-picture="leaf"/);
+});

@@ -35,3 +35,10 @@ export function adventureSnapshot(state:TinyAdventureState,index:number){const a
 // Presentation pacing scales injected timers; transport, action windows and retry rules stay intact.
 export function tinyPresentationDuration(state:TinyAdventureState|undefined,base:number,kind:'briefing'|'result',round:number,success=false){if(!state)return base;const p=getAdventure(state.id).presentation;if(!p)return base;const scale=kind==='briefing'?(round===0&&state.attempt===1?1:p.laterBriefingScale):success?p.successResultScale:1;return Math.max(1,Math.round(base*scale))}
 
+
+// Default action windows grow with difficulty; an explicit ACTION_MS override stays exact.
+export function tinyActionDuration(state:TinyAdventureState|undefined,base:number){
+ if(!state||base!==60000)return base;
+ const level=Math.max(1,Math.min(10,getAdventure(state.id).level||1));
+ return 60000+Math.floor((level-1)/2)*30000;
+}
