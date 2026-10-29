@@ -34,7 +34,10 @@
 .app.signal{
  --border:#30434e;--muted:#a0b3c4;
  background-color:#07111b;
- background-image:radial-gradient(ellipse at 78% 4%,#adf66b0d,transparent 44%),radial-gradient(ellipse at 8% 38%,#20364470,transparent 54%),repeating-linear-gradient(0deg,transparent 0 5px,#a0b3c403 5px 6px);
+ background-image:radial-gradient(ellipse at 78% 4%,#adf66b0d,transparent 44%),radial-gradient(ellipse at 8% 38%,#20364470,transparent 54%),repeating-linear-gradient(0deg,transparent 0 5px,#a0b3c403 5px 6px),url('/art/home/mission-console-lit.svg');
+ background-size:auto,auto,auto,1200px 900px;
+ background-position:center top;
+ background-repeat:no-repeat,no-repeat,repeat,repeat;
 }
 .app.signal>header{background:#09141b88;border-bottom-color:#82999033}
 .app.signal .brand span{color:#adf66b}
