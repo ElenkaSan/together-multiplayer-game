@@ -1,3 +1,4 @@
+import {solveSignal} from '../server/signal-puzzles';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
@@ -12,13 +13,16 @@ test('two independent real Socket.IO clients: both missions, privacy, reconnect 
  for(let round=0;round<5;round++){
   if(round>0&&va.phase!=='action')await waitFor(a,v=>v.phase==='action'&&v.round===round);
   if(vb?.phase!=='action'||vb.round!==round)await waitFor(b,v=>v.phase==='action'&&v.round===round);
-  const select=(v:any)=>Object.fromEntries(v.brief.tasks.map((t:any)=>{const text=t.hint.toLowerCase();let value=t.options[0].value;if(t.key==='tool')value=['rope','ladder','lamp','blanket','boat'][round];if(t.key==='navigation')value=['east','north','west','south','east'][round];if(t.key==='engineering')value=text.includes('high power')?'high':'low';if(t.key==='comms')value=['blue','amber','green','blue','green'][round];if(t.key==='shield')value=round===0||round===2?'off':'on';return [t.key,value]}));
+  const select=(v:any)=>{if(mode==='signal'){const solutions=solveSignal(va.signal.board,[...va.signal.ownTelemetry,...vb.signal.ownTelemetry]);assert.equal(solutions.length,1);return Object.fromEntries(v.brief.tasks.map((t:any)=>[t.key,solutions[0][t.key]]))}return Object.fromEntries(v.brief.tasks.map((t:any)=>[t.key,t.key==='tool'?['rope','ladder','lamp','blanket','boat'][round]:t.options[0].value]))};
+  const scope=(v:any)=>mode==='signal'?{signalRun:v.signal.run,puzzleId:v.signal.puzzleId}:{};
+
   assert.equal('power' in va.mission,false);assert.equal('token' in vb.players[0],false);
-  const first=await command(a,{type:'submit',round,action:select(va)});assert.equal(first.ok,true);
+  const first=await command(a,{type:'submit',round,...scope(va),action:select(va)});assert.equal(first.ok,true);
   if(round===0){a.disconnect();a=await connect();a.on('state',v=>va=v);const restore=await command(a,{type:'join',code:created.code,token:created.token,name:''});assert.equal(restore.ok,true);assert.equal(restore.state.submitted,true);assert.equal(restore.state.me,created.state.me);va=restore.state}
-  const resultA=waitFor(a,v=>v.phase==='result'&&v.round===round),resultB=waitFor(b,v=>v.phase==='result'&&v.round===round);assert.equal((await command(b,{type:'submit',round,action:select(vb)})).ok,true);const [ra,rb]=await Promise.all([resultA,resultB]);assert.deepEqual(ra.result,rb.result);assert.equal(ra.result.success,true);
+  const resultA=waitFor(a,v=>v.phase==='result'&&v.round===round),resultB=waitFor(b,v=>v.phase==='result'&&v.round===round);assert.equal((await command(b,{type:'submit',round,...scope(vb),action:select(vb)})).ok,true);const [ra,rb]=await Promise.all([resultA,resultB]);assert.deepEqual(ra.result,rb.result);assert.equal(ra.result.success,true);
  }
  const final=await waitFor(a,v=>v.phase==='finished');assert.equal(final.score,5);await command(a,{type:'leave'});await command(b,{type:'leave'});a.disconnect();b.disconnect();
  }
  }finally{sockets.forEach(s=>s.disconnect());child.kill()}
 });
+

@@ -117,3 +117,17 @@
 .app .invite-landing input{min-width:0;margin-bottom:8px}
 .app .invite-landing :is(.primary,.secondary){margin:0;min-height:52px}
 .app .invite-landing small{margin-top:8px}
+
+/* Signal Lost telemetry uses the existing mission-console surfaces. */
+.app.signal .signal-board,.app.signal .signal-communications{margin-bottom:24px}
+.app.signal .signal-equipment{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.app.signal .signal-equipment>div{border:1px solid var(--border);padding:12px;min-width:0}
+.app.signal .signal-equipment ul{padding-left:20px;margin-bottom:0}
+.app.signal .signal-telemetry-cards,.app.signal .signal-crew-log{list-style:none;padding:0;display:grid;gap:12px}
+.app.signal .signal-telemetry-cards>li,.app.signal .signal-crew-log>li{border:1px solid var(--border);padding:16px;overflow-wrap:anywhere}
+.app.signal .signal-crew-log strong{color:#adf66b}
+.app.signal .signal-crew-log p{margin:8px 0 0}
+.app.signal .signal-table-scroll{max-width:100%;overflow-x:auto}
+.app.signal .signal-table-scroll table{border-collapse:collapse;width:100%;font-size:14px}
+.app.signal .signal-table-scroll :is(th,td){padding:10px;text-align:left;border:1px solid var(--border)}
+@media(max-width:600px){.app.signal .signal-equipment{grid-template-columns:1fr}.app.signal .signal-telemetry-cards button{width:100%;min-height:48px}}
