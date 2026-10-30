@@ -63,3 +63,15 @@ test('child UI has picture clues, shared Captain plan and Read to Me without For
 test('Coral Cove accepts the sheltered arch and rejects sinking sand and strong surf',()=>{
  for(const route of ['arch','sand','surf'])assert.equal(resolve('tiny',0,[{route},{confirm:'ready'}],0,'treasure-island').success,route==='arch');
 });
+
+test('retry hint is visible on the result only, never during restarted briefing or action',()=>{
+ for(const id of ['jungle-adventure','treasure-island','desert-rescue']){
+  const {e,r,p}=start(id);e.tick(r.deadline!+1);e.tick(r.deadline!+1);e.tick(r.deadline!+1);
+  assert.equal(r.phase,'result');assert.equal(r.result?.retry,true);
+  const hint=r.result!.hint!.text;
+  const render=()=>renderToStaticMarkup(React.createElement(TeamExpeditionExperience,{view:e.view(r,p),actions:{},setActions:()=>{},connected:true,pending:false,remaining:40,command:async()=>{}}));
+  assert.ok(render().includes(hint));
+  e.tick(r.deadline!+1);assert.equal(r.phase,'briefing');assert.ok(!render().includes(hint));
+  e.tick(r.deadline!+1);assert.equal(r.phase,'action');assert.ok(!render().includes(hint));
+ }
+});
