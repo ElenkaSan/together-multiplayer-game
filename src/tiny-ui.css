@@ -161,7 +161,9 @@
 .tiny :is(.ice-stop-current .ice-stop-pin,.expedition-stops .stop-active>span,.collection-markers .active>span) {border-color:#f3cf82;background:#fcf0c9}
 .tiny .ice-stop-current .ice-stop-pin {animation:ice-stop-glow 2.8s ease-in-out infinite}
 .tiny .ice-stop-label {font-size:11px;font-weight:700;line-height:1.2;background:#f6fbffee;border-radius:8px;padding:4px 6px;box-shadow:0 1px 4px #182d441f;color:#22405a;text-align:center;white-space:normal}
-.tiny .ice-team-scout {position:absolute;width:9%;height:16%;object-fit:contain;transform:translate(-50%,-100%);animation:map-idle 3s ease-in-out infinite;filter:drop-shadow(0 2px 2px #29455733)}
+/* Keep the feet anchored in every frame; map-idle replaces the positioning transform. */
+.tiny .ice-team-scout {position:absolute;width:9%;height:16%;object-fit:contain;transform:translate(-50%,-100%);transform-origin:50% 100%;animation:ice-scout-idle 4s ease-in-out infinite;filter:drop-shadow(0 2px 2px #29455733)}
+@keyframes ice-scout-idle {0%,100%{transform:translate(-50%,-100%) scaleY(1)}50%{transform:translate(-50%,-100%) scaleY(1.012)}}
 .tiny .ice-travelled-path {position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .tiny .ice-travelled-path polyline {fill:none;stroke:#ffe6a2;stroke-width:.55;stroke-dasharray:1.1 1.7;opacity:.8}
 .tiny .ice-aurora {position:absolute;top:0;left:25%;width:65%;height:25%;background:radial-gradient(ellipse,#77e5d330,transparent 70%);animation:ice-aurora-drift 10s ease-in-out infinite alternate;pointer-events:none}
@@ -252,7 +254,6 @@
 @media(max-width:600px){.app.tiny .hero-trail ol{gap:6px}}
 @media(max-width:360px){.app.tiny .hero-trail ol{gap:4px}}
 
-
 /* One explicit send action for small teams: clue pictures are not selectable answers. */
 .app.tiny .bulk-clue-share{margin-top:16px}
 .app.tiny .bulk-clue-share>button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px}
@@ -261,7 +262,6 @@
 .app.tiny .clue-sharing-list article>div>span{display:inline-flex;align-items:center;gap:6px;color:var(--world-deep);font-weight:600}
 .app.tiny .clue-sharing-list article>div>span>.tiny-icon{width:22px;height:22px}
 @media(max-width:600px){.app.tiny .bulk-clue-share>button{width:100%}}
-
 
 /* Invite URLs lead straight to a name-first joining panel. */
 .app.tiny .invite-landing{width:100%;max-width:480px;margin:0 auto}
