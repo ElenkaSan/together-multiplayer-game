@@ -32,7 +32,7 @@ export function ExpeditionIcon({name,label,simple=false}:{name:string;label?:str
  else if(name==='coral')art=<><path d="M48 76V25m0 32-22-9V30m22 16 22-12V20M26 43l-13-6V25m57 7 13-8V14" stroke="#dc9f8b" strokeWidth="9" fill="none"/></>;
  else if(name==='submarine')art=<><path d="M19 33h49q35 24 0 45H19Z" fill="#ecc675"/><circle cx="65" cy="55" r="14" fill="#8dcbd3"/><path d="M32 33V19h18v14" fill="#e7bf6c"/></>;
  else if(name==='look')art=<><path d="M8 44Q48 9 88 44 48 79 8 44Z" fill="#ffedc8"/><circle cx="48" cy="44" r="15" fill="#86b9b2"/><circle cx="48" cy="44" r="7" fill="#456264"/></>;
- else if(name==='snow')art=<><path d="M48 12v65M20 26l56 35M20 61l56-35" stroke="#9ccbd5" strokeWidth="5"/></>;
+ else if(name==='snow')art=<><circle cx="48" cy="44" r="35" fill="#e8f3f2" stroke="none"/><g fill="none" stroke="#6faec3" strokeWidth="3">{[0,60,120,180,240,300].map(angle=><path key={angle} transform={`rotate(${angle} 48 44)`} d="M48 44V14m-7 7 7 7 7-7m-11-6 4 4 4-4"/>)}</g><path d="m48 36 7 4v8l-7 4-7-4v-8Z" fill="#c5e5e9" stroke="#6faec3" strokeWidth="2"/><circle cx="48" cy="44" r="2.5" fill="#fffaf0" stroke="none"/></>;
  else if(name==='sound')art=<><path d="M20 34h13l17-13v46L33 55H20Z" fill="#7baca5"/><path d="M61 29q20 15 0 30M69 20q29 24 0 48" fill="none" stroke="#7baca5" strokeWidth="4"/></>;
  else art=<><path d="M30 76V15l38 5v26l-38-5" fill="#d7b765"/><path d="M30 15v61" fill="none" strokeWidth="4"/></>;
  return <svg className="expedition-icon" viewBox="0 0 96 88" aria-hidden="true"><g stroke="#615442" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">{art}</g></svg>}

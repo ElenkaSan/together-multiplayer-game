@@ -49,3 +49,12 @@ test('whole leaf and parrot artwork include the top beyond the atlas grid; twin-
  assert.equal(expeditionPicture('leaf','The drawing shows two palms together.'),'palms');
  assert.match(draw('leaf','The drawing shows two palms together.'),/data-picture="palms"/);
 });
+
+test('Desert snow sled clue and Captain choice show the same complete sled, not the sun',async()=>{
+ const {desertEvidence}=await import('../server/advanced-evidence');
+ const [icon,label]=desertEvidence[0].find(([,text])=>text.includes('Snow sleds'))!;
+ assert.equal(icon,'snow');assert.equal(expeditionPicture(icon,label),'sled');
+ assert.equal(expeditionPicture('snow','Snow sled'),'sled');
+ assert.match(draw(icon,label),/data-picture="sled"/);assert.match(draw('snow','Snow sled'),/data-picture="sled"/);
+ assert.match(draw('snow'),/rotate\(60 48 44\)/);
+});
