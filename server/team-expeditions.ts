@@ -22,7 +22,9 @@ export function expeditionBrief(id:string,index:number,slot:number,count:number)
 export function resolveExpedition(id:string,index:number,actions:Action[],bonus:number){
  const a=actions[0]||{},expected=expeditionSolutions[id][index],match=(e:Action)=>Object.entries(e).every(([k,v])=>a[k]===v);
  const protectedPath=id==='treasure-island'&&index===3&&match({route:'jungle',step1:'mark',step2:'follow',step3:'enter'});
- const success=(match(expected)||protectedPath)&&actions.length>=2&&actions.slice(1).every(a=>a.confirm==='ready');
+ const supplyPlan=id==='desert-rescue'&&index===0;
+ const packed=supplyPlan&&['drink','cover','guide'].map(k=>a[k]).sort().join(',')==='compass,shade,water';
+ const success=((supplyPlan?packed:match(expected))||protectedPath)&&actions.length>=2&&actions.slice(1).every(a=>a.confirm==='ready');
  return {success,bonus,message:success?(id==='treasure-island'?'Compass piece found!':id==='desert-rescue'?'You did it! Caravan plan complete!':'You did it! Expedition stage complete!'):"Oops! That didn't work. Let's try something else!",details:success?(id==='treasure-island'?index===4?'Treasure Found! The Friendship Compass is whole again!':'A new piece joins the Friendship Compass.':id==='desert-rescue'?(index===4?'Caravan Rescued! Everyone reached the oasis!':'Your plan brings the caravan closer to safety.'):'Your team found the way together.'):id==='desert-rescue'&&index===3&&a.step1!=='supplies'?'Loose supplies blow in the wind. Which job needs to happen first?':'Share the picture clues and check the plan together.'};
 }
 export const expeditionHints:Record<string,string[]>={

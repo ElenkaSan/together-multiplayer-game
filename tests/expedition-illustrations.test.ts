@@ -58,3 +58,13 @@ test('Desert snow sled clue and Captain choice show the same complete sled, not 
  assert.match(draw(icon,label),/data-picture="sled"/);assert.match(draw('snow','Snow sled'),/data-picture="sled"/);
  assert.match(draw('snow'),/rotate\(60 48 44\)/);
 });
+
+test('Desert scenes match drinking water, mirage, windbreak, basin and distinct crossing actions',()=>{
+ for(const [icon,label,picture] of [['water','The caravan needs drinking water.','water-bottle'],['water','Water','water-bottle'],['water','The shimmer pool has no tracks or shade.','mirage-pool'],['water','Shimmer pool','mirage-pool'],['shelter','Behind the rock is protected from blowing sand.','rock-windbreak'],['shelter','Behind the rock','rock-windbreak'],['marsh','The basin has deep, soft sand.','sand-basin'],['marsh','Soft basin','sand-basin'],['look','Check landing','canyon-check'],['vine','Secure crossing','canyon-rope'],['bridge','Lead team','canyon-team']]){
+  assert.equal(expeditionPicture(icon,label),picture);assert.match(draw(icon,label),new RegExp(`data-picture="${picture}"`));
+ }
+ assert.equal(expeditionPicture('water','Deep water'),'water');
+ assert.equal(expeditionPicture('shelter','Set up shelter'),'shelter');
+ assert.equal(expeditionPicture('marsh','Marsh trail'),'marsh');
+ assert.match(draw('bridge','Lead team'),/scout-idle.webp/);
+});

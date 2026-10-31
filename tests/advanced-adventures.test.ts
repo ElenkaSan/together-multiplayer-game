@@ -53,3 +53,18 @@ test('advanced screens retain child audio, visual choices, own station controls 
  for(const id of ['desert-rescue','ocean-adventure']){const {e,r}=setup(id,6);e.tick(r.deadline!+1);for(const p of r.players){const v=e.view(r,p),html=renderToStaticMarkup(React.createElement(TeamExpeditionExperience,{view:v,actions:{},setActions:()=>{},connected:true,pending:false,remaining:50,command:async()=>{}}));assert.match(html,/Read to me/);assert.match(html,/expedition-icon/);assert.doesNotMatch(html,/Pick a tool|friends home|Warm Packs/);assert.equal('helperBriefs' in v,false);if(id==='ocean-adventure'){assert.match(html,/Working power/);assert.match(html,/Your station clues/);assert.equal(v.ocean!.ownKeys.length,1);assert.match(oceanNarration(v),/Set your station/);assert.match(html,p.slot===0?/Launch team plan/:/Captain launches/)}const map=renderToStaticMarkup(React.createElement(ExpeditionMap,{view:v}));assert.match(map,new RegExp(`${id==='desert-rescue'?'desert':'ocean'}-map.webp`));if(id==='ocean-adventure')assert.match(map,/submarine-art/);assert.doesNotMatch(JSON.stringify(v.adventure),/privateEvidence|The caravan needs drinking water|The sheltered channel is clear/);}}
  assert.equal(availableAdventures().length,10);assert.equal(adventureDifficulty(5),'Hard');assert.equal(adventureDifficulty(6),'Hard+');
 });
+
+test('Desert packing slots are neutral and accept all six orders of the same three required supplies',async()=>{
+ const {desertStages}=await import('../shared/advanced-adventures');
+ assert.deepEqual(desertStages[0].fields.map(f=>f.title),['Supply 1','Supply 2','Supply 3']);
+ for(const values of [['water','shade','compass'],['water','compass','shade'],['shade','water','compass'],['shade','compass','water'],['compass','water','shade'],['compass','shade','water']])assert.equal(resolve('tiny',0,[{drink:values[0],cover:values[1],guide:values[2]},{confirm:'ready'}],0,'desert-rescue').success,true);
+ for(const plan of [{drink:'water',cover:'water',guide:'compass'},{drink:'water',cover:'shade',guide:'sled'},{drink:'water',cover:'shade'},{drink:'anchor',cover:'shell',guide:'sled'}])assert.equal(resolve('tiny',0,[plan as Action,{confirm:'ready'}],0,'desert-rescue').success,false);
+ assert.equal(resolve('tiny',0,[desertSolutions[0]],0,'desert-rescue').success,false);
+});
+
+test('Desert unordered packing earns the same badge in two- and six-player rooms',()=>{
+ for(const count of [2,6])for(const values of [['water','shade','compass'],['water','compass','shade'],['shade','water','compass'],['shade','compass','water'],['compass','water','shade'],['compass','shade','water']]){
+  const {e,r}=setup('desert-rescue',count);finishAttempt(e,r,{drink:values[0],cover:values[1],guide:values[2]});
+  assert.equal(r.result?.success,true);assert.equal(r.score,1);assert.equal(r.tiny!.completed[0].earnedBadge,true);
+ }
+});
