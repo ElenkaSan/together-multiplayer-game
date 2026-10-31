@@ -270,3 +270,11 @@
 .app.tiny .sound-toggle,.app.tiny .room-buttons .sound-toggle,
 .app .room-buttons .copy-invite-button{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;height:48px;min-height:48px;padding-block:8px;line-height:20px;font-size:14px;white-space:nowrap}
 .app.tiny .sound-toggle>.tiny-icon{width:26px;height:26px;flex:0 0 26px}
+
+/* Forest/Ice helper controls use the same compact, sharp chrome as the Captain. */
+.app.tiny .little-hero .hero-ready{width:fit-content;max-width:100%;min-height:48px;font-size:16px;line-height:1.3;padding:14px 22px;border-radius:0!important;margin:14px auto!important}
+.app.tiny .little-hero .hero-ready>.tiny-icon{width:24px;height:24px;flex-shrink:0}
+/* Flush full-width artwork inside the disclosure, without inherited compact-map gaps. */
+.app.tiny .little-hero .rescue-map-toggle{padding:0;overflow:hidden}
+.app.tiny .little-hero .rescue-map-toggle>.ice-expedition-world{clear:both;width:100%;max-width:100%;margin:0;border:0;box-sizing:border-box}
+.app.tiny .little-hero .rescue-map-toggle .adventure-map{width:100%;max-width:100%;margin:0;border:0;box-sizing:border-box}
