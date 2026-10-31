@@ -18,7 +18,7 @@ export type Telemetry={index:number;text:string;fact:Fact};
 export type RecordFragment={sector:number;label:string;value:number;recovered:boolean};
 export type SignalBoard={instructions:string[];controls:Record<Key,{title:string;options:Option[]}>;sensors?:{name:string;navigation:string;engineering:string;sequence:number;crc:number;age:number}[];budget?:number;archive:RecordFragment[]};
 export type SignalPuzzle={id:string;sector:number;board:SignalBoard;cards:Telemetry[];solution:Action;assignments:Record<number,number[][]>};
-export type SignalState={seed:number;run:number;puzzle:SignalPuzzle|null;shared:Record<string,number[]>;archive:RecordFragment[]};
+export type SignalState={drafts?:Record<string,Action>;seed:number;run:number;puzzle:SignalPuzzle|null;shared:Record<string,number[]>;archive:RecordFragment[]};
 const options=(values:string[],labels:string[],start:number)=>values.map((value,i)=>({value,label:labels[i],units:i+start}));
 export function signalResponsibilities(slot:number,count:number){const a=['navigation','engineering','comms'].filter((_,i)=>i%count===slot%count);if(count>3&&slot>=3)a.push(['navigation','engineering','comms'][(slot-3)%3]);return a as Key[]}
 export function signalRole(slot:number,count:number){return signalResponsibilities(slot,count).map(x=>({navigation:'Navigator',engineering:'Engineer',comms:'Signal Analyst',shield:'Crew'}[x])).join(' + ')}
