@@ -68,3 +68,22 @@ test('Desert scenes match drinking water, mirage, windbreak, basin and distinct 
  assert.equal(expeditionPicture('marsh','Marsh trail'),'marsh');
  assert.match(draw('bridge','Lead team'),/scout-idle.webp/);
 });
+
+test('all Cloud private observations have literal artwork and retain their assignment across crew sizes',async()=>{
+ const {collectionBrief,collectionEvidence,cloudClueIcons}=await import('../server/collection-mechanisms');
+ for(let round=0;round<5;round++){
+  assert.equal(cloudClueIcons[round].length,6);
+  for(let count=2;count<=6;count++){
+   const cards=Array.from({length:count},(_,slot)=>collectionBrief('cloud-adventure',round,slot,count).observations!).flat();
+   assert.equal(cards.length,6);assert.equal(new Set(cards.map(c=>c.text)).size,6);
+   for(let i=0;i<6;i++){const text=collectionEvidence['cloud-adventure'][round][i],card=cards.find(c=>c.text===text)!;assert.equal(card.icon,cloudClueIcons[round][i]);assert.ok(hasExpeditionDrawing(card.icon,text));assert.match(draw(card.icon,text),new RegExp(`data-picture="${card.icon}"`));}
+  }
+ }
+ const first=collectionEvidence['cloud-adventure'][0];
+ const illustrations=[1,3,5].map(i=>draw(cloudClueIcons[0][i],first[i]));assert.equal(new Set(illustrations).size,3);
+ assert.match(illustrations[0],/sky-height/);assert.match(illustrations[1],/sky-cargo/);assert.match(illustrations[2],/sky-signal/);
+});
+test('Surf beach clue and choice show sea surf instead of the stream; arch cove stays distinct',()=>{
+ for(const label of ['Surf beach','The surf beach has a strong current.']){assert.equal(expeditionPicture('river',label),'surf-beach');assert.match(draw('river',label),/data-picture="surf-beach"/);assert.doesNotMatch(draw('river',label),/data-picture="stream"/);}
+ assert.equal(expeditionPicture('arch','The arch cove is sheltered from waves.'),'arch');
+});
