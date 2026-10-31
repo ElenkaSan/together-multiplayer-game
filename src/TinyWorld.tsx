@@ -66,7 +66,25 @@ export function TinyRoundEffects({view}:{view:View}){const {play}=useTinySound()
 
 // The scout's expedition badge identifies the captain without emoji artwork.
 export function CaptainIcon(){return <span className="captain-icon" aria-hidden="true"><Animal kind={0}/></span>}
-export function CaptainClues({view}:{view:View}){if(view.mode!=='tiny'||!view.helperBriefs)return null;return <section className="captain-clues" aria-labelledby="captain-clues-title"><h4 id="captain-clues-title">{view.adventure?.mechanics?.primary==='routes'?'Your heroes’ clues & routes':'Your heroes’ clues & tools'}</h4><p className="captain-clues-hint">{view.adventure?.mechanics?.primary==='routes'?'Compare observations. Routes appear after Ready.':'No call needed: clues appear here. Tools appear when a hero taps Ready.'}</p><ul>{view.helperBriefs.map(hero=><li key={hero.id}><div className="captain-helper-copy"><strong>{hero.name}</strong><p>{hero.clue.replace(/^Your secret clue: /,'').replace(/ Tell your captain\.$/,'')}</p>{!hero.connected&&<small>Reconnecting…</small>}</div><div className={`captain-helper-tool ${hero.tool?'tool-sent':''}`}>{('route' in hero&&hero.route)?<><IceChoiceArt view={view} value={hero.route}/><strong>{view.adventure?.rescues[view.round].challenge?.choices.find(c=>c.id===hero.route)?.label}</strong><small>Ready</small></>:hero.tool?<><ToolArt tool={hero.tool}/><strong>✓ {tinyTools[hero.tool as keyof typeof tinyTools]?.label}</strong><small>Ready</small></>:<><GuideIcon step={1}/><small>Choosing…</small></>}</div></li>)}</ul></section>}
+export function CaptainClues({view}:{view:View}){
+ if(view.mode!=='tiny'||!view.helperBriefs)return null;
+ const routes=view.adventure?.mechanics?.primary==='routes';
+ return <section className="captain-clues" aria-labelledby="captain-clues-title">
+  <h4 id="captain-clues-title">{routes?'Your heroes’ clues & routes':'Your heroes’ clues & tools'}</h4>
+  <p className="captain-clues-hint">{routes?'Compare observations. Routes appear after Ready.':'No call needed: clues appear here. Tools appear when a hero taps Ready.'}</p>
+  <ul>{view.helperBriefs.map(hero=>{
+   const route='route' in hero?hero.route:null,ready=!!(route||hero.tool);
+   const label=route?view.adventure?.rescues[view.round].challenge?.choices.find(c=>c.id===route)?.label:hero.tool?tinyTools[hero.tool as keyof typeof tinyTools]?.label:null;
+   return <li key={hero.id}>
+    <div className={`captain-helper-tool ${ready?'tool-sent':''}`}>{route?<IceChoiceArt view={view} value={route}/>:hero.tool?<ToolArt tool={hero.tool}/>:<GuideIcon step={1}/>}</div>
+    <div className="captain-helper-copy"><div className="captain-helper-heading"><strong>{hero.name}</strong><small>{!hero.connected?'Reconnecting…':ready?'Ready':'Choosing…'}</small></div>
+     <p>{hero.clue?hero.clue.replace(/^Your secret clue: /,'').replace(/ Tell your captain\.$/,''):'Waiting for a shared clue.'}</p>
+     {label&&<span className="captain-helper-choice">{label}</span>}
+    </div>
+   </li>;
+  })}</ul>
+ </section>;
+}
 
 export function AdventureProgress({view}:{view:View}){const a=view.adventure;if(!a)return null;if(isTeamExpedition(a.id))return <ExpeditionProgress view={view}/>;return <div className="adventure-progress"><div><strong className="friends-home"><LeafIcon/><span>{a.completed.length} / {a.total} friends home</span></strong><span className="badge-count"><TinyIcon name="star"/> {view.score} / {a.total} Rescue Badges</span>{a.completed.some(x=>x.crewHelp)&&<span className="assist-count"><TinyIcon name="assist"/> {a.completed.filter(x=>x.crewHelp).length} Team Assist{a.completed.filter(x=>x.crewHelp).length===1?'':'s'}</span>}</div><ol aria-label="Rescue progress">{a.rescues.map(r=>{const done=a.completed.find(x=>x.id===r.id);return <li key={r.id} className={done?'progress-complete':''} aria-label={`${r.friend}: ${done?done.crewHelp?'home with Team Assist':'rescued by your team':'waiting for help'}`}><span className="progress-friend" aria-hidden="true">{r.art?.character?<img src={r.art.character} alt=""/>:<Animal kind={r.character} happy={!!done}/>}</span><span aria-hidden="true">{done?<><TinyIcon name={done.earnedBadge?'star':'assist'}/>{done.crewHelp&&<small className="assist-label">Team Assist</small>}</>:<span className="progress-dot">·</span>}</span></li>})}</ol></div>}
 export function HeroTrail({view}:{view:View}){const a=view.adventure!;return <div className="hero-trail"><ol aria-label="Your rescue trail">{a.rescues.map((r,i)=>{const home=a.completed.some(x=>x.id===r.id);return <li key={r.id} className={`${home?'trail-home':''} ${i===view.round&&!home?'trail-current':''}`} aria-label={`${r.friend}: ${home?'home':i===view.round?'your next rescue':'waiting'}`}>{r.challenge?<RouteArt visual={r.challenge.choices[0].visual}/>:<Animal kind={r.character} expression={home?'happy':'idle'}/>} {home&&<TinyIcon name="ready"/>}</li>})}</ol><strong>{a.completed.length} / {a.total} home</strong></div>}

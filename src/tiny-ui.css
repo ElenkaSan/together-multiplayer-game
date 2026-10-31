@@ -281,3 +281,18 @@
 
 /* Captain lobby actions sit together like the Level 1 Ready/Start controls. */
 .app.tiny .team-expedition .hero-lobby>.hero-ready{display:inline-flex;vertical-align:middle;margin:14px 6px!important}
+
+/* Compact Forest/Ice crew clues: picture left, readable text right, sharp flat chrome. */
+.app.tiny .captain-clues{width:100%;max-width:680px;box-sizing:border-box;margin:20px auto;padding:16px;border:1px solid var(--game-line);border-radius:0;background:var(--world-soft)}
+.app.tiny .captain-clues h4{font-size:17px;color:var(--world-deep)}
+.app.tiny .captain-clues .captain-clues-hint{color:var(--game-muted);line-height:1.45}
+.app.tiny .captain-clues ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
+.app.tiny .captain-clues li{display:grid;grid-template-columns:64px minmax(0,1fr);align-items:start;gap:12px;padding:12px;border:1px solid var(--game-line);border-radius:0;background:var(--game-surface)}
+.app.tiny .captain-clues .captain-helper-tool{width:64px;min-height:64px;padding:0;gap:0;border-radius:0;background:transparent;color:var(--world-deep)}
+.app.tiny .captain-clues .captain-helper-tool :is(.tool-art,.route-art){width:64px;height:58px;max-width:100%}
+.app.tiny .captain-helper-heading{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.app.tiny .captain-helper-heading strong{font-size:15px;color:var(--game-ink)}
+.app.tiny .captain-helper-heading small{font-size:12px;color:var(--game-muted)}
+.app.tiny .captain-helper-copy p{font-size:14px;line-height:1.5;margin:6px 0;color:var(--game-ink)}
+.app.tiny .captain-helper-choice{display:block;font-size:13px;line-height:1.4;font-weight:700;color:var(--world-deep)}
+@media(max-width:600px){.app.tiny .captain-clues{padding:12px}.app.tiny .captain-clues li{grid-template-columns:52px minmax(0,1fr);gap:10px}.app.tiny .captain-clues .captain-helper-tool{width:52px;min-height:52px}.app.tiny .captain-clues .captain-helper-tool :is(.tool-art,.route-art){width:52px;height:48px}}
