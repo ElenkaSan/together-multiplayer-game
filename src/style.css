@@ -131,3 +131,8 @@
 .app.signal .signal-table-scroll table{border-collapse:collapse;width:100%;font-size:14px}
 .app.signal .signal-table-scroll :is(th,td){padding:10px;text-align:left;border:1px solid var(--border)}
 @media(max-width:600px){.app.signal .signal-equipment{grid-template-columns:1fr}.app.signal .signal-telemetry-cards button{width:100%;min-height:48px}}
+
+/* Keep a crew handover visible even when a player is midway through the mission. */
+.app .crew-change-notice{position:sticky;top:8px;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.app .crew-change-notice>span{min-width:0;overflow-wrap:anywhere}
+.app .crew-change-notice>button{flex-shrink:0;min-height:44px}
