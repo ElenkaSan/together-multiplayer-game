@@ -1,3 +1,4 @@
+@import './expert-visuals.css';
 /* Uses the existing hybrid UI: world artwork, soft controls, restrained map HUD. */
 .tiny[data-world=jungle]{--tiny-accent:#285e49;--tiny-gold:#cda456}.tiny[data-world=treasure]{--tiny-accent:#1d6e73;--tiny-gold:#d2ad59}
 .expedition-icon{width:72px;height:66px;max-width:100%;flex:none}.expedition-symbol-strip{display:flex;justify-content:center}.expedition-symbol-strip .expedition-icon{width:46px}
