@@ -3,3 +3,5 @@
 @media(max-width:500px){.app.tiny .meadow-clue-art{flex-basis:108px;width:108px;max-width:32%}.meadow-plan-grid article{padding:8px}.meadow-plan-grid .meadow-art{height:75px}.meadow-plan-grid article>strong,.meadow-plan-grid article>span:last-child{font-size:13px}.app.tiny .meadow-expedition .choices button>.meadow-art{height:85px}.meadow-helper-pair .animal-art{height:50px}}
 
 .meadow-delivery .meadow-art,.meadow-blooms .meadow-art{width:100%;height:auto}
+
+.meadow-clue-case{display:flex;flex:1;min-width:0;flex-direction:column;align-items:center;text-align:center;gap:3px}.meadow-clue-case>strong,.meadow-clue-case>span:last-child{font-size:11px;line-height:1.2;color:#43563f;overflow-wrap:anywhere}.meadow-route-rule{display:grid;gap:6px}.meadow-route-rule .meadow-art{max-height:42px}
