@@ -37,3 +37,12 @@ test('Meadow map has exactly one check per completed stage, attached to its loca
  const e=new Engine(),{r,p}=e.create('tiny','Captain','c','meadow-rescue');e.join(r.code,'Hero','h');r.players.forEach(x=>e.ready(r,x));e.start(r,p);
  for(let n=0;n<=5;n++){r.tiny!.completed=Array.from({length:n},(_,i)=>({id:meadowStages[i].id,crewHelp:false,badge:true} as any));const html=render(React.createElement(CollectionMap,{view:e.view(r,p)}));assert.equal((html.match(/tiny-icon-ready/g)||[]).length,n);assert.doesNotMatch(html,/village-restored/);if(n===1)assert.match(html,/tiny-icon-ready[\s\S]*?<strong>Sunflower Village<\/strong>/)}
 });
+
+test('Meadow pictures distinguish closed cargo, task modes and final route compatibility',()=>{
+ const choice=(field:string,value:string)=>render(React.createElement(MeadowChoiceArt,{field,value}));
+ assert.doesNotMatch(choice('crate','closed'),/data-crate-fruit/);
+ assert.match(choice('crate','open'),/data-crate-fruit/);
+ const clue=(icon:string)=>render(React.createElement(MeadowClueArt,{icon,text:icon}));
+ const schedule=clue('meadow-schedule');assert.match(schedule,/>Parallel</);assert.match(schedule,/>Serial</);
+ const final=clue('meadow-route-arrival');assert.match(final,/>Same route</);assert.match(final,/>Different routes</);assert.match(final,/>Groups or together</);assert.doesNotMatch(final,/data-meadow-art="lanes"/);
+});
