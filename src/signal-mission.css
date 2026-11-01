@@ -10,3 +10,10 @@
 @media(prefers-reduced-motion:reduce){.debris-mission *{animation:none!important;transition:none!important}}
 
 .app.signal .debris-equipment{margin:16px 20px 0;padding:12px 0;font-size:13px}.debris-equipment summary{min-height:44px;padding:12px 0}.debris-equipment dl{display:grid;grid-template-columns:1fr 1fr;gap:12px}.debris-equipment dt{color:#c0e0e7;font-weight:700}.debris-equipment dd{margin:6px 0;color:#aac0cc;line-height:1.6}@media(max-width:600px){.debris-equipment dl{grid-template-columns:1fr}}
+
+/* QA-01: one display of the existing authoritative countdown at each decision console. */
+.app.signal .signal-control-timer{position:sticky;top:8px;z-index:8;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;min-height:46px;padding:10px 14px;margin:0 0 16px;background:#10212b;border:1px solid #759c78;color:#e9f3ec;box-shadow:0 3px 10px #07111b40}
+.signal-control-timer>span{font-size:11px;letter-spacing:1px}.signal-control-timer>strong{font-size:18px;color:#adf66b}.signal-control-timer>small{flex-basis:100%;color:#c3d4d0}
+.app.signal :is(.private-panel,.debris-mission) :is(button,legend){scroll-margin-top:88px}
+.app.signal .debris-mission>.signal-control-timer{margin:12px 14px 0}
+@media(max-width:600px){.app.signal .signal-control-timer{top:6px;padding:8px 12px;min-height:44px}.signal-control-timer>strong{font-size:16px}}

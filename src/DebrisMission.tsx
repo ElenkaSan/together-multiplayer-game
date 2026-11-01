@@ -1,15 +1,16 @@
+import {SignalControlTimer} from './SignalControlTimer';
 import {useId,useState} from 'react';
 import type {Engine} from '../server/engine';
 import type {Action} from '../server/modes';
 type View=ReturnType<Engine['view']>;
-type Props={view:View;actions:Action;setActions:(a:Action)=>void;connected:boolean;pending:boolean;command:(data:Record<string,unknown>)=>Promise<any>};
+type Props={remaining?:number;view:View;actions:Action;setActions:(a:Action)=>void;connected:boolean;pending:boolean;command:(data:Record<string,unknown>)=>Promise<any>};
 export const debrisRoutes=[
  {value:'north',name:'North',path:'M 55 210 C 180 210 200 55 350 65 S 530 110 645 210',x:48,y:18},
  {value:'east',name:'East',path:'M 55 210 C 190 210 205 135 350 145 S 530 170 645 210',x:49,y:38},
  {value:'south',name:'South',path:'M 55 210 C 190 210 205 285 350 275 S 530 250 645 210',x:49,y:62},
  {value:'west',name:'West',path:'M 55 210 C 180 210 200 365 350 355 S 530 310 645 210',x:48,y:82}
 ] as const;
-export function DebrisMission({view,actions,connected,pending,command}:Props){
+export function DebrisMission({view,actions,connected,pending,command,remaining}:Props){
  const uid=useId().replaceAll(':',''),[moving,setMoving]=useState(true);
  const state=view.signal;if(view.mode!=='signal'||view.round!==1||!state?.board)return null;
  const tasks=view.brief?.tasks||[],canFly=tasks.some(t=>t.key==='navigation'),result=view.phase==='result';
@@ -24,6 +25,7 @@ export function DebrisMission({view,actions,connected,pending,command}:Props){
   await command({type:'signal-draft',round:view.round,run:state!.run,puzzleId:state!.puzzleId,key,value});
  }
  return <section className="debris-mission" aria-label="Cross the Debris Field mission console" data-phase={view.phase} data-motion={moving?'on':'off'}>
+  <SignalControlTimer remaining={remaining??Math.max(0,Math.ceil(((view.deadline||0)-view.serverTime)/1000))} phase={view.phase} connected={connected}/>
   <div className="debris-console-top"><div><span className="eyebrow">FLIGHT DECK / SECTOR 02</span><h3>Cross the Debris Field</h3></div><button type="button" className="secondary" aria-pressed={!moving} onClick={()=>setMoving(!moving)}>{moving?'Effects off':'Effects on'}</button></div>
   <p className="debris-help">Plot a flight path. Compare fuel, clearance and relay readings in Crew Communications before locking. A highlighted route is a proposal, not a safety prediction.</p>
   <div className="debris-map" aria-label="Interactive holographic flight map">

@@ -28,7 +28,14 @@ export const cloudClueIcons=[
  ['sky-wind','sky-rain','sky-fog','sky-shutters','sky-height','sky-beacon'],
  ['sky-crossing','sky-height','sky-routes','sky-height','sky-rain','sky-fog']
 ];
-export function collectionBrief(id:string,round:number,slot:number,count:number):Brief {const observations=collectionEvidence[id][round].map((text,i)=>({icon:id==='cloud-adventure'?cloudClueIcons[round][i]:'leaf',text})).filter((_,i)=>(i+1)%count===slot);return {role:slot===0?'Team Captain':id==='cloud-adventure'?'Skyway Explorer':'Meadow Helper',message:observations.map(o=>o.text).join(' '),observations,tasks:collectionStages(id)[round].fields.filter((_,i)=>i%count===slot).map(f=>({...f,hint:'Share clues. Set your part of our plan.'}))}}
+export const meadowClueIcons=[
+ ['meadow-garden-helpers','meadow-water-before-plant','meadow-celebration-helpers','meadow-delivery-before-lanterns','meadow-schedule','meadow-valve'],
+ ['meadow-routes','meadow-route-capacity','meadow-bridge-gate','meadow-stones','meadow-crate','meadow-flowers'],
+ ['meadow-source','meadow-orchard-water','meadow-flower-water','meadow-return','meadow-clean-flow','meadow-sluice'],
+ ['meadow-light-sources','meadow-water-return','meadow-welcome-tree','meadow-path-groups','meadow-paths','meadow-lanterns'],
+ ['meadow-water-share','meadow-food-routes','meadow-friend-routes','meadow-light-sources','meadow-water-return','meadow-route-arrival']
+];
+export function collectionBrief(id:string,round:number,slot:number,count:number):Brief {const observations=collectionEvidence[id][round].map((text,i)=>({icon:id==='cloud-adventure'?cloudClueIcons[round][i]:meadowClueIcons[round][i],text})).filter((_,i)=>(i+1)%count===slot);return {role:slot===0?'Team Captain':id==='cloud-adventure'?'Skyway Explorer':'Meadow Helper',message:observations.map(o=>o.text).join(' '),observations,tasks:collectionStages(id)[round].fields.filter((_,i)=>i%count===slot).map(f=>({...f,hint:'Share clues. Set your part of our plan.'}))}}
 export function beginCollection(id:string,round:number,b:CollectionBoard){if(id==='cloud-adventure'&&(!b.weather||b.weather.round!==round))b.weather={round,checked:false};const settings:Action={};if(id==='cloud-adventure'&&round===2&&b.weather?.checked&&b.weather.prepared)Object.assign(settings,b.weather.prepared);return settings}
 export function checkCollectionWeather(round:number,b:CollectionBoard,s:Action){if(!weatherRounds.includes(round))throw Error('There is no weather check here.');if(b.weather?.checked)throw Error('Conditions are already checked.');if(round===2){if(!['upper','lower'].includes(s.primary)||!['upper','lower'].includes(s.backup)||s.primary===s.backup)throw Error('Prepare two different routes first.');b.weather={round,checked:true,prepared:{primary:s.primary,backup:s.backup}}}else b.weather={round,checked:true};}
 export function collectionFieldLocked(id:string,round:number,key:string,b:CollectionBoard){return id==='cloud-adventure'&&round===2&&!!b.weather?.checked&&(key==='primary'||key==='backup')}

@@ -58,3 +58,10 @@ export const defaultAdventureId=forestRescue.id;
 export const futureWorlds=[['❄️','Ice Rescue'],['🌴','Jungle Adventure'],['🏝️','Treasure Island'],['🏜️','Desert Rescue'],['🌊','Ocean Adventure'],['🏰','Magic Kingdom'],['🌙','Moon Mission'],['☁️','Cloud Adventure'],['🌸','Meadow Rescue']];
 export function getAdventure(id=defaultAdventureId):Adventure {const a=adventures[id];if(!a)throw Error('This adventure is not available yet. Choose Forest Rescue.');return a}
 
+
+/** Recommend only the immediate released successor, respecting the supplied unlock state. */
+export function nextAdventureId(id:string,available:readonly string[]=availableAdventures()){
+ const ordered=Object.values(adventures).sort((a,b)=>(a.level||0)-(b.level||0));
+ const index=ordered.findIndex(a=>a.id===id),next=index>=0?ordered[index+1]:undefined;
+ return next&&available.includes(next.id)?next.id:undefined;
+}

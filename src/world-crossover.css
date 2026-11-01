@@ -119,3 +119,8 @@
 /* Give the two homepage game cards more breathing room. */
 .home .portal-worlds{max-width:970px;gap:48px}
 @media(max-width:700px){.home .portal-worlds{max-width:440px;gap:44px}}
+
+/* QA-03: opaque caption ink on each complete world layer, including crossover cards. */
+.home .portal-content small{color:#463d2b;opacity:1}
+.home .forest-layer .portal-signal .portal-content small,
+.home .space-layer .portal-content small{color:#c3d3cd;opacity:1}
