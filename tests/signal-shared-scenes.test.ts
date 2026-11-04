@@ -49,3 +49,29 @@ test('non-Debris console pauses all owned controls during briefing and disconnec
  let html=render(createElement(SignalMission,{view:e.view(r,p),actions:{},remaining:7,connected:true,pending:false,command:noop}));assert.match(html,/Controls open after briefing/);assert.match(html,/<fieldset disabled/);assert.match(html,/lock-button" disabled/);
  e.tick(r.deadline!+1);html=render(createElement(SignalMission,{view:e.view(r,p),actions:{},remaining:60,connected:false,pending:false,command:noop}));assert.match(html,/Connection interrupted/);assert.match(html,/<fieldset disabled/);
 });
+
+for(const first of [0,1])test(`Either station may lock first (${first===0?'host':'invitee'}); the remaining station may finish editing and lock in every sector`,()=>{
+ for(let round=0;round<5;round++){
+  const e=new Engine(),{r,p}=e.create('signal','Host','host');e.join(r.code,'Invitee','guest');r.players.forEach(x=>e.ready(r,x));e.start(r,p);r.round=round;e.begin(r);e.tick(r.deadline!+1);
+  const scope={round,run:r.signal!.run,puzzleId:r.signal!.puzzle!.id},solution=r.signal!.puzzle!.solution;
+  const crew=[r.players[first],r.players[1-first]];
+  for(let i=0;i<crew.length;i++){
+   const player=crew[i];for(const t of e.view(r,player).brief!.tasks)e.signalDraft(r,player,{...scope,key:t.key,value:solution[t.key]});
+   const v=e.view(r,player),props={view:v,actions:{},setActions:()=>{},remaining:60,connected:true,pending:false,command:noop};
+   // A stale parent mirror cannot disable a complete server-confirmed station.
+   const html=render(round===1?createElement(DebrisMission,props):createElement(SignalMission,props));
+   assert.doesNotMatch(html,/<button[^>]*class="primary lock-button"[^>]*disabled/);assert.match(html,/regardless of who locks first/);
+   e.submit(r,player,round,v.signal!.ownDraft!,undefined,undefined,undefined,undefined,undefined,{run:scope.run,puzzleId:scope.puzzleId});
+   if(i===0){assert.equal(r.phase,'action');assert.equal(e.view(r,crew[1]).submitted,false);assert.equal(e.view(r,crew[1]).players.filter(x=>x.submitted).length,1)}
+  }
+  assert.equal(r.phase,'locked');e.tick(r.deadline!+1);assert.equal(r.result!.success,true);assert.equal(r.integrity,3);
+ }
+});
+test('shared route and another station lock never imply that my own missing controls are selected',()=>{
+ const e=new Engine(),{r,p}=e.create('signal','Host','host');const {p:guest}=e.join(r.code,'Invitee','guest');r.players.forEach(x=>e.ready(r,x));e.start(r,p);r.round=1;e.begin(r);e.tick(r.deadline!+1);
+ const puzzle=r.signal!.puzzle!,scope={round:1,run:r.signal!.run,puzzleId:puzzle.id};
+ for(const t of e.view(r,guest).brief!.tasks)e.signalDraft(r,guest,{...scope,key:t.key,value:puzzle.solution[t.key]});
+ e.submit(r,guest,1,e.view(r,guest).signal!.ownDraft!,undefined,undefined,undefined,undefined,undefined,{run:scope.run,puzzleId:scope.puzzleId});
+ const html=render(createElement(DebrisMission,{view:e.view(r,p),actions:puzzle.solution,setActions:()=>{},connected:true,pending:false,command:noop}));
+ assert.match(html,/Choose at your station:/);assert.match(html,/Shared crew proposals do not select your own controls/);assert.match(html,/<button[^>]*class="primary lock-button" disabled/);
+});
