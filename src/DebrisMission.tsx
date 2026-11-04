@@ -11,9 +11,10 @@ export const debrisRoutes=[
  {value:'south',name:'South',path:'M 55 210 C 190 210 205 285 350 275 S 530 250 645 210',x:49,y:62},
  {value:'west',name:'West',path:'M 55 210 C 180 210 200 365 350 355 S 530 310 645 210',x:48,y:82}
 ] as const;
-export function DebrisMission({view,actions,connected,pending,command,remaining}:Props){
+export function DebrisMission({view,connected,pending,command,remaining}:Props){
  const [moving,setMoving]=useState(true);
  const state=view.signal;if(view.mode!=='signal'||view.round!==1||!state?.board)return null;
+ const actions=state.ownOrders||state.ownDraft||{};
  const tasks=view.brief?.tasks||[],canFly=tasks.some(t=>t.key==='navigation'),result=view.phase==='result';
  const disabled=view.phase!=='action'||view.submitted||pending||!connected;
  const plans=state.flightPlans||[],navigationPlans=plans.filter(p=>p.orders.navigation);
@@ -22,6 +23,7 @@ export function DebrisMission({view,actions,connected,pending,command,remaining}
  const activePath=debrisRoutes.find(p=>p.value===route);
  const conflicts=new Set(navigationPlans.map(p=>p.orders.navigation)).size>1;
  const locked=view.players.filter(p=>p.submitted).length;
+ const missing=tasks.filter(t=>!actions[t.key]);
  async function choose(key:string,value:string){
   if(disabled)return;
   await command({type:'signal-draft',round:view.round,run:state!.run,puzzleId:state!.puzzleId,key,value});
@@ -37,7 +39,7 @@ export function DebrisMission({view,actions,connected,pending,command,remaining}
    {tasks.filter(t=>t.key!=='navigation').map(task=><fieldset key={task.key} disabled={disabled}><legend>{task.title}</legend><p className="task-hint">{task.hint}</p><div className={`debris-system-visual system-${task.key}`} aria-hidden="true">{task.key==='engineering'?<><span className={actions.engineering==='high'?'boost':''}>▰ ▰ ▰</span><small>THRUSTER BUS</small></>:task.key==='comms'?<><span className={`relay-${actions.comms||'idle'}`}>◉</span><small>RENDEZVOUS ARRAY</small></>:<><span className={actions.shield==='on'?'shield-up':''}>⬡</span><small>HULL PROTECTION</small></>}</div><div className="debris-options">{task.options.map(o=><button type="button" key={o.value} className={actions[task.key]===o.value?'is-selected':''} aria-pressed={actions[task.key]===o.value} onClick={()=>void choose(task.key,o.value)}>{o.label}</button>)}</div></fieldset>)}
   </div>
   <div className="debris-crew-plan" aria-label="Shared flight proposals"><h4>Crew flight proposals</h4><p>Console changes are shared with the crew. Private telemetry stays private until you share it.</p>{plans.map(p=><div key={p.playerId}><strong>{p.name}{p.playerId===view.me?' (you)':''}</strong><span>{Object.entries(p.orders).map(([k,v])=>`${state.board!.controls[k as keyof typeof state.board.controls]?.title}: ${state.board!.controls[k as keyof typeof state.board.controls]?.options.find(o=>o.value===v)?.label||v}`).join(' · ')||'No settings proposed'}</span><em>{p.locked?'Locked':'Planning'}</em></div>)}</div>
-  {!result&&<div className="debris-launch"><p role="status">{!connected?'Connection interrupted — controls paused.':view.phase==='briefing'?'Review your telemetry. Flight controls open after briefing.':view.submitted?'Your orders are locked. Waiting for the crew.':view.phase==='locked'?'Crew orders received. Resolving the crossing…':'Changes are free until you lock your orders.'}</p><button type="button" className="primary lock-button" disabled={disabled||!tasks.length||!tasks.every(t=>actions[t.key])} onClick={()=>void command({type:'submit',round:view.round,signalRun:state.run,puzzleId:state.puzzleId,action:actions})}>{view.submitted?'✓ Orders locked':'Lock flight orders'}</button><small>{locked} / {view.players.length} operators locked. Every operator must confirm compatible settings.</small></div>}
+  {!result&&<div className="debris-launch">{view.phase==='action'&&!view.submitted&&<p className="signal-order-guidance" role="status">{missing.length?`Choose at your station: ${missing.map(t=>t.title).join(', ')}. Shared crew proposals do not select your own controls.`:'Your station is complete. You can lock now, regardless of who locks first.'}</p>}<p role="status">{!connected?'Connection interrupted — controls paused.':view.phase==='briefing'?'Review your telemetry. Flight controls open after briefing.':view.submitted?'Your orders are locked. Waiting for the crew.':view.phase==='locked'?'Crew orders received. Resolving the crossing…':'Changes are free until you lock your orders.'}</p><button type="button" className="primary lock-button" disabled={disabled||!tasks.length||!tasks.every(t=>actions[t.key])} onClick={()=>void command({type:'submit',round:view.round,signalRun:state.run,puzzleId:state.puzzleId,action:actions})}>{view.submitted?'✓ Orders locked':'Lock flight orders'}</button><small>{locked} / {view.players.length} operators locked. Every operator must confirm compatible settings.</small></div>}
   {result&&<p className={view.result?.success?'debris-outcome':'debris-outcome debris-warning'} role="status">{view.result?.success?'Crossing complete — rendezvous confirmed.':activePath?'Crossing unaligned — showing the lead Navigator’s submitted path. Emergency recovery engaged.':'No Navigator flight order received. Emergency recovery engaged.'}</p>}
  </section>;
 }
