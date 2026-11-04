@@ -32,3 +32,7 @@ html[data-signal-page=true],html[data-signal-page=true] body,html[data-signal-pa
 /* Reserve the actual two-digit width on desktop; preserve the phone layout. */
 @media(min-width:601px){.app.signal .mission-icon{flex:0 0 auto;min-width:2ch;line-height:1.1}.app.signal .mission-stage{column-gap:24px}}
 .signal-order-guidance{color:#d5e9ef;font-size:14px;line-height:1.6}
+
+/* An explicit inline size prevents the square aspect ratio and mobile minimum
+   height from making the map wider than its padded parent. */
+.app.signal .debris-map{width:100%;min-width:0;max-width:100%}
