@@ -50,7 +50,7 @@ test('QA-01: compact timer renders supplied authoritative remaining time with no
  for(const remaining of [135,61,1,0,-5]){const html=render(React.createElement(SignalControlTimer,{remaining,phase:'action',connected:true}));assert.match(html,new RegExp(`${Math.max(0,remaining)}s remaining`));assert.match(html,/role="timer"/)}
  const html=render(React.createElement(SignalControlTimer,{remaining:12,phase:'locked',connected:false}));assert.match(html,/Orders locked/);assert.match(html,/Reconnecting/);
  assert.doesNotMatch(readFileSync('src/SignalControlTimer.tsx','utf8'),/setInterval|Date\.now|useState/);
- const main=readFileSync('src/main.tsx','utf8');assert.match(main,/<SignalControlTimer remaining=\{remaining\}/);assert.match(main,/<DebrisMission[^>]*remaining=\{remaining\}/);
+ const main=readFileSync('src/main.tsx','utf8');assert.match(readFileSync('src/SignalMission.tsx','utf8'),/<SignalControlTimer remaining=\{remaining\}/);assert.match(main,/<SignalMission/);assert.match(main,/<DebrisMission[^>]*remaining=\{remaining\}/);
  const css=readFileSync('src/signal-mission.css','utf8');assert.match(css,/signal-control-timer\{position:sticky/);assert.match(css,/@media\(max-width:600px\)/);
 });
 function luminance(hex:string){const c=hex.match(/../g)!.map(x=>parseInt(x,16)/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);return .2126*c[0]+.7152*c[1]+.0722*c[2]}

@@ -35,7 +35,12 @@ test('QA-06: independent clients receive selected captain facts, restore them, t
   assert.ok((await command(hero,{type:'share-clue',...scope(promoted),clue:0})).ok);
   let remaining=await wait(third,v=>v?.clues?.received?.length===1&&v.players?.length===2);assert.equal(remaining.clues.received[0].name,'QA Explorer');
   promoted=await wait(hero,v=>v?.phase==='action'&&v.players.length===2);remaining=await wait(third,v=>v?.phase==='action'&&v.players.length===2);
-  for(const [s,v] of [[hero,promoted],[third,remaining]] as const)for(const key of v.expert.ownKeys){const latest=states.get(s);assert.ok((await command(s,{type:'mechanism',...scope(latest),version:latest.expert.version,key,value:magicPlans[0][key]})).ok)}
+  // A command acknowledgement does not guarantee another socket has consumed its state event.
+  for(const [s,v] of [[hero,promoted],[third,remaining]] as const)for(const key of v.expert.ownKeys){
+   const latest=states.get(s),version=latest.expert.version;
+   const response=await command(s,{type:'mechanism',...scope(latest),version,key,value:magicPlans[0][key]});assert.ok(response.ok,response.error);
+   await Promise.all([hero,third].map(client=>wait(client,state=>state?.expert?.version>=version+1)));
+  }
   for(const s of [hero,third]){const latest=states.get(s);assert.ok((await command(s,{type:'mechanism',...scope(latest),version:latest.expert.version,ready:true})).ok)}
   const ready=await wait(hero,v=>v?.expert?.explorers?.every((x:any)=>x.ready));assert.ok((await command(hero,{type:'submit',...scope(ready),stationVersion:ready.expert.version,action:{launch:'launch'}})).ok);
   const [a,b]=await Promise.all([wait(hero,v=>v?.phase==='result'),wait(third,v=>v?.phase==='result')]);assert.ok(a.result.success);assert.equal(a.score,1);assert.deepEqual(a.result,b.result);assert.equal(a.score,b.score);assert.equal(a.deadline,b.deadline);
