@@ -119,7 +119,7 @@ This design provides one source of truth for players who act at different times,
 
 ### Real-time event flow
 
-The Socket.IO gateway in [\`server/index.ts\`](server/index.ts) accepts a \`command\` event and acknowledges success or failure. The engine publishes \`state\` events to individual sockets, using a player-specific view rather than broadcasting the raw room object.
+The Socket.IO gateway in [`server/index.ts`](server/index.ts) accepts a `command` event and acknowledges success or failure. The engine publishes `state` events to individual sockets, using a player-specific view rather than broadcasting the raw room object.
 
 ~~~mermaid
 sequenceDiagram
@@ -264,15 +264,15 @@ Vite proxies Socket.IO traffic to the backend at port 3000. For multi-device LAN
 
 ## Production deployment
 
-The app is deployed on **Render** as one Node web service. Configuration lives in [\`render.yaml\`](render.yaml):
+The app is deployed on **Render** as one Node web service. Configuration lives in [`render.yaml`](render.yaml):
 
 | Setting | Value |
 | --- | --- |
-| Build command | \`npm ci && npm run build\` |
-| Start command | \`npm start\` |
-| Health check | \`GET /health\` |
+| Build command | `npm ci && npm run build` |
+| Start command | `npm start` |
+| Health check | `GET /health` |
 | State storage | In-process memory |
-| Browser assets | Vite-generated \`dist/\`, served by Express |
+| Browser assets | Vite-generated `dist/`, served by Express |
 
 **Operational limitation:** rooms are ephemeral. A server restart, redeploy, or free-tier idle shutdown clears them. Reconnection restores a seat only while the original room remains in the same live process. This is an explicit architectural choice, not persistent session storage.
 
