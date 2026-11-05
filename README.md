@@ -1,348 +1,317 @@
-# TOGETHER!
+<div align="center">
 
-Two cooperative web games for 2–6 players on independent devices. No login: choose a world, create a room, share its six-character code, and ready up.
+# TOGETHER! 🎮
 
-## Run
+### Different devices. Same adventure.
 
-Requires Node.js 22 or newer.
+**A full-stack, real-time cooperative multiplayer game where the information is distributed, decisions are shared, and the server keeps everyone in sync.**
 
-```sh
+**2–6 players · Two game worlds · 15 playable experiences · No account required**
+
+[**Play the live game**](https://together-multiplayer-game.onrender.com/) · [**Explore the source**](https://github.com/ElenkaSan/together-multiplayer-game) · [**Handshake AI Showcase**](https://app.joinhandshake.com/ai-showcase/projects/3705895)
+
+<img src="public/art/share/together-v2.png" alt="TOGETHER! game artwork showing the Tiny Heroes and Signal Lost worlds" width="800" />
+
+</div>
+
+---
+
+## The idea
+
+**What if the challenge in a multiplayer game wasn't competing against your friends, but figuring out how to succeed together?**
+
+TOGETHER! is a browser-based cooperative experience designed for **2–6 people on independent devices**. One player creates a room, others join using a six-character code or invitation link, and the team works through scenarios in which each participant has different information or responsibilities.
+
+The app is intentionally more than a collection of independent screens: it implements a **shared multiplayer state machine**, role-specific views, a validation layer, timed decisions, reconnect recovery, and synchronized results.
+
+Built for the **Handshake “Create a Multiplayer Game” challenge** as an end-to-end full-stack engineering project.
+
+## At a glance
+
+| | |
+| --- | --- |
+| **Live application** | https://together-multiplayer-game.onrender.com/ |
+| **Frontend** | React 19, TypeScript, Vite, responsive CSS, Framer Motion |
+| **Backend** | Node.js, Express 5, Socket.IO |
+| **Domain model** | Shared TypeScript game definitions plus server-side rules and puzzle generation |
+| **Deployment** | Render, single Node service, HTTP health check |
+| **Testing** | Node's test runner; unit, rule-engine, Socket.IO integration, regression and UI-contract tests |
+| **Persistence** | Ephemeral in-memory rooms with anonymous seat restoration while the server stays alive |
+| **Authentication** | No signup; room codes and opaque seat tokens, **not** user accounts |
+
+## Two worlds, one multiplayer engine
+
+### 🌿 Tiny Heroes — cooperative adventures
+
+A family-friendly game in which a **Team Captain** and **Little Heroes** share clues, choose tools, plan routes, manage resources, and complete five stages per adventure.
+
+**10 adventures:** Forest Rescue · Ice Rescue · Jungle Adventure · Treasure Island · Desert Rescue · Ocean Adventure · Magic Kingdom · Moon Mission · Cloud Adventure · Meadow Rescue.
+
+The mechanics evolve across adventures: tool selection, limited shared Warm Packs, team stations, cooperative mechanisms, changing conditions, and progression tracking. The Captain doesn't automatically receive every helper's private clue: players explicitly communicate the information their team needs.
+
+### 🚀 Signal Lost — a cooperative space mission
+
+A five-sector mission for older players, with responsibilities distributed across **navigation, engineering, communications, and shared protection decisions**.
+
+| Sector | Interactive mission environment | Cooperative challenge |
+| --- | --- | --- |
+| **01 · Wake the Relay** | Damaged station, antenna and signal visualization | Align receiver and signal settings using distributed measurements |
+| **02 · Cross the Debris Field** | Interactive asteroid routes and flight visualization | Agree on a safe corridor using fuel, timing and protection readings |
+| **03 · Power Failure** | Reactor and power-distribution network | Allocate a fixed budget of eight cells across four systems |
+| **04 · The Ghost Telemetry** | Radar, sensors and diagnostics | Authenticate trustworthy telemetry against independent checks |
+| **05 · Final Transmission** | Transmission array and crew confirmation indicators | Combine recovered records and align the final transmission |
+
+Every crew member sees a **shared visual mission environment**, while their **private telemetry and permitted controls are role-specific**. Players can explicitly **Share with Crew**; proposed settings and locked orders are synchronized by the server.
+
+For two-player games, responsibilities are combined. The same multiplayer system also accommodates larger crews.
+
+> **Core design principle:** each crew member has only part of the evidence. The server generates puzzles whose combined evidence identifies a solution, rather than giving every player an obvious answer.
+
+---
+
+## System design
+
+### Architecture
+
+TOGETHER! runs as a **single Node.js service** serving the compiled frontend and coordinating real-time Socket.IO connections. The client renders the UI and expresses player intent. The server owns room state, validates actions, decides when phases change, and distributes **player-specific snapshots**.
+
+~~~mermaid
+flowchart TB
+    subgraph Devices["Independent player devices (2–6)"]
+        A["Player A · React UI"]
+        B["Player B · React UI"]
+        C["Additional players · React UI"]
+    end
+
+    subgraph Runtime["Node.js / Express + Socket.IO · Render"]
+        Gateway["HTTP /health + static frontend\nSocket.IO command/ack gateway"]
+        Engine["Authoritative room engine\nserver/engine.ts"]
+        Mode["Mode orchestration and validators\nserver/modes.ts · server/*.ts"]
+        Rooms[("In-memory room state\nseats · phases · deadlines · orders")]
+        Views["Per-player snapshot projection\nshared board + authorized private clues"]
+    end
+
+    Rules["Shared TypeScript definitions\nshared/*.ts"]
+
+    A & B & C <-->|"Commands / state events"| Gateway
+    Gateway --> Engine
+    Engine <--> Rooms
+    Engine --> Mode
+    Mode --> Rules
+    Engine --> Views
+    Views --> Gateway
+    Rules -.->|"Public mission definitions"| Devices
+~~~
+
+### Why a server-authoritative model?
+
+The browser must not be able to declare its own victory, reveal another player's telemetry, or advance a room independently.
+
+Instead:
+
+1. The **client submits intent** (ready, share, propose a setting, lock an order).
+2. The **server verifies** the seat, current phase, puzzle identity, assigned controls, and allowed values.
+3. The **engine updates one canonical room state**, if the command is valid.
+4. Connected clients receive **new projections of that state**; the projection depends on who is asking.
+5. The server resolves the round and advances the mission when its rules and deadlines allow.
+
+This design provides one source of truth for players who act at different times, reconnect, or try to submit conflicting inputs.
+
+### Real-time event flow
+
+The Socket.IO gateway in [\`server/index.ts\`](server/index.ts) accepts a \`command\` event and acknowledges success or failure. The engine publishes \`state\` events to individual sockets, using a player-specific view rather than broadcasting the raw room object.
+
+~~~mermaid
+sequenceDiagram
+    participant A as Navigator
+    participant S as Authoritative server
+    participant B as Engineer
+
+    A->>S: create room
+    S-->>A: room code + anonymous seat token
+    B->>S: join with room code
+    S-->>B: own seat token + own state
+    A->>S: ready / start
+    B->>S: ready
+    S-->>A: phase + role-specific briefing
+    S-->>B: phase + role-specific briefing
+    A->>S: share-telemetry (selected observation)
+    S-->>B: authorized shared observation
+    B->>S: signal-draft (engineering setting)
+    S-->>A: public proposal update
+    A->>S: submit / lock orders
+    B->>S: submit / lock orders
+    S->>S: validate + resolve + advance phase
+    S-->>A: personalized result snapshot
+    S-->>B: personalized result snapshot
+~~~
+
+### Room lifecycle and state machine
+
+The backend owns the state transition sequence:
+
+~~~mermaid
+stateDiagram-v2
+    [*] --> lobby
+    lobby --> briefing: host starts with 2+ ready players
+    briefing --> action: briefing deadline
+    action --> locked: orders complete or action deadline
+    locked --> result: server resolves
+    result --> briefing: next stage
+    result --> finished: final stage
+    briefing --> paused: insufficient connected players
+    result --> paused: next stage needs players
+    paused --> briefing: reconnect / enough players
+    finished --> lobby: host replays
+~~~
+
+The engine also manages seat capacity, host transfer, room expiry, timeouts, duplicate submission rejection and stale-action validation. **A missing action is handled by server-side timing rules**, so one disconnected participant does not leave an active round indefinitely unresolved.
+
+### Isolation, role permissions and information boundaries
+
+A key engineering challenge was separating **what everyone should see** from **what only one player is allowed to know**.
+
+| Information | Visibility |
+| --- | --- |
+| Current sector, shared environment, team progress and deadlines | Room-wide |
+| Published equipment proposals and lock status | Room-wide |
+| A player's assigned private telemetry and role tasks | That player's snapshot |
+| A clue intentionally sent through Share with Crew | Authorized teammates |
+| Internal puzzle solution, raw room state and other players' seat tokens | Server-only |
+
+The server validates telemetry-sharing ownership and task assignments before accepting commands. Published shared-scene models deliberately omit private clues and puzzle answers. These boundaries are backed by privacy and Socket.IO tests.
+
+**Security scope:** opaque seat tokens support anonymous reconnection, but they are not a substitute for accounts or a comprehensive security audit. Socket.IO commands also have input validation and basic per-connection request limiting.
+
+### Designing puzzles that actually require cooperation
+
+Signal Lost uses generated puzzle boards and **distributed telemetry**. The puzzle logic enumerates candidate setting combinations and checks them against the available evidence.
+
+The validator checks for **one solution with the complete evidence**, and attempts to partition telemetry for crew sizes **2 through 6** so an individual assignment doesn't solve the puzzle by itself. Players must compare measurements, publish relevant evidence, and agree on orders.
+
+That is an engineering constraint beyond a conventional multiple-choice game: the puzzle must remain internally consistent while roles and team sizes vary.
+
+---
+
+## Engineering decisions and trade-offs
+
+| Decision | Why | Trade-off |
+| --- | --- | --- |
+| **Node.js + Socket.IO** | One runtime for browser coordination, room events and low-latency updates | Long-running server required |
+| **Server-authoritative state** | Consistent rules, protected information and rejection of invalid or duplicate actions | More validation and state-machine complexity |
+| **Shared TypeScript domain definitions** | Reuse game metadata across UI and backend | Requires discipline about public definitions versus secret server-side answers |
+| **In-memory rooms** | Simple, low-cost, fast prototype without database setup | All active rooms disappear on process restart, redeploy or idle shutdown |
+| **Anonymous reconnect tokens** | Players can refresh without registration | Restoration only works while the original room exists |
+| **Room-scoped personalized snapshots** | Synchronizes public activity without exposing every player's private clues | Additional projection logic and privacy tests |
+| **Responsive SVG mission scenes** | Visual feedback for the same shared state on multiple screen sizes | Extra small-screen, touch and accessibility validation |
+
+This is an intentionally **single-instance architecture**, not a claim of durable or horizontally scalable infrastructure.
+
+**Evolution path:** shared room storage and a Socket.IO adapter for multiple instances; persistent sessions if needed; richer observability and event tracing; expanded accessibility and mobile-device testing.
+
+---
+
+## Testing and quality engineering
+
+The repository includes automated coverage for gameplay rules and network behavior, including:
+
+- **Game engine:** room lifecycle, readiness, phase progression, timeouts, capacity and expiry.
+- **Multiplayer integration:** independent Socket.IO clients, two- and six-player coordination, synchronized shared scenes, and five-sector Signal Lost completion.
+- **Information privacy:** role-specific snapshots, selective clue sharing, telemetry boundaries and room isolation.
+- **Reliability:** reconnect, seat restoration, host transfer, stale actions and duplicate submissions.
+- **Gameplay:** Tiny Heroes adventure mechanics, progression, shared resources, retries and Signal Lost puzzle validity.
+- **UI contracts:** interactive scene behavior, responsive layout helpers and regression checks.
+
+The November 4, 2026 release verification reported **410/410 automated tests passing**, alongside live multiplayer QA and fixes for three confirmed interface defects. This is a recorded release result, **not** a claim that every browser, device or possible play sequence has been tested.
+
+Tests based on Socket.IO clients verify protocol/game-state behavior; **they do not replace physical-device, Safari or full end-to-end browser testing**.
+
+Run the current suite:
+
+~~~bash
+npm ci
+npm test
+npm run build
+~~~
+
+The build includes a TypeScript check and Vite production build.
+
+---
+
+## Run locally
+
+**Prerequisite:** Node.js **22+** and npm.
+
+~~~bash
 npm ci
 npm run build
 npm start
-```
-
-Open http://localhost:3000. Other devices on the same network can use the host computer's LAN address and port 3000. For development run `npm run server` and `npm run dev` in separate terminals.
-
-## Deploy
-
-Push this directory to `together-multiplayer-game` on GitHub. Create a Render Node web service with `npm ci && npm run build`, start command `npm start`, and `/health` health check. `render.yaml` is included for deployment configuration.
-
-The free service may sleep when idle. Server restart, redeployment or idle shutdown loses rooms. Refresh and transient network interruption restore an anonymous seat as long as the room's server process remains alive.
-
-## Missions
-
-**Tiny Heroes / Sunny Valley Rescue:** five distinct animal rescues. Helpers receive simple tool clues and choose visual tool buttons. A Team Captain manages three kindness stars, each covering one of three possible rescue outcomes. The game is structured around quick cooperative interpretation and shared timing.
-
-**Signal Lost / Return the Signal:** five sectors with navigation, engineering and communications settings, plus a shared shield decision. Responsibilities combine for two players and duplicate actions are rejected, creating a strong coordination requirement across separate devices.
-
-Discuss in person or through an existing phone/video call. Built-in chat and voice are not included.
-
-## Shared engine
-
-`server/engine.ts` owns rooms, opaque seat tokens, readiness, host transfer, deadlines, duplicate submission rejection, reconnection, capacity, expiry and round progression. `server/modes.ts` supplements this with per-mode logic, while `shared/*.ts` defines the game data used by both client and server.
-
-Lobby → briefing → action → locked → result → next briefing / finished. A room pauses between rounds with fewer than two connected players. Missing actions time out as waiting. Joining a room after the current round has started depends on state and reconnection behavior defined by the engine.
-
-## Validation
-
-```sh
-npm test
-npm run build
-```
-
-Engine tests cover five rounds for each player count in both modes, snapshot privacy, host transfer, reconnect, invalid/stale/duplicate orders, missing submissions, pause/resume, capacity, expiry and progression. Browser and physical-device checks still need the live deployment. No database or paid resource is required for this version.
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                         Browser / Client                          │
-│  React + TypeScript + Vite                                          │
-│  - room join / create                                               │
-│  - lobby + game UI                                                 │
-│  - ready state                                                     │
-│  - submit actions                                                  │
-└──────────────────────────────┬──────────────────────────────────────┘
-                               │ Socket.IO
-                               ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                       Authoritative Server                         │
-│  Node.js + Express + Socket.IO                                      │
-│  - room lifecycle                                                   │
-│  - seat assignment                                                  │
-│  - validity checks / duplicate rejection                             │
-│  - reconnect + timeout handling                                     │
-│  - round progression                                                │
-└──────────────┬───────────────────────┬──────────────────────────────┘
-               │                       │
-               ▼                       ▼
-┌──────────────────────┐   ┌─────────────────────────────────────┐
-│ Game Logic / Modes   │   │ In-memory Room State               │
-│ server/modes.ts      │   │ room code, seats, readiness,       │
-│ server/*.ts          │   │ phase, actions, result, timeouts    │
-└──────────────────────┘   └─────────────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                     Shared Domain / Rules                          │
-│  shared/*.ts                                                       │
-│  mission definitions, rules, turn structure, scenario metadata     │
-└─────────────────────────────────────────────────────────────────────┘
+~~~
 
-## Architecture
-flowchart LR
-    subgraph Client["Frontend (React + Vite)"]
-        UI["src/ UI Components\nRoomEntry, TinyHeroExperience,\nTeamExpedition, CollectionAdventure, ..."]
-        SocketClient["Socket.IO Client"]
-    end
+Open **http://localhost:3000**.
 
-    subgraph Shared["Shared Game Layer"]
-        Rules["shared/*.ts\nMission data, round rules,\nscenario definitions"]
-    end
+For development, run the backend and frontend in separate terminals:
 
-    subgraph Server["Backend (Node.js + Express + Socket.IO)"]
-        HTTP["Express HTTP server\n/health, room endpoints"]
-        Engine["server/engine.ts\nRoom lifecycle, seats, readiness,\nvalidation, reconnects"]
-        Modes["server/modes.ts\nGame mode orchestration"]
-        ModeLogic["Mode-specific logic\nserver/*.ts\ntiny-adventures, team-expeditions,\ncollection-mechanisms, expert-mechanisms"]
-        Store["In-memory Room Store\nCurrent room state"]
-    end
+~~~bash
+npm run server
+~~~
 
-    UI --> SocketClient
-    SocketClient -->|join room / ready / submit action| Engine
-    HTTP --> Engine
+~~~bash
+npm run dev
+~~~
 
-    Engine --> Store
-    Engine --> Modes
-    Modes --> ModeLogic
-    ModeLogic --> Rules
-    Rules --> UI
+Vite proxies Socket.IO traffic to the backend at port 3000. For multi-device LAN testing, use the host's reachable local address and ensure the ports/network allow connections.
 
-    Engine -->|state snapshots| SocketClient
-    SocketClient -->|render state| UI
+## Production deployment
 
-### Overview
+The app is deployed on **Render** as one Node web service. Configuration lives in [\`render.yaml\`](render.yaml):
 
-`TOGETHER!` is a full-stack real-time browser game built around a single authoritative server and a React/Vite client. The project intentionally keeps all multiplayer coordination in memory on the server and exposes a small websocket API to clients, which makes the game easy to run locally and deploy to a lightweight Node host without a database.
+| Setting | Value |
+| --- | --- |
+| Build command | \`npm ci && npm run build\` |
+| Start command | \`npm start\` |
+| Health check | \`GET /health\` |
+| State storage | In-process memory |
+| Browser assets | Vite-generated \`dist/\`, served by Express |
 
-### High-level architecture
+**Operational limitation:** rooms are ephemeral. A server restart, redeploy, or free-tier idle shutdown clears them. Reconnection restores a seat only while the original room remains in the same live process. This is an explicit architectural choice, not persistent session storage.
 
-- Frontend: React + TypeScript + Vite in `src/`
-- Shared domain models and rules: TypeScript definitions in `shared/`
-- Backend runtime: Express + Socket.IO in `server/`
-- Runtime entry point: `server/index.ts`
-- Testing: Node test runner against `tests/*.test.ts`
+## Repository map
 
-### 1. Client layer
+~~~text
+src/                    React screens, shared visual scenes, responsive UI
+  main.tsx              Application composition, Socket.IO client, reconnect
+  RoomEntry.tsx         Entry, invites and lobby
+  SignalMission.tsx     Shared space scenes and sector UI
+  DebrisMission.tsx     Sector 2 route visualization and controls
+  TinyHeroExperience.tsx
+  TinyWorld.tsx         Family adventure UI and artwork
+server/
+  index.ts              HTTP + Socket.IO gateway and health endpoint
+  engine.ts             Authoritative room state machine and snapshots
+  modes.ts              Shared mode orchestration
+  signal-puzzles.ts     Signal puzzle generation, evidence and validation
+  tiny-adventures.ts    Tiny adventure resolution / presentation logic
+shared/                 Public adventure definitions and shared types
+tests/                  Rule engine, Socket.IO, gameplay and regression tests
+public/art/             Game artwork and share images
+render.yaml             Render production service configuration
+~~~
 
-The browser app in `src/` renders each game mode as a distinct experience:
+## Try it with a friend
 
-- `TinyHeroExperience.tsx` and related files for the Tiny Heroes flow
-- `TeamExpedition.tsx` and `IceExpedition.tsx` for expedition-style coordination modes
-- `CollectionAdventure.tsx` and `ExpertAdventure.tsx` for the collection/expert experiences
-- `RoomEntry.tsx` for room creation/joining and lobby setup
-- `main.tsx` for client bootstrapping and app composition
+**[Launch TOGETHER!](https://together-multiplayer-game.onrender.com/)**
 
-The UI is strongly game-state driven: the client renders a current round snapshot, player status, and interactive actions, while the server remains the source of truth for room state transitions and validation.
+Choose **Tiny Heroes** or **Signal Lost**, create a room, and share the invite link or room code with another player. Both participants can join from separate browsers or devices without signing up.
 
-### 2. Shared game rules layer
+There is **no built-in voice or free-form chat**. Gameplay provides specific **Share** actions for communicating clues and telemetry; players can also discuss strategy in person or using an external call.
 
-The `shared/` directory contains the canonical game definitions used by both client and server:
+---
 
-- `tiny-adventures.ts`
-- `new-adventures.ts`
-- `collection-adventures.ts`
-- `expert-adventures.ts`
-- `advanced-adventures.ts`
+<div align="center">
 
-These modules define mission metadata, round structures, clues, decisions, and rules used by both the UI and the backend. This reduces drift between client-side hints and server-side validation.
+**Built as a full-stack engineering challenge: real-time systems, cooperative game logic, responsive interfaces, and production delivery.**
 
-### 3. Server layer
+[Live game](https://together-multiplayer-game.onrender.com/) · [Handshake Showcase](https://app.joinhandshake.com/ai-showcase/projects/3705895)
 
-The `server/` directory is where the game runtime lives.
-
-Key files:
-
-- `index.ts` — starts Express, Socket.IO, health endpoint, and server lifecycle
-- `engine.ts` — central room management, state transitions, seat lifecycle, timeouts, reconnects, and validation
-- `modes.ts` — mode registration and game-specific orchestration
-- `tiny-adventures.ts`, `team-expeditions.ts`, `collection-mechanisms.ts`, `expert-mechanisms.ts`, `advanced-evidence.ts` — mode-specific behaviors and rule logic
-
-The server is authoritative for:
-
-- room creation, join, and leave behavior
-- seat assignment and anonymous identity management
-- readiness and host transfer
-- round deadlines and duplicate-submission rejection
-- reconnection and stale action cleanup
-- state progression across lobby, briefing, action, locked, and result phases
-
-### 4. Real-time communication model
-
-The application uses Socket.IO to synchronize multiplayer state across devices.
-
-Typical flow:
-
-1. A client creates or joins a room using a short room code.
-2. The server creates a `Room` instance and assigns a seat token.
-3. Players ready up and the server transitions the room to the briefing phase.
-4. Each player submits actions for their role or objective.
-5. The server validates submissions, rejects duplicates or invalid moves, and advances the round.
-6. The client receives snapshots or state deltas and renders UI updates.
-
-This design keeps the multiplayer logic simple and deterministic while making each room instance isolated and self-contained.
-
-### 5. State and lifecycle design
-
-The game state follows a staged lifecycle:
-
-- Lobby
-- Briefing
-- Action
-- Locked
-- Result
-- Next briefing / finished
-
-A room is ephemeral in memory, and the server automatically handles:
-
-- reconnects after transient network interruption
-- missing actions via timeouts
-- pause/resume behavior when fewer than two players remain
-- capacity and expiry policies
-- host transfer if the original host disconnects
-
-This makes the runtime suitable for lightweight co-op sessions without a persistent database layer.
-
-### 6. Data flow and boundaries
-
-A useful mental model is:
-
-- `shared/` = canonical game definitions and rules
-- `server/` = authoritative state machine and validation
-- `src/` = user-visible presentation and interaction layer
-
-The boundary is intentionally clean:
-
-- clients never mutate room state directly
-- the server validates all game actions before accepting them
-- the UI only reflects current snapshots and emits user intent
-
-### 7. Deployment architecture
-
-The project is designed for a single Node process deployment:
-
-- `npm start` runs the server directly
-- `server/index.ts` exposes an HTTP health endpoint (`/health`)
-- `render.yaml` configures deployment to Render
-- no external database required for the current version
-
-This is a practical architecture for a small, low-cost multiplayer game: one server process, in-memory room state, and browser clients connected over Socket.IO.
-
-### 8. Strengths
-
-- Simple deployment model
-- Zero login / zero database friction
-- Shared rules reduce frontend/backend drift
-- Room-scoped multiplayer state is easy to reason about
-- Clean separation of authoritative logic and UI rendering
-
-### 9. Constraints and trade-offs
-
-- Rooms are not durable across process restarts or idle shutdowns
-- All room state lives in memory, so horizontal scaling requires a shared state layer
-- There is no built-in chat, voice, or persistent account system
-- Game logic is intentionally tuned for local-network and lightweight hosting scenarios
-
-### 10. Recommended evolution path
-
-If the project grows, the architecture can be extended without rewriting the game model:
-
-- Add Redis for room persistence and cross-instance state sync
-- Add a real database for analytics and moderation
-- Separate rule engines and UI components into more explicit domains
-- Add websocket event versioning and room snapshots for debugging
-- Introduce a service layer for authentication, session management, and telemetry
-
-### Summary
-
-This repository follows a classic authoritative-server game architecture: an in-memory Node server coordinates rooms, validates actions, and drives game progression, while a React client renders the game state and captures player interaction. The design is intentionally lightweight, fast to run, and well-suited for small cooperative multiplayer sessions without requiring infrastructure beyond a Node host.
-
-
-# System Design / Architecture Overview
-
-## Overview
-
-This project is a real-time cooperative multiplayer web game for 2–6 players on independent devices. Players join a room by code, ready up, and complete shared objectives coordinated by a single authoritative server.
-
-The system is intentionally lightweight:
-- no login
-- no database
-- no user accounts
-- room state is kept in memory
-- multiplayer coordination is handled in real time using Socket.IO
-
-## High-level architecture
-
-The application is split into three layers:
-
-- Frontend: React + TypeScript + Vite (`src/`)
-- Shared game logic: TypeScript definitions and rules (`shared/`)
-- Backend: Express + Socket.IO server (`server/`)
-
-## Client layer
-
-The browser client renders the game UI, room flow, and player interactions. It is responsible for:
-- creating and joining rooms
-- displaying lobby and phase transitions
-- rendering game state and decisions
-- sending actions to the server
-- updating views from server snapshots
-
-## Shared layer
-
-The `shared/` folder defines the canonical game rules and data structures used by both the client and server. This includes mission definitions, round logic, clues, and gameplay constraints.
-
-## Server layer
-
-The server is the authoritative source of truth. It manages:
-- room creation and lifecycle
-- seat assignment and host transfer
-- player readiness
-- validation of actions and duplicate submissions
-- reconnect and timeout handling
-- round progression and result resolution
-
-Key files:
-- `server/index.ts`
-- `server/engine.ts`
-- `server/modes.ts`
-
-## Real-time communication
-
-The game uses Socket.IO to synchronize room state across players. Clients send intent (join, ready, submit action), and the server validates and broadcasts the updated authoritative state.
-
-## State model
-
-Each room is an in-memory state machine with the flow:
-- lobby
-- briefing
-- action
-- locked
-- result
-- next briefing / finished
-
-The room lifecycle includes reconnects, expiry, and pause behavior when player count drops below the minimum requirement.
-
-## Deployment model
-
-The project is designed for a single-process Node deployment:
-- `npm run build`
-- `npm start`
-
-No database is required for the current version. Deployment is simple and suitable for lightweight hosting providers.
-
-## Design trade-offs
-
-Strengths:
-- fast local setup
-- low operational cost
-- simple multiplayer model
-- clear separation between UI and game logic
-
-Trade-offs:
-- room state is ephemeral
-- no persistence across server restarts
-- no built-in lobby/chat/account systems
-- limited scaling beyond a single server instance
-
-## Summary
-
-This is an authoritative-server multiplayer game architecture: the browser client handles UX and interaction, while the Node server owns validation and game state progression. The design prioritizes simplicity, speed, and low infrastructure requirements over persistence and large-scale online infrastructure.
+</div>
