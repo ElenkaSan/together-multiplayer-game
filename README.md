@@ -24,7 +24,7 @@ TOGETHER! is a browser-based cooperative experience designed for **2–6 people 
 
 The app is intentionally more than a collection of independent screens: it implements a **shared multiplayer state machine**, role-specific views, a validation layer, timed decisions, reconnect recovery, and synchronized results.
 
-Built for the **Handshake “Create a Multiplayer Game” challenge** as an end-to-end full-stack engineering project.
+Built for the **Handshake “Create a Multiplayer Game” challenge** as an end-to-end full-stack engineering project. The project began with the [original Handshake mission](https://app.joinhandshake.com/learn/create-a-multiplayer-game-8d7d59b5/mission_step_cms91q9ip000h21qxfce1a5f0) and evolved into two game modes, a shared multiplayer engine, and an independently tested public demo.
 
 ## At a glance
 
