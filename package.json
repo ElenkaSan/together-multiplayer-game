@@ -14,8 +14,8 @@
     "test": "node --import tsx --test tests/*.test.ts"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Elena Nurullina",
+  "license": "AGPL-3.0-only",
   "type": "module",
   "dependencies": {
     "express": "^5.2.1",
