@@ -17,9 +17,19 @@ elsewhere.
 
 Before redistributing a complete game bundle, review the assets you include.
 The program may be developed with replacement assets whose licenses you can
-verify. No completed asset-by-asset provenance audit is claimed here.
+verify. The inventory and maintainer's declaration are recorded in
+[docs/asset-provenance.md](docs/asset-provenance.md); they are not an independent
+legal certification.
 
 When contributing an asset, provide its source, creator, license and any
 required attribution. Identify AI-assisted or AI-generated material and any
 human-authored modifications. Do not submit assets taken from other games or
 commercial libraries without compatible permission.
+
+## Provenance declaration
+
+On 2026-11-06, Elena Nurullina confirmed that the game's visual materials were
+created from her own ideas through ChatGPT, not downloaded from third-party
+games, stock libraries or asset packs. See the per-file inventory in
+[docs/asset-provenance.md](docs/asset-provenance.md). This declaration does not
+change the permissions or third-party rights described above.
