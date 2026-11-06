@@ -1,131 +1,1383 @@
-import {makeSignalPuzzle,signalBrief,signalRole,signalDuration,defaultSignalTimers,recoverSignalRecord,type SignalState} from './signal-puzzles.js';
-import {isCollection} from '../shared/collection-adventures.js';
-import {beginCollection,checkCollectionWeather,collectionFieldLocked,collectionReadyKeys,collectionCanLaunch} from './collection-mechanisms.js';
-import {isExpert,expertFields,expertPreview} from '../shared/expert-adventures.js';
-import {newExpertState,expertBrief,resolveExpert,commitExpert,type ExpertState} from './expert-mechanisms.js';
-import {stationFields,oceanPower,oceanStages} from '../shared/advanced-adventures.js';
-import {oceanBrief,type OceanState} from './ocean-stations.js';
-import {getAdventure,availableAdventures,nextAdventureId} from '../shared/tiny-adventures.js';
-import {adventureState,adventureSnapshot,tinyFeedback,advanceTiny,tinyPresentationDuration,tinyActionDuration,type TinyAdventureState} from './tiny-adventures.js';
-import {randomBytes,randomUUID} from 'node:crypto';
-import {brief,resolve,rounds,missionRound,type Mode,type Action} from './modes.js';
-export interface Player {id:string;token:string;name:string;socketId:string|null;ready:boolean;action:Action|null;slot:number}
-type RoundResult=ReturnType<typeof resolve>&{retry?:boolean;assisted?:boolean;hint?:{tool:string;label:string;text:string}|null};
-export interface Room {closed?:string;crewNotice?:{id:number;departed:string;captainId:string;promoted:boolean};crewRebalanced?:boolean;crewClues?:Record<string,{icon:string;text:string}[]>;signal?:SignalState;teamPlanVersion?:number;rethinkBy?:string|null;sharedClues?:Record<string,number[]>;expert?:ExpertState;ocean?:OceanState;tiny?:TinyAdventureState;tinyProgress?:{completed:string[];mapOpen:boolean;run:number;results:Record<string,{friendsHome:number;badges:number;assists:number}>};code:string;mode:Mode;players:Player[];host:string;phase:'lobby'|'briefing'|'action'|'locked'|'result'|'paused'|'finished';round:number;deadline:number|null;score:number;bonus:number;integrity:number;result:RoundResult|null;updated:number;revision:number}
-export class Engine {
- rooms=new Map<string,Room>();
- constructor(public publish:(r:Room)=>void=()=>{},public actionMs=60000,public briefingMs=7000,public resultMs=12000,public signalTimers=defaultSignalTimers){}
- change(r:Room){r.updated=Date.now();r.revision++;this.publish(r)}
- player(r:Room,token:string){const p=r.players.find(p=>p.token===token);if(!p)throw Error('Your seat could not be restored. Join the room again.');return p}
- create(mode:Mode,name:string,socketId:string,adventureId?:string){const tiny=mode==='tiny'?adventureState(adventureId):undefined;if(mode!=='tiny'&&mode!=='signal')throw Error('Choose a game first.');if(this.rooms.size>=1000)throw Error('All rooms are busy. Please try later.');let code='';do{code=Array.from(randomBytes(6),b=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b%32]).join('')}while(this.rooms.has(code));const p=this.newPlayer(name,socketId,0);const r:Room={...(mode==='signal'?{signal:{seed:randomBytes(4).readUInt32BE(),run:1,puzzle:null,shared:{},archive:[]}}:{}),...(tiny?{tiny,tinyProgress:{completed:[],mapOpen:false,run:1,results:{}}}:{}),code,mode,players:[p],host:p.id,phase:'lobby',round:0,deadline:null,score:0,bonus:tiny?getAdventure(tiny.id).policy.kindnessStars:3,integrity:3,result:null,updated:Date.now(),revision:0};this.rooms.set(code,r);this.change(r);return {r,p}}
- newPlayer(name:string,socketId:string,slot:number):Player {if(typeof name!=='string'||!name.trim()||name.trim().length>24)throw Error('Enter a name between 1 and 24 characters.');return {id:randomUUID(),token:randomBytes(32).toString('hex'),name:name.trim(),socketId,ready:false,action:null,slot}}
- get(code:string){if(typeof code!=='string')throw Error('Enter a room code.');const r=this.rooms.get(code.trim().toUpperCase());if(!r)throw Error('Room not found or expired. Create a new room.');return r}
- join(code:string,name:string,socketId:string,token?:string){const r=this.get(code);if(r.closed)throw Error(r.closed);if(token){const p=this.player(r,token);const old=p.socketId;p.socketId=socketId;this.change(r);return {r,p,old}}if(r.phase!=='lobby')throw Error('This mission has started. Join after the team returns to the lobby.');if(r.players.length>=6)throw Error('This room is full (6 players).');const p=this.newPlayer(name,socketId,r.players.length);r.players.push(p);this.change(r);return {r,p,old:null}}
- ready(r:Room,p:Player){if(r.phase!=='lobby')throw Error('The mission already started.');p.ready=!p.ready;this.change(r)}
- start(r:Room,p:Player){if(p.id!==r.host)throw Error('Only the host can start.');if(r.phase!=='lobby')throw Error('Mission already started.');if(r.players.length<2||!r.players.every(p=>p.ready&&p.socketId))throw Error('At least two players must be connected and everyone must be ready.');r.players.forEach((p,i)=>p.slot=i);this.begin(r)}
- begin(r:Room){if(r.signal&&r.signal.puzzle?.sector!==r.round){r.signal.puzzle=makeSignalPuzzle(r.round,r.signal.seed,r.signal.archive,r.signal.run);r.signal.shared={};r.signal.drafts={};delete r.signal.resolvedAt}r.teamPlanVersion=0;r.rethinkBy=null;r.sharedClues={};delete r.crewClues;if(isExpert(r.tiny?.id)){const board=r.expert?.board;r.expert=newExpertState();if(board)r.expert.board=board;if(isCollection(r.tiny!.id))r.expert.settings=beginCollection(r.tiny!.id,r.round,r.expert.board)}else delete r.expert;if(r.tiny?.id==='ocean-adventure')r.ocean={version:0,settings:{},ready:[]};else delete r.ocean;r.result=null;r.players.forEach(p=>p.action=null);if(r.players.filter(p=>p.socketId).length<2){r.phase='paused';r.deadline=null}else{r.phase='briefing';r.deadline=Date.now()+tinyPresentationDuration(r.tiny,this.briefingMs,'briefing',r.round)}if(r.crewRebalanced&&r.tiny)this.redistributeClues(r);this.change(r)}
- clueList(r:Room,p:Player){if(r.crewClues?.[p.id])return r.crewClues[p.id];const b=isExpert(r.tiny?.id)?expertBrief(r.tiny!.id,r.round,p.slot,r.players.length,r.expert?.board||{objectives:[],assisted:[]}):brief(r.mode,r.round,p.slot,r.players.length,r.bonus,r.tiny?.id);return b.observations?.length?b.observations:[{icon:'map',text:b.message}]}
- shareClue(r:Room,p:Player,data:{round:number;attempt:number;adventureId:string;run:number;clue:number}){if(!r.tiny||!r.players.includes(p)||!p.socketId)throw Error('Join this room first.');if(data.adventureId!==r.tiny.id||data.run!==r.tinyProgress?.run||data.round!==r.round||data.attempt!==r.tiny.attempt||!['briefing','action'].includes(r.phase))throw Error('This clue belongs to a closed attempt.');if(!Number.isInteger(data.clue)||data.clue<0||data.clue>=this.clueList(r,p).length)throw Error('Choose one of your own clues.');const shares=r.sharedClues??={};const own=shares[p.id]??=[];if(own.includes(data.clue))return;own.push(data.clue);this.change(r)}
- shareAllClues(r:Room,p:Player,data:{round:number;attempt:number;adventureId:string;run:number}){
-  if(!r.tiny||!r.players.includes(p)||!p.socketId)throw Error('Join this room first.');
-  if(data.adventureId!==r.tiny.id||data.run!==r.tinyProgress?.run||data.round!==r.round||data.attempt!==r.tiny.attempt||!['briefing','action'].includes(r.phase))throw Error('These clues belong to a closed attempt.');
-  if(p.slot===0)throw Error('Only Little Heroes send clues to the Captain.');
-  const indices=this.clueList(r,p).map((_,i)=>i),shares=r.sharedClues??={};
-  if(indices.every(i=>shares[p.id]?.includes(i)))return;
-  shares[p.id]=indices;this.change(r);
- }
- clueView(r:Room,p:Player){if(r.closed||!r.tiny||['lobby','finished'].includes(r.phase))return null;return {own:this.clueList(r,p).map((c,index)=>({...c,index,shared:!!r.sharedClues?.[p.id]?.includes(index)})),received:r.players.filter(x=>p.slot===0?x.slot!==0:x.slot===0).flatMap(x=>(r.sharedClues?.[x.id]||[]).map(index=>({playerId:x.id,name:x.name,index,...this.clueList(r,x)[index]}))),allShared:r.players.filter(x=>x.slot!==0).every(x=>this.clueList(r,x).every((_,i)=>r.sharedClues?.[x.id]?.includes(i)))} }
- rethinkPlan(r:Room,p:Player,data:{round:number;attempt:number;adventureId:string;run:number;planVersion:number}){
-  if(!r.tiny||getAdventure(r.tiny.id).mechanics?.primary!=='expedition'||!r.players.includes(p)||!p.socketId||p.slot===0)throw Error('Only a Little Hero can ask to rethink the Captain’s plan.');
-  if(data.adventureId!==r.tiny.id||data.run!==r.tinyProgress?.run||data.round!==r.round||data.attempt!==r.tiny.attempt||r.phase!=='action'||Date.now()>r.deadline!)throw Error('This plan belongs to a closed attempt.');
-  if(data.planVersion!==r.teamPlanVersion||!r.players.find(x=>x.slot===0)?.action)throw Error('The plan changed. Review the current plan.');
-  r.players.forEach(x=>x.action=null);r.teamPlanVersion=(r.teamPlanVersion??0)+1;r.rethinkBy=p.name;this.change(r);
- }
- shareTelemetry(r:Room,p:Player,data:{round:number;run:number;puzzleId:string;index:number}){
- const state=r.signal,puzzle=state?.puzzle;
- if(r.mode!=='signal'||!state||!puzzle||!r.players.includes(p)||!p.socketId)throw Error('Join this crew first.');
- if(!['briefing','action'].includes(r.phase)||data.round!==r.round||data.run!==state.run||data.puzzleId!==puzzle.id)throw Error('This telemetry belongs to a closed sector.');
- if(!Number.isInteger(data.index)||!puzzle.assignments[r.players.length][p.slot].includes(data.index))throw Error('Share only telemetry assigned to your station.');
- const own=state.shared[p.id]??=[];if(own.includes(data.index))return;own.push(data.index);this.change(r);
- }
- signalDraft(r:Room,p:Player,data:{round:number;run:number;puzzleId:string;key:string;value:string}){
- const state=r.signal,puzzle=state?.puzzle;
- if(r.mode!=='signal'||!state||!puzzle||!r.players.includes(p)||!p.socketId)throw Error('Join this crew first.');
- if(r.phase!=='action'||Date.now()>r.deadline!||p.action||data.round!==r.round||data.run!==state.run||data.puzzleId!==puzzle.id)throw Error('This mission console is closed.');
- const task=signalBrief(puzzle,p.slot,r.players.length).tasks.find(t=>t.key===data.key);
- if(!task?.options.some(o=>o.value===data.value))throw Error('Use only controls assigned to your station.');
- const drafts=state.drafts??={};drafts[p.id]={...drafts[p.id],[data.key]:data.value};this.change(r);
- }
- signalView(r:Room,p:Player){
- const state=r.signal,puzzle=state?.puzzle;if(!state)return null;
- const active=puzzle&&!r.closed&&!['lobby','finished'].includes(r.phase);
- // Explicitly published proposals contain settings only, never telemetry or answers.
- const proposals=active?r.players.map(x=>({playerId:x.id,name:x.name,locked:!!x.action,orders:{...(x.action||state.drafts?.[x.id]||{})}})):[];
- return{proposals,flightPlans:r.round===1?proposals:[],resolvedAt:active?state.resolvedAt??null:null,
- ownDraft:active&&state.drafts?.[p.id]?{...state.drafts[p.id]}:null,ownOrders:p.action?{...p.action}:null,
- run:state.run,puzzleId:active?puzzle.id:null,board:active?structuredClone(puzzle.board):null,archive:structuredClone(state.archive),sectorSeconds:signalDuration(r.round,this.actionMs,this.signalTimers)/1000,
- ownTelemetry:active?puzzle.assignments[r.players.length][p.slot].map(index=>({...structuredClone(puzzle.cards[index]),shared:!!state.shared[p.id]?.includes(index)})):[],
- communications:active?r.players.flatMap(player=>(state.shared[player.id]||[]).map(index=>({playerId:player.id,name:player.name,...structuredClone(puzzle.cards[index])}))):[]};
- }
-
- submit(r:Room,p:Player,round:number,action:Action,attempt?:number,adventureId?:string,run?:number,stationVersion?:number,planVersion?:number,signalScope?:{run:number;puzzleId:string}){if(r.signal&&signalScope&&(signalScope.run!==r.signal.run||signalScope.puzzleId!==r.signal.puzzle?.id))throw Error('This order belongs to a closed sector.');if(r.tiny&&((adventureId&&adventureId!==r.tiny.id)||(run!==undefined&&run!==r.tinyProgress?.run)||(getAdventure(r.tiny.id).mechanics?.primary&&(!adventureId||run===undefined))))throw Error('This adventure is closed. Choose again in the current adventure.');if(r.tiny&&(attempt??1)!==r.tiny.attempt)throw Error('This attempt is closed. Look at your new clue and choose again.');if(r.phase!=='action'||r.round!==round||Date.now()>r.deadline!)throw Error('This round is closed.');if(p.action)throw Error('Your action is already locked.');if(isExpert(r.tiny?.id)){this.launchExpert(r,p,action,stationVersion);return}if(r.tiny?.id==='ocean-adventure'){this.launchOcean(r,p,action,stationVersion);return}const tasks=brief(r.mode,r.round,p.slot,r.players.length,r.bonus,r.tiny?.id,r.signal?.puzzle||undefined).tasks;if(!action||typeof action!=='object'||tasks.some(t=>!t.options.some(o=>o.value===action[t.key]))||Object.keys(action).some(k=>!tasks.some(t=>t.key===k)))throw Error('Choose one valid option for each action.');if(r.tiny&&getAdventure(r.tiny.id).mechanics?.primary==='expedition'){
-  if(!r.players.includes(p)||!p.socketId)throw Error('Join this room first.');
-  if((planVersion!==undefined||(r.teamPlanVersion??0)>1)&&planVersion!==(r.teamPlanVersion??0))throw Error('The plan changed. Review the current plan.');
-  if(p.slot===0){r.teamPlanVersion=(r.teamPlanVersion??0)+1;r.rethinkBy=null;}
-  else if(!r.players.find(x=>x.slot===0)?.action)throw Error('Wait for the Captain’s plan before agreeing.');
- }p.action=Object.fromEntries(tasks.map(t=>[t.key,action[t.key]]));this.change(r);if(r.players.every(p=>p.action))this.lock(r)}
- oceanScope(r:Room,data:{round:number;attempt:number;adventureId:string;run:number;version:number}){if(r.tiny?.id!=='ocean-adventure'||data.adventureId!==r.tiny.id||data.run!==r.tinyProgress?.run||data.round!==r.round||data.attempt!==r.tiny.attempt)throw Error('This station belongs to a closed attempt.');if(r.phase!=='action'||Date.now()>r.deadline!)throw Error('This round is closed.');if(!r.ocean||data.version!==r.ocean.version)throw Error('The team settings changed. Check the current plan and try again.');return r.ocean}
- station(r:Room,p:Player,data:{round:number;attempt:number;adventureId:string;run:number;version:number;key?:string;value?:string;ready?:boolean}){const state=this.oceanScope(r,data),fields=stationFields(r.round,p.slot,r.players.length);if(data.ready===true){if(!fields.every(f=>state.settings[f.key]))throw Error('Choose your station settings first.');if(!state.ready.includes(p.slot))state.ready.push(p.slot)}else{const field=fields.find(f=>f.key===data.key);if(!field||!field.options.some(o=>o.value===data.value))throw Error('Choose a valid setting on your own station.');if(state.settings[field.key]===data.value)return;state.settings[field.key]=data.value!;state.version++;state.ready=[]}this.change(r)}
- launchOcean(r:Room,p:Player,action:Action,version?:number){const state=r.ocean;if(p.slot!==0)throw Error('The Captain launches the team plan.');if(!action||Object.keys(action).length!==1||action.launch!=='launch')throw Error('Choose Launch team plan.');if(!state||version!==state.version)throw Error('The team settings changed. Check the current plan.');if(!r.players.every(player=>player.socketId&&state.ready.includes(player.slot)&&stationFields(r.round,player.slot,r.players.length).every(f=>state.settings[f.key])))throw Error('Every station must be connected and Ready before launch.');r.players.forEach(player=>{player.action=Object.fromEntries(stationFields(r.round,player.slot,r.players.length).map(f=>[f.key,state.settings[f.key]]));if(player.slot===0)player.action.launch='launch'});this.change(r);this.lock(r)}
- oceanView(r:Room,p:Player){if(r.tiny?.id!=='ocean-adventure'||!r.ocean)return null;return {version:r.ocean.version,settings:{...r.ocean.settings},power:oceanPower(r.round,r.ocean.settings),ownKeys:stationFields(r.round,p.slot,r.players.length).map(f=>f.key),ready:r.ocean.ready.includes(p.slot),stations:r.players.map(player=>({id:player.id,name:player.name,connected:!!player.socketId,ready:r.ocean!.ready.includes(player.slot),keys:stationFields(r.round,player.slot,r.players.length).map(f=>f.key)}))}}
- expertScope(r:Room,data:{round:number;attempt:number;adventureId:string;run:number;version:number}){if(!isExpert(r.tiny?.id)||data.adventureId!==r.tiny.id||data.run!==r.tinyProgress?.run||data.round!==r.round||data.attempt!==r.tiny.attempt)throw Error('This mechanism belongs to a closed attempt.');if(r.phase!=='action'||Date.now()>r.deadline!)throw Error('This round is closed.');if(!r.expert||data.version!==r.expert.version)throw Error('The mechanisms changed. Check the current state.');return r.expert}
- mechanism(r:Room,p:Player,data:{round:number;attempt:number;adventureId:string;run:number;version:number;key?:string;value?:string;ready?:boolean;operation?:string}){
- const state=this.expertScope(r,data),id=r.tiny!.id,fields=expertFields(id,r.round,p.slot,r.players.length);
- if(data.operation){if(id!=='cloud-adventure'||data.operation!=='check'||p.slot!==0)throw Error('Only the Captain checks the team weather.');if(state.board.weather?.checked)throw Error('Conditions are already checked.');if(r.round===2&&!r.players.every(x=>x.socketId&&state.ready.includes(x.slot)))throw Error('Everyone must confirm the prepared routes first.');checkCollectionWeather(r.round,state.board,state.settings);state.version++;state.ready=[];this.change(r);return}
- if(data.ready===true){const keys=isCollection(id)?collectionReadyKeys(id,r.round,fields.map(f=>f.key),state.board):fields.map(f=>f.key);if(!keys.every(k=>state.settings[k]))throw Error('Set your controls first.');if(!state.ready.includes(p.slot))state.ready.push(p.slot)}else{
- const field=fields.find(f=>f.key===data.key);if(!field||!field.options.some(o=>o.value===data.value))throw Error('Use a valid setting on your own mechanism.');if(isCollection(id)){if(collectionFieldLocked(id,r.round,field.key,state.board))throw Error('Prepared routes are fixed. Choose one and adjust flight settings.');if(id==='cloud-adventure'&&r.round===2&&!state.board.weather?.checked&&!['primary','backup'].includes(field.key))throw Error('Confirm the route plan and check conditions first.')}
- if(state.settings[field.key]===data.value)return;state.settings[field.key]=data.value!;state.version++;state.ready=[];
- }this.change(r)
- }
-
- launchExpert(r:Room,p:Player,action:Action,version?:number){const state=r.expert;if(isCollection(r.tiny?.id)&&state&&!collectionCanLaunch(r.tiny.id,r.round,state.board))throw Error('Check conditions before final launch.');if(p.slot!==0)throw Error('The Captain launches after everyone is Ready.');if(!state||version!==state.version||!action||Object.keys(action).length!==1||action.launch!=='launch')throw Error('Check the current plan before launching.');if(!r.players.every(player=>player.socketId&&state.ready.includes(player.slot)&&expertFields(r.tiny!.id,r.round,player.slot,r.players.length).every(f=>state.settings[f.key])))throw Error('Every explorer must be connected and Ready.');r.players.forEach(player=>{player.action=Object.fromEntries(expertFields(r.tiny!.id,r.round,player.slot,r.players.length).map(f=>[f.key,state.settings[f.key]]));if(player.slot===0)player.action.launch='launch'});this.change(r);this.lock(r)}
- expertView(r:Room,p:Player){if(!isExpert(r.tiny?.id)||!r.expert)return null;const state=r.expert;return {version:state.version,settings:{...state.settings},board:structuredClone(state.board),preview:expertPreview(r.tiny.id,r.round,state.settings,state.board),ownKeys:expertFields(r.tiny.id,r.round,p.slot,r.players.length).map(f=>f.key),ready:state.ready.includes(p.slot),explorers:r.players.map(player=>({id:player.id,name:player.name,connected:!!player.socketId,ready:state.ready.includes(player.slot),keys:expertFields(r.tiny!.id,r.round,player.slot,r.players.length).map(f=>f.key)}))}}
- lock(r:Room){if(r.phase!=='action')return;r.phase='locked';r.deadline=Date.now()+800;this.change(r)}
- disconnect(socketId:string){for(const r of this.rooms.values()){const p=r.players.find(p=>p.socketId===socketId);if(p){p.socketId=null;if(r.host===p.id)r.host=r.players.find(x=>x.socketId)?.id??p.id;this.change(r)}}}
- // Rebuild ownership atomically; no submitted choice survives a changed crew.
- redistributeClues(r:Room,pool?:{icon:string;text:string}[]){
-  if(!r.tiny||r.players.length<2)return;
-  if(!pool){delete r.crewClues;const rescue=getAdventure(r.tiny.id).rescues[r.round];pool=r.tiny.id==='ice-rescue'?(rescue.privateClues||[]).map(text=>({icon:'map',text})):r.players.flatMap(x=>x.slot===0&&!isExpert(r.tiny?.id)&&!['expedition','stations'].includes(getAdventure(r.tiny!.id).mechanics?.primary||'')?[]:this.clueList(r,x));}
-  const unique=[...new Map(pool.map(c=>[c.text,c])).values()];if(!unique.length)return;
-  r.crewClues=Object.fromEntries(r.players.map(x=>[x.id,[] as {icon:string;text:string}[]]));
-  unique.forEach((c,i)=>r.crewClues![r.players[i%r.players.length].id].push({...c}));
-  // Forest can have fewer distinct observations than seats; every child still has a clue.
-  r.players.forEach((x,i)=>{if(!r.crewClues![x.id].length)r.crewClues![x.id]=[{...unique[i%unique.length]}]});
- }
- playerBrief(r:Room,p:Player){const b=isExpert(r.tiny?.id)?expertBrief(r.tiny!.id,r.round,p.slot,r.players.length,r.expert?.board||{objectives:[],assisted:[]}):brief(r.mode,r.round,p.slot,r.players.length,r.bonus,r.tiny?.id,r.signal?.puzzle||undefined);const clues=r.crewClues?.[p.id];return clues?{...b,observations:clues.map(c=>({...c})),message:clues.map(c=>c.text).join(' '),visuals:undefined}:b;}
- leave(r:Room,p:Player){
-  if(!r.players.includes(p))throw Error('Join this room first.');
-  const before=r.players.length,active=!['lobby','finished'].includes(r.phase),oldCaptain=r.players.find(x=>x.slot===0);
-  let pool:{icon:string;text:string}[]|undefined;
-  if(r.tiny&&before>2&&active){const rescue=getAdventure(r.tiny.id).rescues[r.round];pool=r.tiny.id==='ice-rescue'?(rescue.privateClues||[]).map(text=>({icon:'map',text})):r.players.flatMap(x=>x.slot===0&&!isExpert(r.tiny?.id)&&!['expedition','stations'].includes(getAdventure(r.tiny!.id).mechanics?.primary||'')?[]:this.clueList(r,x));}
-  r.players=r.players.filter(x=>x!==p);p.socketId=null;p.action=null;
-  if(!r.players.length){this.rooms.delete(r.code);return;}
-  const captain=r.players.includes(oldCaptain!)?oldCaptain!:r.players.find(x=>x.socketId)||r.players[0];
-  r.players=[captain,...r.players.filter(x=>x!==captain)];r.players.forEach((x,i)=>{x.slot=i;x.action=null});r.host=captain.id;
-  r.crewNotice={id:r.revision+1,departed:p.name,captainId:captain.id,promoted:oldCaptain?.id!==captain.id};
-  if(before===2){r.closed='The other player left the game. Your game has ended.';r.phase='paused';r.deadline=null;this.change(r);return;}
-  if(r.closed){this.change(r);return;}
-  r.sharedClues={};r.teamPlanVersion=(r.teamPlanVersion??0)+1;r.rethinkBy=null;
-  if(r.tinyProgress)r.tinyProgress.run++;if(r.signal){r.signal.run++;r.signal.shared={};r.signal.drafts={};delete r.signal.resolvedAt;}
-  if(r.ocean){r.ocean.version++;r.ocean.ready=[];}if(r.expert){r.expert.version++;r.expert.ready=[];}
-  if(active){r.crewRebalanced=true;this.redistributeClues(r,pool);if(r.phase!=='result'){r.result=null;r.phase=r.players.filter(x=>x.socketId).length>=2?'briefing':'paused';r.deadline=r.phase==='briefing'?Date.now()+tinyPresentationDuration(r.tiny,this.briefingMs,'briefing',r.round):null;}}
-  else r.players.forEach(x=>x.ready=false);
-  this.change(r);
- }
- replay(r:Room,p:Player){if(r.host!==p.id||r.phase!=='finished')throw Error('Only the host can return the team to the lobby.');r.players=r.players.filter(p=>p.socketId);r.players.forEach((p,i)=>{p.slot=i;p.ready=false;p.action=null});if(r.signal)r.signal={seed:randomBytes(4).readUInt32BE(),run:r.signal.run+1,puzzle:null,shared:{},archive:[]};if(r.tiny){delete r.expert;delete r.ocean;r.tiny=adventureState(r.tiny.id);if(r.tinyProgress){r.tinyProgress.run++;r.tinyProgress.mapOpen=false}}Object.assign(r,{phase:'lobby',round:0,score:0,bonus:r.tiny?getAdventure(r.tiny.id).policy.kindnessStars:3,integrity:3,result:null,deadline:null});this.change(r)}
- adventureMap(r:Room,p:Player){if(!r.tiny||r.host!==p.id||r.phase!=='finished')throw Error('Only the host can open the adventure map after completion.');r.tinyProgress!.mapOpen=true;this.change(r)}
- chooseAdventure(r:Room,p:Player,id:string){if(!r.tiny||r.host!==p.id||r.phase!=='finished')throw Error('Only the host can choose after the adventure is complete.');if(typeof id!=='string')throw Error('Choose an adventure.');const a=getAdventure(id);const state=adventureState(a.id);delete r.expert;delete r.ocean;r.tiny=state;r.tinyProgress!.run++;r.tinyProgress!.mapOpen=false;r.players.forEach(p=>{p.ready=false;p.action=null});Object.assign(r,{phase:'lobby',round:0,score:0,bonus:a.policy.kindnessStars,integrity:3,result:null,deadline:null});this.change(r)}
- tick(now=Date.now()){for(const r of this.rooms.values()){if(!r.players.some(p=>p.socketId)&&now-r.updated>30*60*1000){this.rooms.delete(r.code);continue}if(r.closed)continue;if(r.phase==='paused'&&r.players.filter(p=>p.socketId).length>=2){this.begin(r);continue}if(!r.deadline||now<r.deadline)continue;if(r.phase==='briefing'){r.phase='action';r.deadline=now+(r.mode==='signal'?signalDuration(r.round,this.actionMs,this.signalTimers):tinyActionDuration(r.tiny,this.actionMs));this.change(r)}else if(r.phase==='action')this.lock(r);else if(r.phase==='locked'){const previousBonus=r.bonus;r.result=isExpert(r.tiny?.id)&&r.expert?resolveExpert(r.tiny.id,r.round,r.expert.settings,r.expert.board,r.bonus,!!r.players[0]?.action?.launch):resolve(r.mode,r.round,[...r.players].sort((a,b)=>a.slot-b.slot).map(p=>p.action??{}),r.bonus,r.tiny?.id,r.signal?.puzzle||undefined);if(r.signal)recoverSignalRecord(r.signal,r.result.success);r.bonus=r.result.bonus;if(r.tiny)Object.assign(r.result,tinyFeedback(r.tiny,r.round,r.result.success,previousBonus,r.bonus));if(isExpert(r.tiny?.id)&&r.expert&&(r.result.success||r.result.assisted))commitExpert(r.tiny.id,r.round,r.expert.settings,r.expert,!!r.result.assisted);if(r.result.success)r.score++;else if(r.mode==='signal')r.integrity--;if(r.signal)r.signal.resolvedAt=now;r.phase='result';r.deadline=now+tinyPresentationDuration(r.tiny,this.resultMs,'result',r.round,r.result.success);this.change(r)}else if(r.phase==='result'){if(r.tiny&&r.result?.retry){advanceTiny(r.tiny,true);this.begin(r);continue}if(r.round===(r.tiny?getAdventure(r.tiny.id).rescues.length:rounds[r.mode].length)-1){r.phase='finished';r.deadline=null;if(r.tiny&&r.tinyProgress){if(!r.tinyProgress.completed.includes(r.tiny.id))r.tinyProgress.completed.push(r.tiny.id);const best=r.tinyProgress.results[r.tiny.id];if(!best||r.score>=best.badges)r.tinyProgress.results[r.tiny.id]={friendsHome:r.tiny.completed.length,badges:r.score,assists:r.tiny.completed.filter(x=>x.crewHelp).length};}this.change(r)}else{if(r.tiny)advanceTiny(r.tiny,false);r.round++;this.begin(r)}}}}
- view(r:Room,p:Player){return {closed:r.closed||null,crewNotice:r.crewNotice?{id:r.crewNotice.id,message:r.crewNotice.promoted?(p.id===r.crewNotice.captainId?(r.mode==='tiny'?'You are now the Team Captain.':'You are now the lead Navigator.'): `${r.players.find(x=>x.id===r.crewNotice!.captainId)?.name} is now ${r.mode==='tiny'?'the Team Captain':'the lead Navigator'}.`)+` ${r.crewNotice.departed} left the game. Responsibilities and clues have been reassigned.`:`${r.crewNotice.departed} left the game. Responsibilities and clues have been reassigned.`}:null,code:r.code,mode:r.mode,host:r.host,me:p.id,phase:r.phase,round:r.round,deadline:r.deadline,serverTime:Date.now(),revision:r.revision,score:r.score,bonus:r.bonus,integrity:r.integrity,result:r.result,mission:((m)=>({title:m.title,story:m.story,icon:m.icon}))(missionRound(r.mode,r.round,r.tiny?.id)),players:r.players.map(x=>({id:x.id,name:x.name,connected:!!x.socketId,ready:x.ready,submitted:!!x.action,role:r.mode==='tiny'?(isExpert(r.tiny?.id)?(x.slot===0?'Team Captain':'Mechanism Explorer'):r.tiny?.id==='ocean-adventure'?oceanBrief(r.round,x.slot,r.players.length).role:x.slot===0?'Team Captain':'Little Hero'):signalRole(x.slot,r.players.length)})),brief:r.phase==='lobby'||r.closed?null:this.playerBrief(r,p),submitted:!!p.action,...(r.mode==='signal'?{signal:this.signalView(r,p)}:{}),...(r.tiny?{clues:this.clueView(r,p),expert:this.expertView(r,p),ocean:this.oceanView(r,p),ownAction:p.action?{...p.action}:null,...(getAdventure(r.tiny.id).mechanics?.primary==='expedition'?{teamPlanVersion:r.teamPlanVersion??0,rethinkBy:r.rethinkBy??null,teamPlan:r.players.find(x=>x.slot===0)?.action?{...r.players.find(x=>x.slot===0)!.action!}:null}:{}),adventure:{...adventureSnapshot(r.tiny,r.round),...(r.phase!=='result'||r.result?.success?{hint:null}:{})},progression:{completed:[...r.tinyProgress!.completed],available:availableAdventures(),mapOpen:r.tinyProgress!.mapOpen,run:r.tinyProgress!.run,results:structuredClone(r.tinyProgress!.results),nextId:nextAdventureId(r.tiny.id,availableAdventures())||null}}:{}),...(r.mode==='tiny'&&p.slot===0&&r.phase!=='lobby'&&r.tiny&&!['expedition','stations','mechanisms'].includes(getAdventure(r.tiny.id).mechanics?.primary||'')?{helperBriefs:r.players.filter(x=>x.slot!==0).map(x=>({id:x.id,name:x.name,connected:!!x.socketId,clue:this.clueList(r,x).filter((_,i)=>r.sharedClues?.[x.id]?.includes(i)).map(c=>c.text).join(' '),tool:x.action?.tool??null,...(r.tiny&&getAdventure(r.tiny.id).mechanics?.primary==='routes'?{route:x.action?.route??null}:{})}))}:{})}}
+import {
+  makeSignalPuzzle,
+  signalBrief,
+  signalRole,
+  signalDuration,
+  defaultSignalTimers,
+  recoverSignalRecord,
+  type SignalState,
+} from "./signal-puzzles.js";
+import { isCollection } from "../shared/collection-adventures.js";
+import {
+  beginCollection,
+  checkCollectionWeather,
+  collectionFieldLocked,
+  collectionReadyKeys,
+  collectionCanLaunch,
+} from "./collection-mechanisms.js";
+import {
+  isExpert,
+  expertFields,
+  expertPreview,
+} from "../shared/expert-adventures.js";
+import {
+  newExpertState,
+  expertBrief,
+  resolveExpert,
+  commitExpert,
+  type ExpertState,
+} from "./expert-mechanisms.js";
+import {
+  stationFields,
+  oceanPower,
+  oceanStages,
+} from "../shared/advanced-adventures.js";
+import { oceanBrief, type OceanState } from "./ocean-stations.js";
+import {
+  getAdventure,
+  availableAdventures,
+  nextAdventureId,
+} from "../shared/tiny-adventures.js";
+import {
+  adventureState,
+  adventureSnapshot,
+  tinyFeedback,
+  advanceTiny,
+  tinyPresentationDuration,
+  tinyActionDuration,
+  type TinyAdventureState,
+} from "./tiny-adventures.js";
+import { randomBytes, randomUUID } from "node:crypto";
+import {
+  brief,
+  resolve,
+  rounds,
+  missionRound,
+  type Mode,
+  type Action,
+} from "./modes.js";
+export interface Player {
+  id: string;
+  token: string;
+  name: string;
+  socketId: string | null;
+  ready: boolean;
+  action: Action | null;
+  slot: number;
 }
+type RoundResult = ReturnType<typeof resolve> & {
+  retry?: boolean;
+  assisted?: boolean;
+  hint?: { tool: string; label: string; text: string } | null;
+};
+export interface Room {
+  closed?: string;
+  crewNotice?: {
+    id: number;
+    departed: string;
+    captainId: string;
+    promoted: boolean;
+  };
+  crewRebalanced?: boolean;
+  crewClues?: Record<string, { icon: string; text: string }[]>;
+  signal?: SignalState;
+  teamPlanVersion?: number;
+  rethinkBy?: string | null;
+  sharedClues?: Record<string, number[]>;
+  expert?: ExpertState;
+  ocean?: OceanState;
+  tiny?: TinyAdventureState;
+  tinyProgress?: {
+    completed: string[];
+    mapOpen: boolean;
+    run: number;
+    results: Record<
+      string,
+      { friendsHome: number; badges: number; assists: number }
+    >;
+  };
+  code: string;
+  mode: Mode;
+  players: Player[];
+  host: string;
+  phase:
+    | "lobby"
+    | "briefing"
+    | "action"
+    | "locked"
+    | "result"
+    | "paused"
+    | "finished";
+  round: number;
+  deadline: number | null;
+  score: number;
+  bonus: number;
+  integrity: number;
+  result: RoundResult | null;
+  updated: number;
+  revision: number;
+}
+export class Engine {
+  rooms = new Map<string, Room>();
+  constructor(
+    public publish: (r: Room) => void = () => {},
+    public actionMs = 60000,
+    public briefingMs = 7000,
+    public resultMs = 12000,
+    public signalTimers = defaultSignalTimers,
+  ) {}
+  change(r: Room) {
+    r.updated = Date.now();
+    r.revision++;
+    this.publish(r);
+  }
+  player(r: Room, token: string) {
+    const p = r.players.find((p) => p.token === token);
+    if (!p)
+      throw Error("Your seat could not be restored. Join the room again.");
+    return p;
+  }
+  create(mode: Mode, name: string, socketId: string, adventureId?: string) {
+    const tiny = mode === "tiny" ? adventureState(adventureId) : undefined;
+    if (mode !== "tiny" && mode !== "signal")
+      throw Error("Choose a game first.");
+    if (this.rooms.size >= 1000)
+      throw Error("All rooms are busy. Please try later.");
+    let code = "";
+    do {
+      code = Array.from(
+        randomBytes(6),
+        (b) => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 32],
+      ).join("");
+    } while (this.rooms.has(code));
+    const p = this.newPlayer(name, socketId, 0);
+    const r: Room = {
+      ...(mode === "signal"
+        ? {
+            signal: {
+              seed: randomBytes(4).readUInt32BE(),
+              run: 1,
+              puzzle: null,
+              shared: {},
+              archive: [],
+            },
+          }
+        : {}),
+      ...(tiny
+        ? {
+            tiny,
+            tinyProgress: {
+              completed: [],
+              mapOpen: false,
+              run: 1,
+              results: {},
+            },
+          }
+        : {}),
+      code,
+      mode,
+      players: [p],
+      host: p.id,
+      phase: "lobby",
+      round: 0,
+      deadline: null,
+      score: 0,
+      bonus: tiny ? getAdventure(tiny.id).policy.kindnessStars : 3,
+      integrity: 3,
+      result: null,
+      updated: Date.now(),
+      revision: 0,
+    };
+    this.rooms.set(code, r);
+    this.change(r);
+    return { r, p };
+  }
+  newPlayer(name: string, socketId: string, slot: number): Player {
+    if (typeof name !== "string" || !name.trim() || name.trim().length > 24)
+      throw Error("Enter a name between 1 and 24 characters.");
+    return {
+      id: randomUUID(),
+      token: randomBytes(32).toString("hex"),
+      name: name.trim(),
+      socketId,
+      ready: false,
+      action: null,
+      slot,
+    };
+  }
+  get(code: string) {
+    if (typeof code !== "string") throw Error("Enter a room code.");
+    const r = this.rooms.get(code.trim().toUpperCase());
+    if (!r) throw Error("Room not found or expired. Create a new room.");
+    return r;
+  }
+  join(code: string, name: string, socketId: string, token?: string) {
+    const r = this.get(code);
+    if (r.closed) throw Error(r.closed);
+    if (token) {
+      const p = this.player(r, token);
+      const old = p.socketId;
+      p.socketId = socketId;
+      this.change(r);
+      return { r, p, old };
+    }
+    if (r.phase !== "lobby")
+      throw Error(
+        "This mission has started. Join after the team returns to the lobby.",
+      );
+    if (r.players.length >= 6) throw Error("This room is full (6 players).");
+    const p = this.newPlayer(name, socketId, r.players.length);
+    r.players.push(p);
+    this.change(r);
+    return { r, p, old: null };
+  }
+  ready(r: Room, p: Player) {
+    if (r.phase !== "lobby") throw Error("The mission already started.");
+    p.ready = !p.ready;
+    this.change(r);
+  }
+  start(r: Room, p: Player) {
+    if (p.id !== r.host) throw Error("Only the host can start.");
+    if (r.phase !== "lobby") throw Error("Mission already started.");
+    if (r.players.length < 2 || !r.players.every((p) => p.ready && p.socketId))
+      throw Error(
+        "At least two players must be connected and everyone must be ready.",
+      );
+    r.players.forEach((p, i) => (p.slot = i));
+    this.begin(r);
+  }
+  begin(r: Room) {
+    if (r.signal && r.signal.puzzle?.sector !== r.round) {
+      r.signal.puzzle = makeSignalPuzzle(
+        r.round,
+        r.signal.seed,
+        r.signal.archive,
+        r.signal.run,
+      );
+      r.signal.shared = {};
+      r.signal.drafts = {};
+      delete r.signal.resolvedAt;
+    }
+    r.teamPlanVersion = 0;
+    r.rethinkBy = null;
+    r.sharedClues = {};
+    delete r.crewClues;
+    if (isExpert(r.tiny?.id)) {
+      const board = r.expert?.board;
+      r.expert = newExpertState();
+      if (board) r.expert.board = board;
+      if (isCollection(r.tiny!.id))
+        r.expert.settings = beginCollection(
+          r.tiny!.id,
+          r.round,
+          r.expert.board,
+        );
+    } else delete r.expert;
+    if (r.tiny?.id === "ocean-adventure")
+      r.ocean = { version: 0, settings: {}, ready: [] };
+    else delete r.ocean;
+    r.result = null;
+    r.players.forEach((p) => (p.action = null));
+    if (r.players.filter((p) => p.socketId).length < 2) {
+      r.phase = "paused";
+      r.deadline = null;
+    } else {
+      r.phase = "briefing";
+      r.deadline =
+        Date.now() +
+        tinyPresentationDuration(r.tiny, this.briefingMs, "briefing", r.round);
+    }
+    if (r.crewRebalanced && r.tiny) this.redistributeClues(r);
+    this.change(r);
+  }
+  clueList(r: Room, p: Player) {
+    if (r.crewClues?.[p.id]) return r.crewClues[p.id];
+    const b = isExpert(r.tiny?.id)
+      ? expertBrief(
+          r.tiny!.id,
+          r.round,
+          p.slot,
+          r.players.length,
+          r.expert?.board || { objectives: [], assisted: [] },
+        )
+      : brief(r.mode, r.round, p.slot, r.players.length, r.bonus, r.tiny?.id);
+    return b.observations?.length
+      ? b.observations
+      : [{ icon: "map", text: b.message }];
+  }
+  shareClue(
+    r: Room,
+    p: Player,
+    data: {
+      round: number;
+      attempt: number;
+      adventureId: string;
+      run: number;
+      clue: number;
+    },
+  ) {
+    if (!r.tiny || !r.players.includes(p) || !p.socketId)
+      throw Error("Join this room first.");
+    if (
+      data.adventureId !== r.tiny.id ||
+      data.run !== r.tinyProgress?.run ||
+      data.round !== r.round ||
+      data.attempt !== r.tiny.attempt ||
+      !["briefing", "action"].includes(r.phase)
+    )
+      throw Error("This clue belongs to a closed attempt.");
+    if (
+      !Number.isInteger(data.clue) ||
+      data.clue < 0 ||
+      data.clue >= this.clueList(r, p).length
+    )
+      throw Error("Choose one of your own clues.");
+    const shares = (r.sharedClues ??= {});
+    const own = (shares[p.id] ??= []);
+    if (own.includes(data.clue)) return;
+    own.push(data.clue);
+    this.change(r);
+  }
+  shareAllClues(
+    r: Room,
+    p: Player,
+    data: { round: number; attempt: number; adventureId: string; run: number },
+  ) {
+    if (!r.tiny || !r.players.includes(p) || !p.socketId)
+      throw Error("Join this room first.");
+    if (
+      data.adventureId !== r.tiny.id ||
+      data.run !== r.tinyProgress?.run ||
+      data.round !== r.round ||
+      data.attempt !== r.tiny.attempt ||
+      !["briefing", "action"].includes(r.phase)
+    )
+      throw Error("These clues belong to a closed attempt.");
+    if (p.slot === 0)
+      throw Error("Only Little Heroes send clues to the Captain.");
+    const indices = this.clueList(r, p).map((_, i) => i),
+      shares = (r.sharedClues ??= {});
+    if (indices.every((i) => shares[p.id]?.includes(i))) return;
+    shares[p.id] = indices;
+    this.change(r);
+  }
+  clueView(r: Room, p: Player) {
+    if (r.closed || !r.tiny || ["lobby", "finished"].includes(r.phase))
+      return null;
+    return {
+      own: this.clueList(r, p).map((c, index) => ({
+        ...c,
+        index,
+        shared: !!r.sharedClues?.[p.id]?.includes(index),
+      })),
+      received: r.players
+        .filter((x) => (p.slot === 0 ? x.slot !== 0 : x.slot === 0))
+        .flatMap((x) =>
+          (r.sharedClues?.[x.id] || []).map((index) => ({
+            playerId: x.id,
+            name: x.name,
+            index,
+            ...this.clueList(r, x)[index],
+          })),
+        ),
+      allShared: r.players
+        .filter((x) => x.slot !== 0)
+        .every((x) =>
+          this.clueList(r, x).every((_, i) =>
+            r.sharedClues?.[x.id]?.includes(i),
+          ),
+        ),
+    };
+  }
+  rethinkPlan(
+    r: Room,
+    p: Player,
+    data: {
+      round: number;
+      attempt: number;
+      adventureId: string;
+      run: number;
+      planVersion: number;
+    },
+  ) {
+    if (
+      !r.tiny ||
+      getAdventure(r.tiny.id).mechanics?.primary !== "expedition" ||
+      !r.players.includes(p) ||
+      !p.socketId ||
+      p.slot === 0
+    )
+      throw Error("Only a Little Hero can ask to rethink the Captain’s plan.");
+    if (
+      data.adventureId !== r.tiny.id ||
+      data.run !== r.tinyProgress?.run ||
+      data.round !== r.round ||
+      data.attempt !== r.tiny.attempt ||
+      r.phase !== "action" ||
+      Date.now() > r.deadline!
+    )
+      throw Error("This plan belongs to a closed attempt.");
+    if (
+      data.planVersion !== r.teamPlanVersion ||
+      !r.players.find((x) => x.slot === 0)?.action
+    )
+      throw Error("The plan changed. Review the current plan.");
+    r.players.forEach((x) => (x.action = null));
+    r.teamPlanVersion = (r.teamPlanVersion ?? 0) + 1;
+    r.rethinkBy = p.name;
+    this.change(r);
+  }
+  shareTelemetry(
+    r: Room,
+    p: Player,
+    data: { round: number; run: number; puzzleId: string; index: number },
+  ) {
+    const state = r.signal,
+      puzzle = state?.puzzle;
+    if (
+      r.mode !== "signal" ||
+      !state ||
+      !puzzle ||
+      !r.players.includes(p) ||
+      !p.socketId
+    )
+      throw Error("Join this crew first.");
+    if (
+      !["briefing", "action"].includes(r.phase) ||
+      data.round !== r.round ||
+      data.run !== state.run ||
+      data.puzzleId !== puzzle.id
+    )
+      throw Error("This telemetry belongs to a closed sector.");
+    if (
+      !Number.isInteger(data.index) ||
+      !puzzle.assignments[r.players.length][p.slot].includes(data.index)
+    )
+      throw Error("Share only telemetry assigned to your station.");
+    const own = (state.shared[p.id] ??= []);
+    if (own.includes(data.index)) return;
+    own.push(data.index);
+    this.change(r);
+  }
+  signalDraft(
+    r: Room,
+    p: Player,
+    data: {
+      round: number;
+      run: number;
+      puzzleId: string;
+      key: string;
+      value: string;
+    },
+  ) {
+    const state = r.signal,
+      puzzle = state?.puzzle;
+    if (
+      r.mode !== "signal" ||
+      !state ||
+      !puzzle ||
+      !r.players.includes(p) ||
+      !p.socketId
+    )
+      throw Error("Join this crew first.");
+    if (
+      r.phase !== "action" ||
+      Date.now() > r.deadline! ||
+      p.action ||
+      data.round !== r.round ||
+      data.run !== state.run ||
+      data.puzzleId !== puzzle.id
+    )
+      throw Error("This mission console is closed.");
+    const task = signalBrief(puzzle, p.slot, r.players.length).tasks.find(
+      (t) => t.key === data.key,
+    );
+    if (!task?.options.some((o) => o.value === data.value))
+      throw Error("Use only controls assigned to your station.");
+    const drafts = (state.drafts ??= {});
+    drafts[p.id] = { ...drafts[p.id], [data.key]: data.value };
+    this.change(r);
+  }
+  signalView(r: Room, p: Player) {
+    const state = r.signal,
+      puzzle = state?.puzzle;
+    if (!state) return null;
+    const active =
+      puzzle && !r.closed && !["lobby", "finished"].includes(r.phase);
+    // Explicitly published proposals contain settings only, never telemetry or answers.
+    const proposals = active
+      ? r.players.map((x) => ({
+          playerId: x.id,
+          name: x.name,
+          locked: !!x.action,
+          orders: { ...(x.action || state.drafts?.[x.id] || {}) },
+        }))
+      : [];
+    return {
+      proposals,
+      flightPlans: r.round === 1 ? proposals : [],
+      resolvedAt: active ? (state.resolvedAt ?? null) : null,
+      ownDraft:
+        active && state.drafts?.[p.id] ? { ...state.drafts[p.id] } : null,
+      ownOrders: p.action ? { ...p.action } : null,
+      run: state.run,
+      puzzleId: active ? puzzle.id : null,
+      board: active ? structuredClone(puzzle.board) : null,
+      archive: structuredClone(state.archive),
+      sectorSeconds:
+        signalDuration(r.round, this.actionMs, this.signalTimers) / 1000,
+      ownTelemetry: active
+        ? puzzle.assignments[r.players.length][p.slot].map((index) => ({
+            ...structuredClone(puzzle.cards[index]),
+            shared: !!state.shared[p.id]?.includes(index),
+          }))
+        : [],
+      communications: active
+        ? r.players.flatMap((player) =>
+            (state.shared[player.id] || []).map((index) => ({
+              playerId: player.id,
+              name: player.name,
+              ...structuredClone(puzzle.cards[index]),
+            })),
+          )
+        : [],
+    };
+  }
 
+  submit(
+    r: Room,
+    p: Player,
+    round: number,
+    action: Action,
+    attempt?: number,
+    adventureId?: string,
+    run?: number,
+    stationVersion?: number,
+    planVersion?: number,
+    signalScope?: { run: number; puzzleId: string },
+  ) {
+    if (
+      r.signal &&
+      signalScope &&
+      (signalScope.run !== r.signal.run ||
+        signalScope.puzzleId !== r.signal.puzzle?.id)
+    )
+      throw Error("This order belongs to a closed sector.");
+    if (
+      r.tiny &&
+      ((adventureId && adventureId !== r.tiny.id) ||
+        (run !== undefined && run !== r.tinyProgress?.run) ||
+        (getAdventure(r.tiny.id).mechanics?.primary &&
+          (!adventureId || run === undefined)))
+    )
+      throw Error(
+        "This adventure is closed. Choose again in the current adventure.",
+      );
+    if (r.tiny && (attempt ?? 1) !== r.tiny.attempt)
+      throw Error(
+        "This attempt is closed. Look at your new clue and choose again.",
+      );
+    if (r.phase !== "action" || r.round !== round || Date.now() > r.deadline!)
+      throw Error("This round is closed.");
+    if (p.action) throw Error("Your action is already locked.");
+    if (isExpert(r.tiny?.id)) {
+      this.launchExpert(r, p, action, stationVersion);
+      return;
+    }
+    if (r.tiny?.id === "ocean-adventure") {
+      this.launchOcean(r, p, action, stationVersion);
+      return;
+    }
+    const tasks = brief(
+      r.mode,
+      r.round,
+      p.slot,
+      r.players.length,
+      r.bonus,
+      r.tiny?.id,
+      r.signal?.puzzle || undefined,
+    ).tasks;
+    if (
+      !action ||
+      typeof action !== "object" ||
+      tasks.some((t) => !t.options.some((o) => o.value === action[t.key])) ||
+      Object.keys(action).some((k) => !tasks.some((t) => t.key === k))
+    )
+      throw Error("Choose one valid option for each action.");
+    if (r.tiny && getAdventure(r.tiny.id).mechanics?.primary === "expedition") {
+      if (!r.players.includes(p) || !p.socketId)
+        throw Error("Join this room first.");
+      if (
+        (planVersion !== undefined || (r.teamPlanVersion ?? 0) > 1) &&
+        planVersion !== (r.teamPlanVersion ?? 0)
+      )
+        throw Error("The plan changed. Review the current plan.");
+      if (p.slot === 0) {
+        r.teamPlanVersion = (r.teamPlanVersion ?? 0) + 1;
+        r.rethinkBy = null;
+      } else if (!r.players.find((x) => x.slot === 0)?.action)
+        throw Error("Wait for the Captain’s plan before agreeing.");
+    }
+    p.action = Object.fromEntries(tasks.map((t) => [t.key, action[t.key]]));
+    this.change(r);
+    if (r.players.every((p) => p.action)) this.lock(r);
+  }
+  oceanScope(
+    r: Room,
+    data: {
+      round: number;
+      attempt: number;
+      adventureId: string;
+      run: number;
+      version: number;
+    },
+  ) {
+    if (
+      r.tiny?.id !== "ocean-adventure" ||
+      data.adventureId !== r.tiny.id ||
+      data.run !== r.tinyProgress?.run ||
+      data.round !== r.round ||
+      data.attempt !== r.tiny.attempt
+    )
+      throw Error("This station belongs to a closed attempt.");
+    if (r.phase !== "action" || Date.now() > r.deadline!)
+      throw Error("This round is closed.");
+    if (!r.ocean || data.version !== r.ocean.version)
+      throw Error(
+        "The team settings changed. Check the current plan and try again.",
+      );
+    return r.ocean;
+  }
+  station(
+    r: Room,
+    p: Player,
+    data: {
+      round: number;
+      attempt: number;
+      adventureId: string;
+      run: number;
+      version: number;
+      key?: string;
+      value?: string;
+      ready?: boolean;
+    },
+  ) {
+    const state = this.oceanScope(r, data),
+      fields = stationFields(r.round, p.slot, r.players.length);
+    if (data.ready === true) {
+      if (!fields.every((f) => state.settings[f.key]))
+        throw Error("Choose your station settings first.");
+      if (!state.ready.includes(p.slot)) state.ready.push(p.slot);
+    } else {
+      const field = fields.find((f) => f.key === data.key);
+      if (!field || !field.options.some((o) => o.value === data.value))
+        throw Error("Choose a valid setting on your own station.");
+      if (state.settings[field.key] === data.value) return;
+      state.settings[field.key] = data.value!;
+      state.version++;
+      state.ready = [];
+    }
+    this.change(r);
+  }
+  launchOcean(r: Room, p: Player, action: Action, version?: number) {
+    const state = r.ocean;
+    if (p.slot !== 0) throw Error("The Captain launches the team plan.");
+    if (
+      !action ||
+      Object.keys(action).length !== 1 ||
+      action.launch !== "launch"
+    )
+      throw Error("Choose Launch team plan.");
+    if (!state || version !== state.version)
+      throw Error("The team settings changed. Check the current plan.");
+    if (
+      !r.players.every(
+        (player) =>
+          player.socketId &&
+          state.ready.includes(player.slot) &&
+          stationFields(r.round, player.slot, r.players.length).every(
+            (f) => state.settings[f.key],
+          ),
+      )
+    )
+      throw Error("Every station must be connected and Ready before launch.");
+    r.players.forEach((player) => {
+      player.action = Object.fromEntries(
+        stationFields(r.round, player.slot, r.players.length).map((f) => [
+          f.key,
+          state.settings[f.key],
+        ]),
+      );
+      if (player.slot === 0) player.action.launch = "launch";
+    });
+    this.change(r);
+    this.lock(r);
+  }
+  oceanView(r: Room, p: Player) {
+    if (r.tiny?.id !== "ocean-adventure" || !r.ocean) return null;
+    return {
+      version: r.ocean.version,
+      settings: { ...r.ocean.settings },
+      power: oceanPower(r.round, r.ocean.settings),
+      ownKeys: stationFields(r.round, p.slot, r.players.length).map(
+        (f) => f.key,
+      ),
+      ready: r.ocean.ready.includes(p.slot),
+      stations: r.players.map((player) => ({
+        id: player.id,
+        name: player.name,
+        connected: !!player.socketId,
+        ready: r.ocean!.ready.includes(player.slot),
+        keys: stationFields(r.round, player.slot, r.players.length).map(
+          (f) => f.key,
+        ),
+      })),
+    };
+  }
+  expertScope(
+    r: Room,
+    data: {
+      round: number;
+      attempt: number;
+      adventureId: string;
+      run: number;
+      version: number;
+    },
+  ) {
+    if (
+      !isExpert(r.tiny?.id) ||
+      data.adventureId !== r.tiny.id ||
+      data.run !== r.tinyProgress?.run ||
+      data.round !== r.round ||
+      data.attempt !== r.tiny.attempt
+    )
+      throw Error("This mechanism belongs to a closed attempt.");
+    if (r.phase !== "action" || Date.now() > r.deadline!)
+      throw Error("This round is closed.");
+    if (!r.expert || data.version !== r.expert.version)
+      throw Error("The mechanisms changed. Check the current state.");
+    return r.expert;
+  }
+  mechanism(
+    r: Room,
+    p: Player,
+    data: {
+      round: number;
+      attempt: number;
+      adventureId: string;
+      run: number;
+      version: number;
+      key?: string;
+      value?: string;
+      ready?: boolean;
+      operation?: string;
+    },
+  ) {
+    const state = this.expertScope(r, data),
+      id = r.tiny!.id,
+      fields = expertFields(id, r.round, p.slot, r.players.length);
+    if (data.operation) {
+      if (
+        id !== "cloud-adventure" ||
+        data.operation !== "check" ||
+        p.slot !== 0
+      )
+        throw Error("Only the Captain checks the team weather.");
+      if (state.board.weather?.checked)
+        throw Error("Conditions are already checked.");
+      if (
+        r.round === 2 &&
+        !r.players.every((x) => x.socketId && state.ready.includes(x.slot))
+      )
+        throw Error("Everyone must confirm the prepared routes first.");
+      checkCollectionWeather(r.round, state.board, state.settings);
+      state.version++;
+      state.ready = [];
+      this.change(r);
+      return;
+    }
+    if (data.ready === true) {
+      const keys = isCollection(id)
+        ? collectionReadyKeys(
+            id,
+            r.round,
+            fields.map((f) => f.key),
+            state.board,
+          )
+        : fields.map((f) => f.key);
+      if (!keys.every((k) => state.settings[k]))
+        throw Error("Set your controls first.");
+      if (!state.ready.includes(p.slot)) state.ready.push(p.slot);
+    } else {
+      const field = fields.find((f) => f.key === data.key);
+      if (!field || !field.options.some((o) => o.value === data.value))
+        throw Error("Use a valid setting on your own mechanism.");
+      if (isCollection(id)) {
+        if (collectionFieldLocked(id, r.round, field.key, state.board))
+          throw Error(
+            "Prepared routes are fixed. Choose one and adjust flight settings.",
+          );
+        if (
+          id === "cloud-adventure" &&
+          r.round === 2 &&
+          !state.board.weather?.checked &&
+          !["primary", "backup"].includes(field.key)
+        )
+          throw Error("Confirm the route plan and check conditions first.");
+      }
+      if (state.settings[field.key] === data.value) return;
+      state.settings[field.key] = data.value!;
+      state.version++;
+      state.ready = [];
+    }
+    this.change(r);
+  }
+
+  launchExpert(r: Room, p: Player, action: Action, version?: number) {
+    const state = r.expert;
+    if (
+      isCollection(r.tiny?.id) &&
+      state &&
+      !collectionCanLaunch(r.tiny.id, r.round, state.board)
+    )
+      throw Error("Check conditions before final launch.");
+    if (p.slot !== 0)
+      throw Error("The Captain launches after everyone is Ready.");
+    if (
+      !state ||
+      version !== state.version ||
+      !action ||
+      Object.keys(action).length !== 1 ||
+      action.launch !== "launch"
+    )
+      throw Error("Check the current plan before launching.");
+    if (
+      !r.players.every(
+        (player) =>
+          player.socketId &&
+          state.ready.includes(player.slot) &&
+          expertFields(
+            r.tiny!.id,
+            r.round,
+            player.slot,
+            r.players.length,
+          ).every((f) => state.settings[f.key]),
+      )
+    )
+      throw Error("Every explorer must be connected and Ready.");
+    r.players.forEach((player) => {
+      player.action = Object.fromEntries(
+        expertFields(r.tiny!.id, r.round, player.slot, r.players.length).map(
+          (f) => [f.key, state.settings[f.key]],
+        ),
+      );
+      if (player.slot === 0) player.action.launch = "launch";
+    });
+    this.change(r);
+    this.lock(r);
+  }
+  expertView(r: Room, p: Player) {
+    if (!isExpert(r.tiny?.id) || !r.expert) return null;
+    const state = r.expert;
+    return {
+      version: state.version,
+      settings: { ...state.settings },
+      board: structuredClone(state.board),
+      preview: expertPreview(r.tiny.id, r.round, state.settings, state.board),
+      ownKeys: expertFields(r.tiny.id, r.round, p.slot, r.players.length).map(
+        (f) => f.key,
+      ),
+      ready: state.ready.includes(p.slot),
+      explorers: r.players.map((player) => ({
+        id: player.id,
+        name: player.name,
+        connected: !!player.socketId,
+        ready: state.ready.includes(player.slot),
+        keys: expertFields(
+          r.tiny!.id,
+          r.round,
+          player.slot,
+          r.players.length,
+        ).map((f) => f.key),
+      })),
+    };
+  }
+  lock(r: Room) {
+    if (r.phase !== "action") return;
+    r.phase = "locked";
+    r.deadline = Date.now() + 800;
+    this.change(r);
+  }
+  disconnect(socketId: string) {
+    for (const r of this.rooms.values()) {
+      const p = r.players.find((p) => p.socketId === socketId);
+      if (p) {
+        p.socketId = null;
+        if (r.host === p.id)
+          r.host = r.players.find((x) => x.socketId)?.id ?? p.id;
+        this.change(r);
+      }
+    }
+  }
+  // Rebuild ownership atomically; no submitted choice survives a changed crew.
+  redistributeClues(r: Room, pool?: { icon: string; text: string }[]) {
+    if (!r.tiny || r.players.length < 2) return;
+    if (!pool) {
+      delete r.crewClues;
+      const rescue = getAdventure(r.tiny.id).rescues[r.round];
+      pool =
+        r.tiny.id === "ice-rescue"
+          ? (rescue.privateClues || []).map((text) => ({ icon: "map", text }))
+          : r.players.flatMap((x) =>
+              x.slot === 0 &&
+              !isExpert(r.tiny?.id) &&
+              !["expedition", "stations"].includes(
+                getAdventure(r.tiny!.id).mechanics?.primary || "",
+              )
+                ? []
+                : this.clueList(r, x),
+            );
+    }
+    const unique = [...new Map(pool.map((c) => [c.text, c])).values()];
+    if (!unique.length) return;
+    r.crewClues = Object.fromEntries(
+      r.players.map((x) => [x.id, [] as { icon: string; text: string }[]]),
+    );
+    unique.forEach((c, i) =>
+      r.crewClues![r.players[i % r.players.length].id].push({ ...c }),
+    );
+    // Forest can have fewer distinct observations than seats; every child still has a clue.
+    r.players.forEach((x, i) => {
+      if (!r.crewClues![x.id].length)
+        r.crewClues![x.id] = [{ ...unique[i % unique.length] }];
+    });
+  }
+  playerBrief(r: Room, p: Player) {
+    const b = isExpert(r.tiny?.id)
+      ? expertBrief(
+          r.tiny!.id,
+          r.round,
+          p.slot,
+          r.players.length,
+          r.expert?.board || { objectives: [], assisted: [] },
+        )
+      : brief(
+          r.mode,
+          r.round,
+          p.slot,
+          r.players.length,
+          r.bonus,
+          r.tiny?.id,
+          r.signal?.puzzle || undefined,
+        );
+    const clues = r.crewClues?.[p.id];
+    return clues
+      ? {
+          ...b,
+          observations: clues.map((c) => ({ ...c })),
+          message: clues.map((c) => c.text).join(" "),
+          visuals: undefined,
+        }
+      : b;
+  }
+  leave(r: Room, p: Player) {
+    if (!r.players.includes(p)) throw Error("Join this room first.");
+    const before = r.players.length,
+      active = !["lobby", "finished"].includes(r.phase),
+      oldCaptain = r.players.find((x) => x.slot === 0);
+    let pool: { icon: string; text: string }[] | undefined;
+    if (r.tiny && before > 2 && active) {
+      const rescue = getAdventure(r.tiny.id).rescues[r.round];
+      pool =
+        r.tiny.id === "ice-rescue"
+          ? (rescue.privateClues || []).map((text) => ({ icon: "map", text }))
+          : r.players.flatMap((x) =>
+              x.slot === 0 &&
+              !isExpert(r.tiny?.id) &&
+              !["expedition", "stations"].includes(
+                getAdventure(r.tiny!.id).mechanics?.primary || "",
+              )
+                ? []
+                : this.clueList(r, x),
+            );
+    }
+    r.players = r.players.filter((x) => x !== p);
+    p.socketId = null;
+    p.action = null;
+    if (!r.players.length) {
+      this.rooms.delete(r.code);
+      return;
+    }
+    const captain = r.players.includes(oldCaptain!)
+      ? oldCaptain!
+      : r.players.find((x) => x.socketId) || r.players[0];
+    r.players = [captain, ...r.players.filter((x) => x !== captain)];
+    r.players.forEach((x, i) => {
+      x.slot = i;
+      x.action = null;
+    });
+    r.host = captain.id;
+    r.crewNotice = {
+      id: r.revision + 1,
+      departed: p.name,
+      captainId: captain.id,
+      promoted: oldCaptain?.id !== captain.id,
+    };
+    if (before === 2) {
+      r.closed = "The other player left the game. Your game has ended.";
+      r.phase = "paused";
+      r.deadline = null;
+      this.change(r);
+      return;
+    }
+    if (r.closed) {
+      this.change(r);
+      return;
+    }
+    r.sharedClues = {};
+    r.teamPlanVersion = (r.teamPlanVersion ?? 0) + 1;
+    r.rethinkBy = null;
+    if (r.tinyProgress) r.tinyProgress.run++;
+    if (r.signal) {
+      r.signal.run++;
+      r.signal.shared = {};
+      r.signal.drafts = {};
+      delete r.signal.resolvedAt;
+    }
+    if (r.ocean) {
+      r.ocean.version++;
+      r.ocean.ready = [];
+    }
+    if (r.expert) {
+      r.expert.version++;
+      r.expert.ready = [];
+    }
+    if (active) {
+      r.crewRebalanced = true;
+      this.redistributeClues(r, pool);
+      if (r.phase !== "result") {
+        r.result = null;
+        r.phase =
+          r.players.filter((x) => x.socketId).length >= 2
+            ? "briefing"
+            : "paused";
+        r.deadline =
+          r.phase === "briefing"
+            ? Date.now() +
+              tinyPresentationDuration(
+                r.tiny,
+                this.briefingMs,
+                "briefing",
+                r.round,
+              )
+            : null;
+      }
+    } else r.players.forEach((x) => (x.ready = false));
+    this.change(r);
+  }
+  replay(r: Room, p: Player) {
+    if (r.host !== p.id || r.phase !== "finished")
+      throw Error("Only the host can return the team to the lobby.");
+    r.players = r.players.filter((p) => p.socketId);
+    r.players.forEach((p, i) => {
+      p.slot = i;
+      p.ready = false;
+      p.action = null;
+    });
+    if (r.signal)
+      r.signal = {
+        seed: randomBytes(4).readUInt32BE(),
+        run: r.signal.run + 1,
+        puzzle: null,
+        shared: {},
+        archive: [],
+      };
+    if (r.tiny) {
+      delete r.expert;
+      delete r.ocean;
+      r.tiny = adventureState(r.tiny.id);
+      if (r.tinyProgress) {
+        r.tinyProgress.run++;
+        r.tinyProgress.mapOpen = false;
+      }
+    }
+    Object.assign(r, {
+      phase: "lobby",
+      round: 0,
+      score: 0,
+      bonus: r.tiny ? getAdventure(r.tiny.id).policy.kindnessStars : 3,
+      integrity: 3,
+      result: null,
+      deadline: null,
+    });
+    this.change(r);
+  }
+  adventureMap(r: Room, p: Player) {
+    if (!r.tiny || r.host !== p.id || r.phase !== "finished")
+      throw Error("Only the host can open the adventure map after completion.");
+    r.tinyProgress!.mapOpen = true;
+    this.change(r);
+  }
+  chooseAdventure(r: Room, p: Player, id: string) {
+    if (!r.tiny || r.host !== p.id || r.phase !== "finished")
+      throw Error("Only the host can choose after the adventure is complete.");
+    if (typeof id !== "string") throw Error("Choose an adventure.");
+    const a = getAdventure(id);
+    const state = adventureState(a.id);
+    delete r.expert;
+    delete r.ocean;
+    r.tiny = state;
+    r.tinyProgress!.run++;
+    r.tinyProgress!.mapOpen = false;
+    r.players.forEach((p) => {
+      p.ready = false;
+      p.action = null;
+    });
+    Object.assign(r, {
+      phase: "lobby",
+      round: 0,
+      score: 0,
+      bonus: a.policy.kindnessStars,
+      integrity: 3,
+      result: null,
+      deadline: null,
+    });
+    this.change(r);
+  }
+  tick(now = Date.now()) {
+    for (const r of this.rooms.values()) {
+      if (
+        !r.players.some((p) => p.socketId) &&
+        now - r.updated > 30 * 60 * 1000
+      ) {
+        this.rooms.delete(r.code);
+        continue;
+      }
+      if (r.closed) continue;
+      if (
+        r.phase === "paused" &&
+        r.players.filter((p) => p.socketId).length >= 2
+      ) {
+        this.begin(r);
+        continue;
+      }
+      if (!r.deadline || now < r.deadline) continue;
+      if (r.phase === "briefing") {
+        r.phase = "action";
+        r.deadline =
+          now +
+          (r.mode === "signal"
+            ? signalDuration(r.round, this.actionMs, this.signalTimers)
+            : tinyActionDuration(r.tiny, this.actionMs));
+        this.change(r);
+      } else if (r.phase === "action") this.lock(r);
+      else if (r.phase === "locked") {
+        const previousBonus = r.bonus;
+        r.result =
+          isExpert(r.tiny?.id) && r.expert
+            ? resolveExpert(
+                r.tiny.id,
+                r.round,
+                r.expert.settings,
+                r.expert.board,
+                r.bonus,
+                !!r.players[0]?.action?.launch,
+              )
+            : resolve(
+                r.mode,
+                r.round,
+                [...r.players]
+                  .sort((a, b) => a.slot - b.slot)
+                  .map((p) => p.action ?? {}),
+                r.bonus,
+                r.tiny?.id,
+                r.signal?.puzzle || undefined,
+              );
+        if (r.signal) recoverSignalRecord(r.signal, r.result.success);
+        r.bonus = r.result.bonus;
+        if (r.tiny)
+          Object.assign(
+            r.result,
+            tinyFeedback(
+              r.tiny,
+              r.round,
+              r.result.success,
+              previousBonus,
+              r.bonus,
+            ),
+          );
+        if (
+          isExpert(r.tiny?.id) &&
+          r.expert &&
+          (r.result.success || r.result.assisted)
+        )
+          commitExpert(
+            r.tiny.id,
+            r.round,
+            r.expert.settings,
+            r.expert,
+            !!r.result.assisted,
+          );
+        if (r.result.success) r.score++;
+        else if (r.mode === "signal") r.integrity--;
+        if (r.signal) r.signal.resolvedAt = now;
+        r.phase = "result";
+        r.deadline =
+          now +
+          tinyPresentationDuration(
+            r.tiny,
+            this.resultMs,
+            "result",
+            r.round,
+            r.result.success,
+          );
+        this.change(r);
+      } else if (r.phase === "result") {
+        if (r.tiny && r.result?.retry) {
+          advanceTiny(r.tiny, true);
+          this.begin(r);
+          continue;
+        }
+        if (
+          r.round ===
+          (r.tiny
+            ? getAdventure(r.tiny.id).rescues.length
+            : rounds[r.mode].length) -
+            1
+        ) {
+          r.phase = "finished";
+          r.deadline = null;
+          if (r.tiny && r.tinyProgress) {
+            if (!r.tinyProgress.completed.includes(r.tiny.id))
+              r.tinyProgress.completed.push(r.tiny.id);
+            const best = r.tinyProgress.results[r.tiny.id];
+            if (!best || r.score >= best.badges)
+              r.tinyProgress.results[r.tiny.id] = {
+                friendsHome: r.tiny.completed.length,
+                badges: r.score,
+                assists: r.tiny.completed.filter((x) => x.crewHelp).length,
+              };
+          }
+          this.change(r);
+        } else {
+          if (r.tiny) advanceTiny(r.tiny, false);
+          r.round++;
+          this.begin(r);
+        }
+      }
+    }
+  }
+  view(r: Room, p: Player) {
+    return {
+      closed: r.closed || null,
+      crewNotice: r.crewNotice
+        ? {
+            id: r.crewNotice.id,
+            message: r.crewNotice.promoted
+              ? (p.id === r.crewNotice.captainId
+                  ? r.mode === "tiny"
+                    ? "You are now the Team Captain."
+                    : "You are now the lead Navigator."
+                  : `${r.players.find((x) => x.id === r.crewNotice!.captainId)?.name} is now ${r.mode === "tiny" ? "the Team Captain" : "the lead Navigator"}.`) +
+                ` ${r.crewNotice.departed} left the game. Responsibilities and clues have been reassigned.`
+              : `${r.crewNotice.departed} left the game. Responsibilities and clues have been reassigned.`,
+          }
+        : null,
+      code: r.code,
+      mode: r.mode,
+      host: r.host,
+      me: p.id,
+      phase: r.phase,
+      round: r.round,
+      deadline: r.deadline,
+      serverTime: Date.now(),
+      revision: r.revision,
+      score: r.score,
+      bonus: r.bonus,
+      integrity: r.integrity,
+      result: r.result,
+      mission: ((m) => ({ title: m.title, story: m.story, icon: m.icon }))(
+        missionRound(r.mode, r.round, r.tiny?.id),
+      ),
+      players: r.players.map((x) => ({
+        id: x.id,
+        name: x.name,
+        connected: !!x.socketId,
+        ready: x.ready,
+        submitted: !!x.action,
+        role:
+          r.mode === "tiny"
+            ? isExpert(r.tiny?.id)
+              ? x.slot === 0
+                ? "Team Captain"
+                : "Mechanism Explorer"
+              : r.tiny?.id === "ocean-adventure"
+                ? oceanBrief(r.round, x.slot, r.players.length).role
+                : x.slot === 0
+                  ? "Team Captain"
+                  : "Little Hero"
+            : signalRole(x.slot, r.players.length),
+      })),
+      brief: r.phase === "lobby" || r.closed ? null : this.playerBrief(r, p),
+      submitted: !!p.action,
+      ...(r.mode === "signal" ? { signal: this.signalView(r, p) } : {}),
+      ...(r.tiny
+        ? {
+            clues: this.clueView(r, p),
+            expert: this.expertView(r, p),
+            ocean: this.oceanView(r, p),
+            ownAction: p.action ? { ...p.action } : null,
+            ...(getAdventure(r.tiny.id).mechanics?.primary === "expedition"
+              ? {
+                  teamPlanVersion: r.teamPlanVersion ?? 0,
+                  rethinkBy: r.rethinkBy ?? null,
+                  teamPlan: r.players.find((x) => x.slot === 0)?.action
+                    ? { ...r.players.find((x) => x.slot === 0)!.action! }
+                    : null,
+                }
+              : {}),
+            adventure: {
+              ...adventureSnapshot(r.tiny, r.round),
+              ...(r.phase !== "result" || r.result?.success
+                ? { hint: null }
+                : {}),
+            },
+            progression: {
+              completed: [...r.tinyProgress!.completed],
+              available: availableAdventures(),
+              mapOpen: r.tinyProgress!.mapOpen,
+              run: r.tinyProgress!.run,
+              results: structuredClone(r.tinyProgress!.results),
+              nextId: nextAdventureId(r.tiny.id, availableAdventures()) || null,
+            },
+          }
+        : {}),
+      ...(r.mode === "tiny" &&
+      p.slot === 0 &&
+      r.phase !== "lobby" &&
+      r.tiny &&
+      !["expedition", "stations", "mechanisms"].includes(
+        getAdventure(r.tiny.id).mechanics?.primary || "",
+      )
+        ? {
+            helperBriefs: r.players
+              .filter((x) => x.slot !== 0)
+              .map((x) => ({
+                id: x.id,
+                name: x.name,
+                connected: !!x.socketId,
+                clue: this.clueList(r, x)
+                  .filter((_, i) => r.sharedClues?.[x.id]?.includes(i))
+                  .map((c) => c.text)
+                  .join(" "),
+                tool: x.action?.tool ?? null,
+                ...(r.tiny &&
+                getAdventure(r.tiny.id).mechanics?.primary === "routes"
+                  ? { route: x.action?.route ?? null }
+                  : {}),
+              })),
+          }
+        : {}),
+    };
+  }
+}
