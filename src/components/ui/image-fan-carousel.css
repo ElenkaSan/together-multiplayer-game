@@ -1,84 +1,569 @@
 /* Living cards are a presentation layer over the existing adventure actions. */
-.app.tiny .living-adventure-cards{max-width:1000px;margin:0 auto;min-width:0;--card-tilt-x:0deg;--card-tilt-y:0deg;--card-image-x:0px;--card-image-y:0px}
-.app.tiny .living-adventure-cards .fan-stage{position:relative;display:grid;place-items:center;padding:36px 0;isolation:isolate;perspective:1400px;touch-action:pan-y;overflow:visible}
-.app.tiny .living-adventure-cards[data-layout=compact] .fan-stage{padding-top:36px;padding-bottom:36px}
-.app.tiny .living-adventure-cards .fan-ring{position:absolute;inset:0;pointer-events:none;perspective:1400px;transform-style:flat}
-.app.tiny .living-adventure-cards .fan-orbit{position:absolute;left:50%;top:50%;width:var(--living-preview-width);height:var(--living-preview-height);margin-left:calc(var(--living-preview-width)/-2);margin-top:calc(var(--living-preview-height)/-2);pointer-events:none;transform-style:preserve-3d;z-index:2}
-.app.tiny .living-adventure-cards[data-layout=compact] .fan-orbit{top:50%}
-.app.tiny .living-adventure-cards .fan-thumbnail{position:relative;display:block;width:100%;height:100%;padding:0;min-height:44px;overflow:hidden;border:1px solid #fff9e8!important;background:#e4e8db;border-radius:0!important;box-shadow:inset 0 0 0 2px #fff9df66,0 12px 25px #24453330!important;pointer-events:auto;transition:border-color .2s,filter .2s}
-.app.tiny .living-adventure-cards .fan-thumbnail:hover,.app.tiny .living-adventure-cards .fan-thumbnail:focus-visible{border-color:#b69745!important;filter:brightness(1.07)}
-.app.tiny .living-adventure-cards .fan-thumbnail:disabled{cursor:default}
-.app.tiny .living-adventure-cards .fan-thumbnail img{width:100%;height:100%;object-fit:cover;display:block}
-.app.tiny .living-adventure-cards .fan-thumbnail span{position:absolute;bottom:4px;right:4px;min-width:22px;min-height:22px;display:grid;place-items:center;background:#fff9e9ee;color:#294e3b;font-size:11px;font-weight:800}
-.app.tiny .living-adventure-cards .fan-featured.illustrated-world-cards{position:relative;z-index:20;display:block!important;width:var(--living-card-width)!important;overflow:visible!important;padding:0!important;margin:0!important;mask-image:none!important;-webkit-mask-image:none!important;perspective:1100px;scroll-snap-type:none}
-.app.tiny .living-adventure-cards .fan-featured[hidden]{display:none!important}
-.app.tiny .living-adventure-cards .fan-card-surface{position:relative;isolation:isolate;box-shadow:inset 0 1px 0 #fff,0 10px 22px #22443024!important;border:1px solid #fff8d9!important}
-.app.tiny .living-adventure-cards .fan-card-surface::before{display:none!important}
-.app.tiny .living-adventure-cards .adventure-world-card{display:block;width:100%!important;min-width:0!important;max-width:none!important;height:var(--living-card-height);min-height:0!important;margin:0;overflow:hidden;border:1px solid #fff9e8a6!important;box-shadow:inset 0 1px 0 #ffffff77!important}
-.app.tiny .living-adventure-cards .adventure-world-card:hover{transform:none}
-.app.tiny .living-adventure-cards .adventure-world-card>img{transform:translate(var(--card-image-x),var(--card-image-y)) scale(1.035);transition:transform .18s ease-out}
-.app.tiny .living-adventure-cards .adventure-world-card::after{background:linear-gradient(180deg,#143f3210,transparent 38%,#102e23ad 73%,#10291ff0)}
-.app.tiny .living-adventure-cards .level-card-top{inset:12px 12px auto;gap:6px;font-size:11px;line-height:1.3}
-.app.tiny .living-adventure-cards .level-card-top>span{padding:7px 9px;background:#fdf7e9ed;color:#2b503c;border:1px solid #fff7dc}
-.app.tiny .living-adventure-cards .world-card-copy{inset:auto 0 0;gap:9px;padding:26px 22px 22px;max-width:100%;color:#fffbed;background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none}
-.app.tiny .living-adventure-cards .world-card-copy>strong{font-size:clamp(21px,2.2vw,28px);line-height:1.12;color:#fffbed;text-shadow:0 2px 5px #10291faa;overflow-wrap:normal}
-.app.tiny .living-adventure-cards .world-card-copy>small{font-size:13px;line-height:1.4;color:#e4efdc}
-.app.tiny .living-adventure-cards .world-card-action{background:#efc765!important;color:#263f35!important;border:1px solid #f8e7ad;min-height:44px;padding:10px 16px;box-shadow:inset 0 1px 0 #ffffff80!important;font-size:15px}
-.app.tiny .living-adventure-cards .fan-card-sheen{position:absolute;inset:0;pointer-events:none;border:2px solid #fff9dc66;box-shadow:inset 4px 0 8px #d9ffea20,inset -3px 0 7px #ffe5ac30!important;background:linear-gradient(120deg,#ffffff20,transparent 35%,transparent 75%,#ffffff12);z-index:4}
-.app.tiny .living-adventure-cards .fan-card-light{display:block!important;position:absolute;inset:-1px;overflow:hidden;pointer-events:none;z-index:6}
-.app.tiny .living-adventure-cards .fan-card-light i{position:absolute;opacity:0;background:linear-gradient(90deg,transparent,#ffe6a0,#fffdf3,transparent)}
-.app.tiny .living-adventure-cards .fan-card-light i:nth-child(1){top:0;left:-40%;width:40%;height:2px}
-.app.tiny .living-adventure-cards .fan-card-light i:nth-child(2){top:-40%;right:0;height:40%;width:2px;background:linear-gradient(180deg,transparent,#ffe6a0,#fffdf3,transparent)}
-.app.tiny .living-adventure-cards .fan-card-light i:nth-child(3){bottom:0;right:-40%;width:40%;height:2px}
-.app.tiny .living-adventure-cards .fan-card-light i:nth-child(4){bottom:-40%;left:0;height:40%;width:2px;background:linear-gradient(180deg,transparent,#ffe6a0,#fffdf3,transparent)}
-.app.tiny .living-adventure-cards[data-motion=on] .fan-card-light i:nth-child(1){animation:living-light-x 8s linear infinite}
-.app.tiny .living-adventure-cards[data-motion=on] .fan-card-light i:nth-child(2){animation:living-light-y 8s linear 2s infinite}
-.app.tiny .living-adventure-cards[data-motion=on] .fan-card-light i:nth-child(3){animation:living-light-x-back 8s linear 4s infinite}
-.app.tiny .living-adventure-cards[data-motion=on] .fan-card-light i:nth-child(4){animation:living-light-y-back 8s linear 6s infinite}
-@keyframes living-light-x{0%{opacity:0;transform:translateX(0)}5%,20%{opacity:.8}25%,100%{opacity:0;transform:translateX(350%)}}
-@keyframes living-light-y{0%{opacity:0;transform:translateY(0)}5%,20%{opacity:.8}25%,100%{opacity:0;transform:translateY(350%)}}
-@keyframes living-light-x-back{0%{opacity:0;transform:translateX(0)}5%,20%{opacity:.8}25%,100%{opacity:0;transform:translateX(-350%)}}
-@keyframes living-light-y-back{0%{opacity:0;transform:translateY(0)}5%,20%{opacity:.8}25%,100%{opacity:0;transform:translateY(-350%)}}
-.app.tiny .living-adventure-cards .fan-navigation{display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 0 24px;position:relative;z-index:8;min-height:72px}
-.app.tiny .living-adventure-cards .fan-navigation button{width:48px;min-height:48px;flex:none;border:1px solid #bcc8b7;background:#fff9eccc;color:#2b503c;font-size:21px}
-.app.tiny .living-adventure-cards .fan-navigation span{font-size:13px;font-weight:600;text-align:center;color:#425b49;max-width:220px}
-.app.tiny .living-adventure-cards :is(.fan-thumbnail,.adventure-world-card,.fan-navigation button):focus-visible{outline:3px solid #386b4d;outline-offset:5px}
-.app.tiny .adventure-picker:after{display:none}
+.app.tiny .living-adventure-cards {
+  max-width: 1000px;
+  margin: 0 auto;
+  min-width: 0;
+  --card-tilt-x: 0deg;
+  --card-tilt-y: 0deg;
+  --card-image-x: 0px;
+  --card-image-y: 0px;
+}
+.app.tiny .living-adventure-cards .fan-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 36px 0;
+  isolation: isolate;
+  perspective: 1400px;
+  touch-action: pan-y;
+  overflow: visible;
+}
+.app.tiny .living-adventure-cards[data-layout="compact"] .fan-stage {
+  padding-top: 36px;
+  padding-bottom: 36px;
+}
+.app.tiny .living-adventure-cards .fan-ring {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  perspective: 1400px;
+  transform-style: flat;
+}
+.app.tiny .living-adventure-cards .fan-orbit {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--living-preview-width);
+  height: var(--living-preview-height);
+  margin-left: calc(var(--living-preview-width) / -2);
+  margin-top: calc(var(--living-preview-height) / -2);
+  pointer-events: none;
+  transform-style: preserve-3d;
+  z-index: 2;
+}
+.app.tiny .living-adventure-cards[data-layout="compact"] .fan-orbit {
+  top: 50%;
+}
+.app.tiny .living-adventure-cards .fan-thumbnail {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  min-height: 44px;
+  overflow: hidden;
+  border: 1px solid #fff9e8 !important;
+  background: #e4e8db;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 0 0 0 2px #fff9df66,
+    0 12px 25px #24453330 !important;
+  pointer-events: auto;
+  transition:
+    border-color 0.2s,
+    filter 0.2s;
+}
+.app.tiny .living-adventure-cards .fan-thumbnail:hover,
+.app.tiny .living-adventure-cards .fan-thumbnail:focus-visible {
+  border-color: #b69745 !important;
+  filter: brightness(1.07);
+}
+.app.tiny .living-adventure-cards .fan-thumbnail:disabled {
+  cursor: default;
+}
+.app.tiny .living-adventure-cards .fan-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.app.tiny .living-adventure-cards .fan-thumbnail span {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  min-width: 22px;
+  min-height: 22px;
+  display: grid;
+  place-items: center;
+  background: #fff9e9ee;
+  color: #294e3b;
+  font-size: 11px;
+  font-weight: 800;
+}
+.app.tiny .living-adventure-cards .fan-featured.illustrated-world-cards {
+  position: relative;
+  z-index: 20;
+  display: block !important;
+  width: var(--living-card-width) !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+  perspective: 1100px;
+  scroll-snap-type: none;
+}
+.app.tiny .living-adventure-cards .fan-featured[hidden] {
+  display: none !important;
+}
+.app.tiny .living-adventure-cards .fan-card-surface {
+  position: relative;
+  isolation: isolate;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 10px 22px #22443024 !important;
+  border: 1px solid #fff8d9 !important;
+}
+.app.tiny .living-adventure-cards .fan-card-surface::before {
+  display: none !important;
+}
+.app.tiny .living-adventure-cards .adventure-world-card {
+  display: block;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: var(--living-card-height);
+  min-height: 0 !important;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #fff9e8a6 !important;
+  box-shadow: inset 0 1px 0 #ffffff77 !important;
+}
+.app.tiny .living-adventure-cards .adventure-world-card:hover {
+  transform: none;
+}
+.app.tiny .living-adventure-cards .adventure-world-card > img {
+  transform: translate(var(--card-image-x), var(--card-image-y)) scale(1.035);
+  transition: transform 0.18s ease-out;
+}
+.app.tiny .living-adventure-cards .adventure-world-card::after {
+  background: linear-gradient(
+    180deg,
+    #143f3210,
+    transparent 38%,
+    #102e23ad 73%,
+    #10291ff0
+  );
+}
+.app.tiny .living-adventure-cards .level-card-top {
+  inset: 12px 12px auto;
+  gap: 6px;
+  font-size: 11px;
+  line-height: 1.3;
+}
+.app.tiny .living-adventure-cards .level-card-top > span {
+  padding: 7px 9px;
+  background: #fdf7e9ed;
+  color: #2b503c;
+  border: 1px solid #fff7dc;
+}
+.app.tiny .living-adventure-cards .world-card-copy {
+  inset: auto 0 0;
+  gap: 9px;
+  padding: 26px 22px 22px;
+  max-width: 100%;
+  color: #fffbed;
+  background: none;
+  border: 0;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.app.tiny .living-adventure-cards .world-card-copy > strong {
+  font-size: clamp(21px, 2.2vw, 28px);
+  line-height: 1.12;
+  color: #fffbed;
+  text-shadow: 0 2px 5px #10291faa;
+  overflow-wrap: normal;
+}
+.app.tiny .living-adventure-cards .world-card-copy > small {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #e4efdc;
+}
+.app.tiny .living-adventure-cards .world-card-action {
+  background: #efc765 !important;
+  color: #263f35 !important;
+  border: 1px solid #f8e7ad;
+  min-height: 44px;
+  padding: 10px 16px;
+  box-shadow: inset 0 1px 0 #ffffff80 !important;
+  font-size: 15px;
+}
+.app.tiny .living-adventure-cards .fan-card-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 2px solid #fff9dc66;
+  box-shadow:
+    inset 4px 0 8px #d9ffea20,
+    inset -3px 0 7px #ffe5ac30 !important;
+  background: linear-gradient(
+    120deg,
+    #ffffff20,
+    transparent 35%,
+    transparent 75%,
+    #ffffff12
+  );
+  z-index: 4;
+}
+.app.tiny .living-adventure-cards .fan-card-light {
+  display: block !important;
+  position: absolute;
+  inset: -1px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 6;
+}
+.app.tiny .living-adventure-cards .fan-card-light i {
+  position: absolute;
+  opacity: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #ffe6a0,
+    #fffdf3,
+    transparent
+  );
+}
+.app.tiny .living-adventure-cards .fan-card-light i:nth-child(1) {
+  top: 0;
+  left: -40%;
+  width: 40%;
+  height: 2px;
+}
+.app.tiny .living-adventure-cards .fan-card-light i:nth-child(2) {
+  top: -40%;
+  right: 0;
+  height: 40%;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    #ffe6a0,
+    #fffdf3,
+    transparent
+  );
+}
+.app.tiny .living-adventure-cards .fan-card-light i:nth-child(3) {
+  bottom: 0;
+  right: -40%;
+  width: 40%;
+  height: 2px;
+}
+.app.tiny .living-adventure-cards .fan-card-light i:nth-child(4) {
+  bottom: -40%;
+  left: 0;
+  height: 40%;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    #ffe6a0,
+    #fffdf3,
+    transparent
+  );
+}
+.app.tiny
+  .living-adventure-cards[data-motion="on"]
+  .fan-card-light
+  i:nth-child(1) {
+  animation: living-light-x 8s linear infinite;
+}
+.app.tiny
+  .living-adventure-cards[data-motion="on"]
+  .fan-card-light
+  i:nth-child(2) {
+  animation: living-light-y 8s linear 2s infinite;
+}
+.app.tiny
+  .living-adventure-cards[data-motion="on"]
+  .fan-card-light
+  i:nth-child(3) {
+  animation: living-light-x-back 8s linear 4s infinite;
+}
+.app.tiny
+  .living-adventure-cards[data-motion="on"]
+  .fan-card-light
+  i:nth-child(4) {
+  animation: living-light-y-back 8s linear 6s infinite;
+}
+@keyframes living-light-x {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  5%,
+  20% {
+    opacity: 0.8;
+  }
+  25%,
+  100% {
+    opacity: 0;
+    transform: translateX(350%);
+  }
+}
+@keyframes living-light-y {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  5%,
+  20% {
+    opacity: 0.8;
+  }
+  25%,
+  100% {
+    opacity: 0;
+    transform: translateY(350%);
+  }
+}
+@keyframes living-light-x-back {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  5%,
+  20% {
+    opacity: 0.8;
+  }
+  25%,
+  100% {
+    opacity: 0;
+    transform: translateX(-350%);
+  }
+}
+@keyframes living-light-y-back {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  5%,
+  20% {
+    opacity: 0.8;
+  }
+  25%,
+  100% {
+    opacity: 0;
+    transform: translateY(-350%);
+  }
+}
+.app.tiny .living-adventure-cards .fan-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 0 24px;
+  position: relative;
+  z-index: 8;
+  min-height: 72px;
+}
+.app.tiny .living-adventure-cards .fan-navigation button {
+  width: 48px;
+  min-height: 48px;
+  flex: none;
+  border: 1px solid #bcc8b7;
+  background: #fff9eccc;
+  color: #2b503c;
+  font-size: 21px;
+}
+.app.tiny .living-adventure-cards .fan-navigation span {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  color: #425b49;
+  max-width: 220px;
+}
+.app.tiny
+  .living-adventure-cards
+  :is(
+    .fan-thumbnail,
+    .adventure-world-card,
+    .fan-navigation button
+  ):focus-visible {
+  outline: 3px solid #386b4d;
+  outline-offset: 5px;
+}
+.app.tiny .adventure-picker:after {
+  display: none;
+}
 
-@media(max-width:600px){.app.tiny .living-adventure-cards .level-card-top{font-size:10px;inset:10px 10px auto}.app.tiny .living-adventure-cards .level-card-top>span{padding:6px}.app.tiny .living-adventure-cards .world-card-copy{inset:auto 0 0;padding:22px 16px 18px;gap:7px}.app.tiny .living-adventure-cards .fan-navigation{gap:10px}.app.tiny .living-adventure-cards .fan-navigation span{max-width:170px;font-size:12px}}
+@media (max-width: 600px) {
+  .app.tiny .living-adventure-cards .level-card-top {
+    font-size: 10px;
+    inset: 10px 10px auto;
+  }
+  .app.tiny .living-adventure-cards .level-card-top > span {
+    padding: 6px;
+  }
+  .app.tiny .living-adventure-cards .world-card-copy {
+    inset: auto 0 0;
+    padding: 22px 16px 18px;
+    gap: 7px;
+  }
+  .app.tiny .living-adventure-cards .fan-navigation {
+    gap: 10px;
+  }
+  .app.tiny .living-adventure-cards .fan-navigation span {
+    max-width: 170px;
+    font-size: 12px;
+  }
+}
 
-
-.app.tiny .living-adventure-cards[data-motion=off] .fan-card-light{display:none!important}
-@media(prefers-reduced-motion:reduce){.app.tiny .living-adventure-cards *{animation:none!important;transition:none!important}.app.tiny .living-adventure-cards .fan-card-light{display:none!important}.app.tiny .living-adventure-cards .fan-card-surface,.app.tiny .living-adventure-cards .adventure-world-card>img{transform:none}}
+.app.tiny .living-adventure-cards[data-motion="off"] .fan-card-light {
+  display: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .app.tiny .living-adventure-cards * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .app.tiny .living-adventure-cards .fan-card-light {
+    display: none !important;
+  }
+  .app.tiny .living-adventure-cards .fan-card-surface,
+  .app.tiny .living-adventure-cards .adventure-world-card > img {
+    transform: none;
+  }
+}
 
 /* Glass silhouette is local to Living Adventure Cards. */
-.app.tiny .living-adventure-cards :is(.fan-card-surface,.adventure-world-card,.fan-card-light,.fan-card-sheen,.fan-thumbnail){border-radius:0!important}
-.app.tiny .living-adventure-cards .fan-navigation{z-index:30}
+.app.tiny
+  .living-adventure-cards
+  :is(
+    .fan-card-surface,
+    .adventure-world-card,
+    .fan-card-light,
+    .fan-card-sheen,
+    .fan-thumbnail
+  ) {
+  border-radius: 0 !important;
+}
+.app.tiny .living-adventure-cards .fan-navigation {
+  z-index: 30;
+}
 
 /* Separate pointer-driven surface: never replaces fan-orbit positioning transforms. */
-.app.tiny .living-adventure-cards .fan-tilt-hitbox{position:relative;width:100%;height:100%;pointer-events:auto;perspective:1200px;-webkit-perspective:1200px;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;user-select:none}
-.app.tiny .living-adventure-cards .fan-tilt-surface{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:box-shadow .2s ease-out}
-.app.tiny .living-adventure-cards .fan-preview-surface{box-shadow:0 8px 18px #24453326!important}
-.app.tiny .living-adventure-cards .fan-tilt-surface[data-tilting=on]{box-shadow:inset 0 1px 0 #fff9de,0 16px 30px #24453338!important}
-.app.tiny .living-adventure-cards .fan-thumbnail img{transform:translate(var(--card-image-x,0px),var(--card-image-y,0px)) scale(1.035)}
-.app.tiny .living-adventure-cards .fan-thumbnail:hover{transform:none}
-.app.tiny .living-adventure-cards .fan-tilt-hitbox[data-tilt=off] .fan-tilt-surface{transform:none!important;transition:none}
-@media(prefers-reduced-motion:reduce){.app.tiny .living-adventure-cards .fan-tilt-surface{transform:none!important}.app.tiny .living-adventure-cards .fan-thumbnail img{transform:none}}
+.app.tiny .living-adventure-cards .fan-tilt-hitbox {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  perspective: 1200px;
+  -webkit-perspective: 1200px;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  user-select: none;
+}
+.app.tiny .living-adventure-cards .fan-tilt-surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: box-shadow 0.2s ease-out;
+}
+.app.tiny .living-adventure-cards .fan-preview-surface {
+  box-shadow: 0 8px 18px #24453326 !important;
+}
+.app.tiny .living-adventure-cards .fan-tilt-surface[data-tilting="on"] {
+  box-shadow:
+    inset 0 1px 0 #fff9de,
+    0 16px 30px #24453338 !important;
+}
+.app.tiny .living-adventure-cards .fan-thumbnail img {
+  transform: translate(var(--card-image-x, 0px), var(--card-image-y, 0px))
+    scale(1.035);
+}
+.app.tiny .living-adventure-cards .fan-thumbnail:hover {
+  transform: none;
+}
+.app.tiny
+  .living-adventure-cards
+  .fan-tilt-hitbox[data-tilt="off"]
+  .fan-tilt-surface {
+  transform: none !important;
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .app.tiny .living-adventure-cards .fan-tilt-surface {
+    transform: none !important;
+  }
+  .app.tiny .living-adventure-cards .fan-thumbnail img {
+    transform: none;
+  }
+}
 
 /* Muting audio must not override a direct pointer interaction. Ambient effects remain off. */
-.app.tiny .living-adventure-cards .fan-tilt-hitbox[data-tilt=on] .adventure-world-card>img{transform:translate(var(--card-image-x,0px),var(--card-image-y,0px)) scale(1.035)!important}
-.app.tiny .living-adventure-cards .fan-tilt-debug{position:absolute;top:48px;left:10px;z-index:10;white-space:pre;font:12px/1.5 monospace;color:#fff;background:#14382ee8;padding:8px;pointer-events:none}
+.app.tiny
+  .living-adventure-cards
+  .fan-tilt-hitbox[data-tilt="on"]
+  .adventure-world-card
+  > img {
+  transform: translate(var(--card-image-x, 0px), var(--card-image-y, 0px))
+    scale(1.035) !important;
+}
+.app.tiny .living-adventure-cards .fan-tilt-debug {
+  position: absolute;
+  top: 48px;
+  left: 10px;
+  z-index: 10;
+  white-space: pre;
+  font: 12px/1.5 monospace;
+  color: #fff;
+  background: #14382ee8;
+  padding: 8px;
+  pointer-events: none;
+}
 
-.app.tiny .living-adventure-cards .fan-tilt-surface{-webkit-transform-style:preserve-3d;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.app.tiny .living-adventure-cards .fan-tilt-surface {
+  -webkit-transform-style: preserve-3d;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
 
 /* Keep the native Explore target stationary during touch/hover activation. */
-.app.tiny .living-adventure-cards .world-card-action{touch-action:manipulation}
-.app.tiny .living-adventure-cards .world-card-action:hover,.app.tiny .living-adventure-cards .world-card-action:active{transform:none}
-.app.tiny .living-adventure-cards .world-card-action:focus-visible{outline:3px solid #f8e7ad;outline-offset:3px}
+.app.tiny .living-adventure-cards .world-card-action {
+  touch-action: manipulation;
+}
+.app.tiny .living-adventure-cards .world-card-action:hover,
+.app.tiny .living-adventure-cards .world-card-action:active {
+  transform: none;
+}
+.app.tiny .living-adventure-cards .world-card-action:focus-visible {
+  outline: 3px solid #f8e7ad;
+  outline-offset: 3px;
+}
 
 /* Explore is a stable sibling of the rotating artwork, not part of its 3D plane. */
-.app.tiny .living-adventure-cards .fan-featured .fan-tilt-hitbox{transform-style:flat;-webkit-transform-style:flat}
-.app.tiny .living-adventure-cards .fan-card-action-layer{position:absolute;left:24px;bottom:24px;z-index:30;pointer-events:none}
-.app.tiny .living-adventure-cards .fan-card-action-layer .world-card-action{pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:0;font-weight:700;line-height:1.4}
-.app.tiny .living-adventure-cards .world-card-action-space{height:44px;min-height:44px;margin-top:4px;flex:none}
-@media(max-width:600px){.app.tiny .living-adventure-cards .fan-card-action-layer{left:18px;bottom:20px}}
+.app.tiny .living-adventure-cards .fan-featured .fan-tilt-hitbox {
+  transform-style: flat;
+  -webkit-transform-style: flat;
+}
+.app.tiny .living-adventure-cards .fan-card-action-layer {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  z-index: 30;
+  pointer-events: none;
+}
+.app.tiny .living-adventure-cards .fan-card-action-layer .world-card-action {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.app.tiny .living-adventure-cards .world-card-action-space {
+  height: 44px;
+  min-height: 44px;
+  margin-top: 4px;
+  flex: none;
+}
+@media (max-width: 600px) {
+  .app.tiny .living-adventure-cards .fan-card-action-layer {
+    left: 18px;
+    bottom: 20px;
+  }
+}

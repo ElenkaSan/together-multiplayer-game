@@ -1,31 +1,328 @@
-import type {Adventure,RescueContent} from './tiny-adventures.js';
-import type {ExpeditionStage,PlanField} from './new-adventures.js';
-export type CollectionId='cloud-adventure'|'meadow-rescue';
-export const isCollection=(id?:string):id is CollectionId=>id==='cloud-adventure'||id==='meadow-rescue';
-export interface WeatherPlan {round:number;checked:boolean;prepared?:{primary:string;backup:string}}
-export interface CollectionBoard {weather?:WeatherPlan;restored?:string[];contributions?:Record<string,string[]>}
-const field=(key:string,title:string,icon:string,values:string[]):PlanField=>({key,title,options:values.map(value=>({value,label:value.replaceAll('-',' '),icon}))});
-const stage=(id:string,location:string,story:string,position:[number,number],fields:PlanField[]):ExpeditionStage=>({id,location,story,position,fields,observations:[]});
-const route=(key:string,title:string)=>field(key,title,'map',['upper','lower']);
-export const cloudStages=[
- stage('cloud-harbor','Sky Harbor','Plan a safe flight together.',[47,82],[field('route','Flight corridor','map',['north','south']),field('height','Flight height','cliff',['low','high']),field('sail','Our sail','wind',['folded','reefed','full']),field('cargo','Cargo balance','supplies',['balanced','uneven']),field('tether','Safety tether','vine',['secured','loose']),field('signal','Departure signal','signal',['on','off'])]),
- stage('cloud-windmill','Windmill Islands','The wind changed. Adjust our plan.',[29,52],[field('inlet','Wind inlet','wind',['east','west']),field('outlet','Wind outlet','wind',['east','west']),field('blades','Windmill blades','gear',['protected','open']),field('crossing','Crossing side','shield',['sheltered','exposed']),field('ballast','Ballast','supplies',['center','edge']),field('brake','Holding brake','builder',['hold','release'])]),
- stage('cloud-storm','Storm Passage','Prepare two routes. Then check the weather.',[76,49],[route('primary','Primary route'),route('backup','Backup route'),field('active','Use prepared route','map',['primary','backup']),field('wings','Flight wings','wind',['folded','open']),field('height','Passage height','cliff',['low','high']),field('tether','Safety tether','vine',['secured','loose'])]),
- stage('cloud-observatory','Rainbow Observatory','What weather is coming?',[28,26],[field('wind','Wind forecast','wind',['east','west']),field('rain','Rain forecast','river',['rain','dry']),field('visibility','Visibility forecast','sonar',['low','clear']),field('shutters','Window shutters','gate',['closed','open']),field('height','City corridor','cliff',['low','high']),field('beacon','City beacon','beacon',['amber','blue'])]),
- stage('cloud-citadel','Cloud Citadel','Reconnect the floating city.',[68,13],[field('harborRoute','Harbor skyway','map',['sheltered','open']),field('harborMode','Harbor flight','wind',['low','cruise']),field('millRoute','Windmill skyway','map',['sheltered','open']),field('millMode','Windmill flight','wind',['low','cruise']),field('citadelRoute','Citadel skyway','map',['sheltered','open']),field('citadelMode','Citadel flight','wind',['low','cruise'])])
+import type { Adventure, RescueContent } from "./tiny-adventures.js";
+import type { ExpeditionStage, PlanField } from "./new-adventures.js";
+export type CollectionId = "cloud-adventure" | "meadow-rescue";
+export const isCollection = (id?: string): id is CollectionId =>
+  id === "cloud-adventure" || id === "meadow-rescue";
+export interface WeatherPlan {
+  round: number;
+  checked: boolean;
+  prepared?: { primary: string; backup: string };
+}
+export interface CollectionBoard {
+  weather?: WeatherPlan;
+  restored?: string[];
+  contributions?: Record<string, string[]>;
+}
+const field = (
+  key: string,
+  title: string,
+  icon: string,
+  values: string[],
+): PlanField => ({
+  key,
+  title,
+  options: values.map((value) => ({
+    value,
+    label: value.replaceAll("-", " "),
+    icon,
+  })),
+});
+const stage = (
+  id: string,
+  location: string,
+  story: string,
+  position: [number, number],
+  fields: PlanField[],
+): ExpeditionStage => ({
+  id,
+  location,
+  story,
+  position,
+  fields,
+  observations: [],
+});
+const route = (key: string, title: string) =>
+  field(key, title, "map", ["upper", "lower"]);
+export const cloudStages = [
+  stage(
+    "cloud-harbor",
+    "Sky Harbor",
+    "Plan a safe flight together.",
+    [47, 82],
+    [
+      field("route", "Flight corridor", "map", ["north", "south"]),
+      field("height", "Flight height", "cliff", ["low", "high"]),
+      field("sail", "Our sail", "wind", ["folded", "reefed", "full"]),
+      field("cargo", "Cargo balance", "supplies", ["balanced", "uneven"]),
+      field("tether", "Safety tether", "vine", ["secured", "loose"]),
+      field("signal", "Departure signal", "signal", ["on", "off"]),
+    ],
+  ),
+  stage(
+    "cloud-windmill",
+    "Windmill Islands",
+    "The wind changed. Adjust our plan.",
+    [29, 52],
+    [
+      field("inlet", "Wind inlet", "wind", ["east", "west"]),
+      field("outlet", "Wind outlet", "wind", ["east", "west"]),
+      field("blades", "Windmill blades", "gear", ["protected", "open"]),
+      field("crossing", "Crossing side", "shield", ["sheltered", "exposed"]),
+      field("ballast", "Ballast", "supplies", ["center", "edge"]),
+      field("brake", "Holding brake", "builder", ["hold", "release"]),
+    ],
+  ),
+  stage(
+    "cloud-storm",
+    "Storm Passage",
+    "Prepare two routes. Then check the weather.",
+    [76, 49],
+    [
+      route("primary", "Primary route"),
+      route("backup", "Backup route"),
+      field("active", "Use prepared route", "map", ["primary", "backup"]),
+      field("wings", "Flight wings", "wind", ["folded", "open"]),
+      field("height", "Passage height", "cliff", ["low", "high"]),
+      field("tether", "Safety tether", "vine", ["secured", "loose"]),
+    ],
+  ),
+  stage(
+    "cloud-observatory",
+    "Rainbow Observatory",
+    "What weather is coming?",
+    [28, 26],
+    [
+      field("wind", "Wind forecast", "wind", ["east", "west"]),
+      field("rain", "Rain forecast", "river", ["rain", "dry"]),
+      field("visibility", "Visibility forecast", "sonar", ["low", "clear"]),
+      field("shutters", "Window shutters", "gate", ["closed", "open"]),
+      field("height", "City corridor", "cliff", ["low", "high"]),
+      field("beacon", "City beacon", "beacon", ["amber", "blue"]),
+    ],
+  ),
+  stage(
+    "cloud-citadel",
+    "Cloud Citadel",
+    "Reconnect the floating city.",
+    [68, 13],
+    [
+      field("harborRoute", "Harbor skyway", "map", ["sheltered", "open"]),
+      field("harborMode", "Harbor flight", "wind", ["low", "cruise"]),
+      field("millRoute", "Windmill skyway", "map", ["sheltered", "open"]),
+      field("millMode", "Windmill flight", "wind", ["low", "cruise"]),
+      field("citadelRoute", "Citadel skyway", "map", ["sheltered", "open"]),
+      field("citadelMode", "Citadel flight", "wind", ["low", "cruise"]),
+    ],
+  ),
 ];
-export const meadowStages=[
- stage('meadow-village','Sunflower Village','Help the village get ready.',[28,80],[field('waterHelper','Water helper','scout',['rabbit','bear']),field('plantHelper','Plant helper','builder',['rabbit','bear']),field('cargoHelper','Delivery helper','supplies',['cat','dog']),field('lightHelper','Lantern helper','light',['cat','dog']),field('schedule','Task plan','symbols',['parallel','serial','plant-first','lanterns-first']),field('valve','Garden valve','river',['open','closed'])]),
- stage('meadow-orchard','Whispering Orchard','Bring everything where it belongs.',[78,70],[field('fruitRoute','Fruit delivery','map',['bridge','ford']),field('flowerRoute','Flower delivery','map',['bridge','ford']),field('gate','Bridge gate','gate',['open','closed']),field('stones','Ford stones','bridge',['aligned','scattered']),field('crate','Fruit crate','supplies',['closed','open']),field('flowers','Flower carrier','leaf',['upright','tilted'])]),
- stage('meadow-river','Silverstream River','Give both gardens enough water.',[44,48],[field('orchard','Water for orchard','river',['1','2','3']),field('meadow','Water for flowers','leaf',['1','2','3']),field('return','Return channel','river',['open','closed']),field('filter','Water filter','shield',['clean','blocked']),field('pump','Pump flow','gear',['steady','surge']),field('gate','Main sluice','gate',['open','closed'])]),
- stage('meadow-hills','Blooming Hills','Light the way for our friends.',[28,30],[field('power','Light source','power',['solar','water']),field('return','Water return','river',['open','closed']),field('signal','Welcome signal','signal',['tree','village']),field('arrival','Friends arrive','scout',['together','groups']),field('lanes','Open paths','map',['one','two']),field('lights','Path lanterns','light',['on','off'])]),
- stage('meadow-tree','Great Friendship Tree','Make the whole meadow ready.',[62,16],[field('water','Garden water split','river',['orchard-2','flowers-2']),field('foodRoute','Food delivery','supplies',['bridge','ford']),field('friendRoute','Friends’ route','scout',['bridge','ford']),field('power','Celebration light','power',['solar','water']),field('return','Return channel','river',['open','closed']),field('arrival','Arrival plan','symbols',['together','groups'])])
+export const meadowStages = [
+  stage(
+    "meadow-village",
+    "Sunflower Village",
+    "Help the village get ready.",
+    [28, 80],
+    [
+      field("waterHelper", "Water helper", "scout", ["rabbit", "bear"]),
+      field("plantHelper", "Plant helper", "builder", ["rabbit", "bear"]),
+      field("cargoHelper", "Delivery helper", "supplies", ["cat", "dog"]),
+      field("lightHelper", "Lantern helper", "light", ["cat", "dog"]),
+      field("schedule", "Task plan", "symbols", [
+        "parallel",
+        "serial",
+        "plant-first",
+        "lanterns-first",
+      ]),
+      field("valve", "Garden valve", "river", ["open", "closed"]),
+    ],
+  ),
+  stage(
+    "meadow-orchard",
+    "Whispering Orchard",
+    "Bring everything where it belongs.",
+    [78, 70],
+    [
+      field("fruitRoute", "Fruit delivery", "map", ["bridge", "ford"]),
+      field("flowerRoute", "Flower delivery", "map", ["bridge", "ford"]),
+      field("gate", "Bridge gate", "gate", ["open", "closed"]),
+      field("stones", "Ford stones", "bridge", ["aligned", "scattered"]),
+      field("crate", "Fruit crate", "supplies", ["closed", "open"]),
+      field("flowers", "Flower carrier", "leaf", ["upright", "tilted"]),
+    ],
+  ),
+  stage(
+    "meadow-river",
+    "Silverstream River",
+    "Give both gardens enough water.",
+    [44, 48],
+    [
+      field("orchard", "Water for orchard", "river", ["1", "2", "3"]),
+      field("meadow", "Water for flowers", "leaf", ["1", "2", "3"]),
+      field("return", "Return channel", "river", ["open", "closed"]),
+      field("filter", "Water filter", "shield", ["clean", "blocked"]),
+      field("pump", "Pump flow", "gear", ["steady", "surge"]),
+      field("gate", "Main sluice", "gate", ["open", "closed"]),
+    ],
+  ),
+  stage(
+    "meadow-hills",
+    "Blooming Hills",
+    "Light the way for our friends.",
+    [28, 30],
+    [
+      field("power", "Light source", "power", ["solar", "water"]),
+      field("return", "Water return", "river", ["open", "closed"]),
+      field("signal", "Welcome signal", "signal", ["tree", "village"]),
+      field("arrival", "Friends arrive", "scout", ["together", "groups"]),
+      field("lanes", "Open paths", "map", ["one", "two"]),
+      field("lights", "Path lanterns", "light", ["on", "off"]),
+    ],
+  ),
+  stage(
+    "meadow-tree",
+    "Great Friendship Tree",
+    "Make the whole meadow ready.",
+    [62, 16],
+    [
+      field("water", "Garden water split", "river", ["orchard-2", "flowers-2"]),
+      field("foodRoute", "Food delivery", "supplies", ["bridge", "ford"]),
+      field("friendRoute", "Friends’ route", "scout", ["bridge", "ford"]),
+      field("power", "Celebration light", "power", ["solar", "water"]),
+      field("return", "Return channel", "river", ["open", "closed"]),
+      field("arrival", "Arrival plan", "symbols", ["together", "groups"]),
+    ],
+  ),
 ];
-export const collectionStages=(id:string)=>id==='cloud-adventure'?cloudStages:meadowStages;
-export const weatherRounds=[1,2,4];
-export function collectionOwnKeys(id:string,round:number,keys:string[],b:CollectionBoard){return id==='cloud-adventure'&&round===2&&!b.weather?.checked?keys.filter(k=>k==='primary'||k==='backup'):keys}
-export function weatherDescription(round:number,b:CollectionBoard){if(!b.weather?.checked)return 'Before weather check: calm conditions.';return round===1?'Wind now blows strongly from the east.':round===2?'Crosswind now covers the upper passage.':'Harbor: crosswind. Windmill: tailwind. Citadel: rain and mist.'}
-export function collectionPreview(id:string,round:number,s:Record<string,string>,b:CollectionBoard){if(id==='cloud-adventure')return {kind:'weather',values:[b.weather?.checked?1:0],labels:[weatherDescription(round,b),...Object.entries(s).map(([k,v])=>`${k}: ${v}`)]};const orchard=round===2?Number(s.orchard||0):round===4?s.water==='orchard-2'?2:s.water?1:0:0,flowers=round===2?Number(s.meadow||0):round===4?s.water==='flowers-2'?2:s.water?1:0:0;return {kind:'ecosystem',values:[orchard,flowers],labels:Object.entries(s).map(([k,v])=>`${k}: ${v}`),capacity:3,power:orchard+flowers}}
-function adventure(id:CollectionId,title:string,world:string,level:number,renderer:'cloud'|'meadow',intro:string,nextId?:string):Adventure {return {id,title,world,level,nextId,icon:'',intro,environment:{renderer,mapAsset:`/art/tiny/${renderer}-map.webp`},mechanics:{primary:'mechanisms',difficulty:level,introduced:renderer==='cloud'?['deterministic weather','committed primary and backup plans']:['interconnected ecosystem goals','cooperative reunion']},policy:{maxAttempts:2,kindnessStars:0},rescues:collectionStages(id).map((s,i):RescueContent=>({id:s.id,title:s.location,story:s.story,icon:'',friend:s.location,character:i,scene:'tree',clue:'',tools:[],mapPosition:[s.position[0]*9,s.position[1]*5.4],challenge:{kind:i===4?'finale':'navigation',location:s.location,choices:s.fields[0].options.map(o=>({id:o.value,label:o.label,visual:'station'}))},sounds:{success:i===4?'complete':'rescue',hint:'hint'}}))}}
-export const cloudAdventure=adventure('cloud-adventure','Cloud Adventure','The Sky Rescue Expedition',9,'cloud','Adapt together. Repair the skyways connecting our floating city!','meadow-rescue');
-export const meadowRescue=adventure('meadow-rescue','Meadow Rescue','The Great Reunion',10,'meadow','Unite together. Restore the Great Meadow and welcome everyone to the Friendship Tree!');
+export const collectionStages = (id: string) =>
+  id === "cloud-adventure" ? cloudStages : meadowStages;
+export const weatherRounds = [1, 2, 4];
+export function collectionOwnKeys(
+  id: string,
+  round: number,
+  keys: string[],
+  b: CollectionBoard,
+) {
+  return id === "cloud-adventure" && round === 2 && !b.weather?.checked
+    ? keys.filter((k) => k === "primary" || k === "backup")
+    : keys;
+}
+export function weatherDescription(round: number, b: CollectionBoard) {
+  if (!b.weather?.checked) return "Before weather check: calm conditions.";
+  return round === 1
+    ? "Wind now blows strongly from the east."
+    : round === 2
+      ? "Crosswind now covers the upper passage."
+      : "Harbor: crosswind. Windmill: tailwind. Citadel: rain and mist.";
+}
+export function collectionPreview(
+  id: string,
+  round: number,
+  s: Record<string, string>,
+  b: CollectionBoard,
+) {
+  if (id === "cloud-adventure")
+    return {
+      kind: "weather",
+      values: [b.weather?.checked ? 1 : 0],
+      labels: [
+        weatherDescription(round, b),
+        ...Object.entries(s).map(([k, v]) => `${k}: ${v}`),
+      ],
+    };
+  const orchard =
+      round === 2
+        ? Number(s.orchard || 0)
+        : round === 4
+          ? s.water === "orchard-2"
+            ? 2
+            : s.water
+              ? 1
+              : 0
+          : 0,
+    flowers =
+      round === 2
+        ? Number(s.meadow || 0)
+        : round === 4
+          ? s.water === "flowers-2"
+            ? 2
+            : s.water
+              ? 1
+              : 0
+          : 0;
+  return {
+    kind: "ecosystem",
+    values: [orchard, flowers],
+    labels: Object.entries(s).map(([k, v]) => `${k}: ${v}`),
+    capacity: 3,
+    power: orchard + flowers,
+  };
+}
+function adventure(
+  id: CollectionId,
+  title: string,
+  world: string,
+  level: number,
+  renderer: "cloud" | "meadow",
+  intro: string,
+  nextId?: string,
+): Adventure {
+  return {
+    id,
+    title,
+    world,
+    level,
+    nextId,
+    icon: "",
+    intro,
+    environment: { renderer, mapAsset: `/art/tiny/${renderer}-map.webp` },
+    mechanics: {
+      primary: "mechanisms",
+      difficulty: level,
+      introduced:
+        renderer === "cloud"
+          ? ["deterministic weather", "committed primary and backup plans"]
+          : ["interconnected ecosystem goals", "cooperative reunion"],
+    },
+    policy: { maxAttempts: 2, kindnessStars: 0 },
+    rescues: collectionStages(id).map(
+      (s, i): RescueContent => ({
+        id: s.id,
+        title: s.location,
+        story: s.story,
+        icon: "",
+        friend: s.location,
+        character: i,
+        scene: "tree",
+        clue: "",
+        tools: [],
+        mapPosition: [s.position[0] * 9, s.position[1] * 5.4],
+        challenge: {
+          kind: i === 4 ? "finale" : "navigation",
+          location: s.location,
+          choices: s.fields[0].options.map((o) => ({
+            id: o.value,
+            label: o.label,
+            visual: "station",
+          })),
+        },
+        sounds: { success: i === 4 ? "complete" : "rescue", hint: "hint" },
+      }),
+    ),
+  };
+}
+export const cloudAdventure = adventure(
+  "cloud-adventure",
+  "Cloud Adventure",
+  "The Sky Rescue Expedition",
+  9,
+  "cloud",
+  "Adapt together. Repair the skyways connecting our floating city!",
+  "meadow-rescue",
+);
+export const meadowRescue = adventure(
+  "meadow-rescue",
+  "Meadow Rescue",
+  "The Great Reunion",
+  10,
+  "meadow",
+  "Unite together. Restore the Great Meadow and welcome everyone to the Friendship Tree!",
+);

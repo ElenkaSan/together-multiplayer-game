@@ -1,25 +1,206 @@
-import type {Action} from './modes.js';
-export const desertEvidence:[string,string][][]=[
- [['water','The caravan needs drinking water.'],['shelter','A canopy protects us from the sun.'],['compass','A compass keeps our direction.'],['snow','Snow sleds cannot cross warm sand.'],['ship','Boat anchors are too heavy for this walk.'],['shell','Shells will not guide us through the dunes.']],
- [['leaf','Real palms cast solid shadows.'],['water','The shimmer pool has no tracks or shade.'],['tracks','Caravan tracks lead to the twin palms.'],['cliff','The loose slope slides beneath our feet.'],['sun','The bright hollow hides soft sand.'],['tracks','Follow firm tracks, not the loose slope.']],
- [['scout','Scout can test the landing.'],['builder','Builder knows the crossing knots.'],['look','Check the landing before fastening the crossing.'],['vine','Secure the crossing before leading the team.'],['bridge','The team waits until both jobs are done.'],['cliff','The untested landing might crumble.']],
- [['flag','Raise the signal only after shelter is up.'],['supplies','Secure supplies before the wind grows stronger.'],['shelter','Behind the rock is protected from blowing sand.'],['wind','Facing the wind exposes the shelter opening.'],['shelter','Put up the shelter after supplies are secure.'],['supplies','Loose bags can blow away during setup.']],
- [['cliff','The firm ridge reaches the caravan.'],['builder','Builder can repair the beacon.'],['beacon','Repair the beacon before sending a signal.'],['flag','The caravan moves after receiving our signal.'],['marsh','The basin has deep, soft sand.'],['tracks','Guide everyone back only after repair and signal.']]
+import type { Action } from "./modes.js";
+export const desertEvidence: [string, string][][] = [
+  [
+    ["water", "The caravan needs drinking water."],
+    ["shelter", "A canopy protects us from the sun."],
+    ["compass", "A compass keeps our direction."],
+    ["snow", "Snow sleds cannot cross warm sand."],
+    ["ship", "Boat anchors are too heavy for this walk."],
+    ["shell", "Shells will not guide us through the dunes."],
+  ],
+  [
+    ["leaf", "Real palms cast solid shadows."],
+    ["water", "The shimmer pool has no tracks or shade."],
+    ["tracks", "Caravan tracks lead to the twin palms."],
+    ["cliff", "The loose slope slides beneath our feet."],
+    ["sun", "The bright hollow hides soft sand."],
+    ["tracks", "Follow firm tracks, not the loose slope."],
+  ],
+  [
+    ["scout", "Scout can test the landing."],
+    ["builder", "Builder knows the crossing knots."],
+    ["look", "Check the landing before fastening the crossing."],
+    ["vine", "Secure the crossing before leading the team."],
+    ["bridge", "The team waits until both jobs are done."],
+    ["cliff", "The untested landing might crumble."],
+  ],
+  [
+    ["flag", "Raise the signal only after shelter is up."],
+    ["supplies", "Secure supplies before the wind grows stronger."],
+    ["shelter", "Behind the rock is protected from blowing sand."],
+    ["wind", "Facing the wind exposes the shelter opening."],
+    ["shelter", "Put up the shelter after supplies are secure."],
+    ["supplies", "Loose bags can blow away during setup."],
+  ],
+  [
+    ["cliff", "The firm ridge reaches the caravan."],
+    ["builder", "Builder can repair the beacon."],
+    ["beacon", "Repair the beacon before sending a signal."],
+    ["flag", "The caravan moves after receiving our signal."],
+    ["marsh", "The basin has deep, soft sand."],
+    ["tracks", "Guide everyone back only after repair and signal."],
+  ],
 ];
-export const desertSolutions:Action[]=[{drink:'water',cover:'shade',guide:'compass'},{landmark:'palms',approach:'tracks'},{lookout:'scout',anchor:'builder',step1:'check',step2:'secure',step3:'cross'},{side:'leeward',step1:'supplies',step2:'shelter',step3:'signal'},{route:'ridge',repairer:'builder',step1:'repair',step2:'signal',step3:'return'}];
-export const desertHints=['Water, shade canopy and compass help a desert expedition.','Twin palms cast shadows. Follow the firm tracks.','Scout checks, Builder secures, then the team crosses.','Behind the rock: secure supplies, set up shelter, raise signal.','Take the firm ridge. Builder repairs, then signal, then guide the caravan.'];
-export const oceanEvidence:[string,string][][]=[
- [['river','The sheltered channel is clear; surf hits the outer route.'],['engine','Use gentle thrust in the harbor; cruise shakes the dock.'],['depth','Stay shallow until we leave the harbor.'],['gate','Close the hatch before diving.'],['current','Current sensors show safe water ahead.'],['signal','Use the harbor signal to tell the dock we are leaving.']],
- [['leaf','The wide gap has no tangled roots.'],['engine','Gentle thrust keeps kelp out of the propeller.'],['depth','Middle water avoids both surface tangles and bottom roots.'],['shield','Fit the guard before entering the kelp.'],['current','Read the currents to hold our path.'],['amber','Amber is the kelp passage signal.']],
- [['flag','Hold at reef level while protecting the nursery.'],['power-off','Switch the engine off; its power is needed by the shield.'],['shield','The shield needs two power blocks.'],['light','Soft light uses one block and works with green signal.'],['sonar','Sonar uses one block and works with blue signal instead.'],['coral','Shield plus one guiding sensor protects the reef; do not leave both guides off.']],
- [['east','Only the east dock connects to the station.'],['depth','The connector is at deep station level.'],['power','Connect the charger to wake the station.'],['sonar','Sonar and green signal work with gentle thrust.'],['light','Dock light and blue signal work with the engine off instead.'],['engine','Cruise thrust is too strong for either docking plan.']],
- [['arch','The rock blocks the beam; the arch has a clear blue-signal path.'],['coral','Above the sea fan is another clear path, with guide light and green signal.'],['power-off','Stop the engine to keep the beacon steady.'],['beacon','The beacon needs two power blocks.'],['sonar','Sonar interferes with the beacon. Switch it off.'],['depth','Rise to beacon level. Arch needs sensors off; sea fan needs guide light.']]
+export const desertSolutions: Action[] = [
+  { drink: "water", cover: "shade", guide: "compass" },
+  { landmark: "palms", approach: "tracks" },
+  {
+    lookout: "scout",
+    anchor: "builder",
+    step1: "check",
+    step2: "secure",
+    step3: "cross",
+  },
+  { side: "leeward", step1: "supplies", step2: "shelter", step3: "signal" },
+  {
+    route: "ridge",
+    repairer: "builder",
+    step1: "repair",
+    step2: "signal",
+    step3: "return",
+  },
 ];
-export const oceanPlans:Action[][]=[
- [{route:'channel',thrust:'gentle',signal:'harbor',depth:'shallow',equipment:'seal',sensor:'current'}],
- [{route:'gap',thrust:'gentle',signal:'amber',depth:'middle',equipment:'guard',sensor:'current'}],
- [{route:'hold',thrust:'off',signal:'green',depth:'reef',equipment:'shield',sensor:'light'},{route:'hold',thrust:'off',signal:'blue',depth:'reef',equipment:'shield',sensor:'sonar'}],
- [{route:'east',thrust:'gentle',signal:'green',depth:'deep',equipment:'charger',sensor:'sonar'},{route:'east',thrust:'off',signal:'blue',depth:'deep',equipment:'charger',sensor:'light'}],
- [{route:'arch',thrust:'off',signal:'blue',depth:'reef',equipment:'beacon',sensor:'off'},{route:'fan',thrust:'off',signal:'green',depth:'reef',equipment:'beacon',sensor:'light'}]
+export const desertHints = [
+  "Water, shade canopy and compass help a desert expedition.",
+  "Twin palms cast shadows. Follow the firm tracks.",
+  "Scout checks, Builder secures, then the team crosses.",
+  "Behind the rock: secure supplies, set up shelter, raise signal.",
+  "Take the firm ridge. Builder repairs, then signal, then guide the caravan.",
 ];
-export const oceanHints=['Sheltered channel, gentle engine, shallow water, sealed hatch, current sensors and harbor signal.','Wide gap, gentle engine, middle water, propeller guard, current sensors, amber signal.','Hold at reef level, engine off, shield on. Soft light + green or sonar + blue.','East dock, deep level, charger on. Gentle engine + sonar + green, or engine off + dock light + blue.','Beacon level, engine off, beacon on. Arch + sensors off + blue, or sea fan + guide light + green. Sonar off.'];
+export const oceanEvidence: [string, string][][] = [
+  [
+    ["river", "The sheltered channel is clear; surf hits the outer route."],
+    ["engine", "Use gentle thrust in the harbor; cruise shakes the dock."],
+    ["depth", "Stay shallow until we leave the harbor."],
+    ["gate", "Close the hatch before diving."],
+    ["current", "Current sensors show safe water ahead."],
+    ["signal", "Use the harbor signal to tell the dock we are leaving."],
+  ],
+  [
+    ["leaf", "The wide gap has no tangled roots."],
+    ["engine", "Gentle thrust keeps kelp out of the propeller."],
+    ["depth", "Middle water avoids both surface tangles and bottom roots."],
+    ["shield", "Fit the guard before entering the kelp."],
+    ["current", "Read the currents to hold our path."],
+    ["amber", "Amber is the kelp passage signal."],
+  ],
+  [
+    ["flag", "Hold at reef level while protecting the nursery."],
+    ["power-off", "Switch the engine off; its power is needed by the shield."],
+    ["shield", "The shield needs two power blocks."],
+    ["light", "Soft light uses one block and works with green signal."],
+    ["sonar", "Sonar uses one block and works with blue signal instead."],
+    [
+      "coral",
+      "Shield plus one guiding sensor protects the reef; do not leave both guides off.",
+    ],
+  ],
+  [
+    ["east", "Only the east dock connects to the station."],
+    ["depth", "The connector is at deep station level."],
+    ["power", "Connect the charger to wake the station."],
+    ["sonar", "Sonar and green signal work with gentle thrust."],
+    ["light", "Dock light and blue signal work with the engine off instead."],
+    ["engine", "Cruise thrust is too strong for either docking plan."],
+  ],
+  [
+    [
+      "arch",
+      "The rock blocks the beam; the arch has a clear blue-signal path.",
+    ],
+    [
+      "coral",
+      "Above the sea fan is another clear path, with guide light and green signal.",
+    ],
+    ["power-off", "Stop the engine to keep the beacon steady."],
+    ["beacon", "The beacon needs two power blocks."],
+    ["sonar", "Sonar interferes with the beacon. Switch it off."],
+    [
+      "depth",
+      "Rise to beacon level. Arch needs sensors off; sea fan needs guide light.",
+    ],
+  ],
+];
+export const oceanPlans: Action[][] = [
+  [
+    {
+      route: "channel",
+      thrust: "gentle",
+      signal: "harbor",
+      depth: "shallow",
+      equipment: "seal",
+      sensor: "current",
+    },
+  ],
+  [
+    {
+      route: "gap",
+      thrust: "gentle",
+      signal: "amber",
+      depth: "middle",
+      equipment: "guard",
+      sensor: "current",
+    },
+  ],
+  [
+    {
+      route: "hold",
+      thrust: "off",
+      signal: "green",
+      depth: "reef",
+      equipment: "shield",
+      sensor: "light",
+    },
+    {
+      route: "hold",
+      thrust: "off",
+      signal: "blue",
+      depth: "reef",
+      equipment: "shield",
+      sensor: "sonar",
+    },
+  ],
+  [
+    {
+      route: "east",
+      thrust: "gentle",
+      signal: "green",
+      depth: "deep",
+      equipment: "charger",
+      sensor: "sonar",
+    },
+    {
+      route: "east",
+      thrust: "off",
+      signal: "blue",
+      depth: "deep",
+      equipment: "charger",
+      sensor: "light",
+    },
+  ],
+  [
+    {
+      route: "arch",
+      thrust: "off",
+      signal: "blue",
+      depth: "reef",
+      equipment: "beacon",
+      sensor: "off",
+    },
+    {
+      route: "fan",
+      thrust: "off",
+      signal: "green",
+      depth: "reef",
+      equipment: "beacon",
+      sensor: "light",
+    },
+  ],
+];
+export const oceanHints = [
+  "Sheltered channel, gentle engine, shallow water, sealed hatch, current sensors and harbor signal.",
+  "Wide gap, gentle engine, middle water, propeller guard, current sensors, amber signal.",
+  "Hold at reef level, engine off, shield on. Soft light + green or sonar + blue.",
+  "East dock, deep level, charger on. Gentle engine + sonar + green, or engine off + dock light + blue.",
+  "Beacon level, engine off, beacon on. Arch + sensors off + blue, or sea fan + guide light + green. Sonar off.",
+];

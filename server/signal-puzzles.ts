@@ -1,70 +1,640 @@
-import {createHash} from 'node:crypto';
-import type {Action,Brief,Task} from './modes.js';
-export const signalSectors=[
- {title:'Wake the relay',story:'Match a carrier to the receiver window, gain and echo gate.',icon:'01'},
- {title:'Cross the debris field',story:'Find a corridor whose fuel, relay timing and protection readings all fit.',icon:'02'},
- {title:'Restore the power grid',story:'Allocate eight power cells across four systems without breaking the crew constraints.',icon:'03'},
- {title:'The ghost telemetry',story:'Authenticate one sensor source; reconcile its report with independent diagnostic probes.',icon:'04'},
- {title:'Bring them home',story:'Use the recovered archive to coordinate the return corridor and final handshake.',icon:'05'}
+import { createHash } from "node:crypto";
+import type { Action, Brief, Task } from "./modes.js";
+export const signalSectors = [
+  {
+    title: "Wake the relay",
+    story: "Match a carrier to the receiver window, gain and echo gate.",
+    icon: "01",
+  },
+  {
+    title: "Cross the debris field",
+    story:
+      "Find a corridor whose fuel, relay timing and protection readings all fit.",
+    icon: "02",
+  },
+  {
+    title: "Restore the power grid",
+    story:
+      "Allocate eight power cells across four systems without breaking the crew constraints.",
+    icon: "03",
+  },
+  {
+    title: "The ghost telemetry",
+    story:
+      "Authenticate one sensor source; reconcile its report with independent diagnostic probes.",
+    icon: "04",
+  },
+  {
+    title: "Bring them home",
+    story:
+      "Use the recovered archive to coordinate the return corridor and final handshake.",
+    icon: "05",
+  },
 ];
-export const defaultSignalTimers=[60000,90000,105000,120000,135000];
-export function parseSignalTimers(value?:string){if(!value)return [...defaultSignalTimers];const a=value.split(',').map(Number);if(a.length!==5||a.some(x=>!Number.isFinite(x)||x<1||x>900))throw Error('SIGNAL_SECTOR_SECONDS needs five values between 1 and 900.');return a.map(x=>x*1000)}
-export function signalDuration(round:number,base:number,timers=defaultSignalTimers){return base===60000?timers[round]:base}
-const keys=['navigation','engineering','comms','shield'] as const;
-type Key=typeof keys[number];
-type Option={value:string;label:string;units:number};
-export type Fact={op:'sum'|'product'|'compare'|'sequence'|'crc'|'age'|'probe';keys:Key[];value:number;offset?:number;scale?:number};
-export type Telemetry={index:number;text:string;fact:Fact};
-export type RecordFragment={sector:number;label:string;value:number;recovered:boolean};
-export type SignalBoard={instructions:string[];controls:Record<Key,{title:string;options:Option[]}>;sensors?:{name:string;navigation:string;engineering:string;sequence:number;crc:number;age:number}[];budget?:number;archive:RecordFragment[]};
-export type SignalPuzzle={id:string;sector:number;board:SignalBoard;cards:Telemetry[];solution:Action;assignments:Record<number,number[][]>};
-export type SignalState={resolvedAt?:number;drafts?:Record<string,Action>;seed:number;run:number;puzzle:SignalPuzzle|null;shared:Record<string,number[]>;archive:RecordFragment[]};
-const options=(values:string[],labels:string[],start:number)=>values.map((value,i)=>({value,label:labels[i],units:i+start}));
-export function signalResponsibilities(slot:number,count:number){const a=['navigation','engineering','comms'].filter((_,i)=>i%count===slot%count);if(count>3&&slot>=3)a.push(['navigation','engineering','comms'][(slot-3)%3]);return a as Key[]}
-export function signalRole(slot:number,count:number){return signalResponsibilities(slot,count).map(x=>({navigation:'Navigator',engineering:'Engineer',comms:'Signal Analyst',shield:'Crew'}[x])).join(' + ')}
-export function signalCandidates(board:SignalBoard){let all:Action[]=[{}];for(const key of keys)all=all.flatMap(a=>board.controls[key].options.map(o=>({...a,[key]:o.value})));return all.filter(a=>{if(board.budget!==undefined&&keys.reduce((n,k)=>n+unit(board,a,k),0)!==board.budget)return false;if(board.sensors){const s=board.sensors[unit(board,a,'comms')-1];if(s.navigation!==a.navigation||s.engineering!==a.engineering)return false}return true})}
-function unit(board:SignalBoard,a:Action,k:Key){return board.controls[k].options.find(o=>o.value===a[k])!.units}
-export function matchesTelemetry(board:SignalBoard,a:Action,f:Fact){const n=f.keys.map(k=>unit(board,a,k));switch(f.op){case'sum':return n.reduce((x,y)=>x+y,0)+(f.offset||0)===f.value;case'product':return n.reduce((x,y)=>x*y,1)===f.value;case'compare':return (n[0]<=n[1]?1:0)===f.value;case'probe':return n[0]*(f.scale??1)===f.value;default:{const s=board.sensors![unit(board,a,'comms')-1];return f.op==='sequence'?s.sequence===f.value:f.op==='crc'?s.crc===f.value:s.age<=f.value}}}
-export function solveSignal(board:SignalBoard,cards:Pick<Telemetry,'fact'>[]){return signalCandidates(board).filter(a=>cards.every(c=>matchesTelemetry(board,a,c.fact)))}
-function partition(p:SignalPuzzle,count:number){const candidates=signalCandidates(p.board),cache=new Map<number,number>();const left=(mask:number)=>{if(!cache.has(mask))cache.set(mask,candidates.filter(a=>p.cards.every((c,i)=>!(mask&(1<<i))||matchesTelemetry(p.board,a,c.fact))).length);return cache.get(mask)!};const sizes=Array.from({length:count},(_,i)=>Math.floor(6/count)+(i<6%count?1:0));
- function go(rem:number,slot:number):number[][]|null{if(slot===count)return rem===0?[]:null;for(let m=1;m<64;m++){if((m&rem)!==m||m.toString(2).replaceAll('0','').length!==sizes[slot]||left(m)<=1||left(m)>=candidates.length)continue;const rest=go(rem^m,slot+1);if(rest)return [p.cards.filter((_,i)=>m&(1<<i)).map(c=>c.index),...rest]}return null}return go(63,0)
+export const defaultSignalTimers = [60000, 90000, 105000, 120000, 135000];
+export function parseSignalTimers(value?: string) {
+  if (!value) return [...defaultSignalTimers];
+  const a = value.split(",").map(Number);
+  if (a.length !== 5 || a.some((x) => !Number.isFinite(x) || x < 1 || x > 900))
+    throw Error("SIGNAL_SECTOR_SECONDS needs five values between 1 and 900.");
+  return a.map((x) => x * 1000);
 }
-export function validateSignalPuzzle(p:SignalPuzzle){const solutions=solveSignal(p.board,p.cards);if(solutions.length!==1)return false;for(let count=2;count<=6;count++){const a=partition(p,count);if(!a)return false;p.assignments[count]=a}return true}
-function boardFor(sector:number,archive:RecordFragment[]):SignalBoard{
- const control=(title:string,opts:Option[])=>({title,options:opts});
- const b:SignalBoard={archive:archive.map(x=>({...x})),instructions:[],controls:{navigation:control('Receiver window',options(['north','east','south','west'],['Window N · offset 0','Window E · offset 1','Window S · offset 2','Window W · offset 3'],0)),engineering:control('Receiver gain',options(['low','high'],['Gain ×1','Gain ×2'],1)),comms:control('Carrier',options(['blue','amber','green'],['Blue · 144 MHz · pulse 1','Amber · 218 MHz · pulse 2','Green · 390 MHz · pulse 3'],1)),shield:control('Echo gate',options(['off','on'],['Gate bypass · 0','Gate engaged · 1'],0))}};
- if(sector===0)b.instructions=['Match measured arrival, echo and phase readings to the equipment table.','Add the listed codes unless a probe explicitly says multiply. No probe names the correct setting.'];
- if(sector===1){b.controls.navigation=control('Flight corridor',options(['north','east','south','west'],['North · burn 1','East · burn 2','South · burn 3','West · burn 4'],1));b.controls.engineering=control('Thruster overhead',options(['low','high'],['Cruise · overhead 1','Boost · overhead 2'],1));b.controls.comms=control('Rendezvous relay',options(['blue','amber','green'],['Blue · delay 1','Amber · delay 2','Green · delay 3'],1));b.controls.shield=control('Hull protection',options(['off','on'],['Retracted · drag 0','Deployed · drag 1'],0));b.instructions=['Plot a corridor that satisfies every measured fuel and rendezvous limit.','Burn, overhead, relay delay and protection drag must agree with separate crew logs.'];}
- if(sector===2){for(const k of keys)b.controls[k]=control(({navigation:'Life support cells',engineering:'Engine cells',comms:'Transmitter cells',shield:'Stabilizer cells'})[k],options(['1','2','3'],['1 cell','2 cells','3 cells'],1));b.budget=8;b.instructions=['Exactly 8 cells are available: life support + engine + transmitter + stabilizer = 8.','Assign 1–3 cells to every system. Combine branch-load readings and priority constraints.'];}
- if(sector===3){b.controls.navigation=control('Verified heading',options(['north','east','south','west'],['North','East','South','West'],0));b.controls.engineering=control('Verified reactor setting',options(['low','high'],['Low','High'],1));b.controls.comms=control('Authenticated source',options(['blue','amber','green'],['Sensor A','Sensor B','Sensor C'],1));b.controls.shield=control('Diagnostic gate',options(['off','on'],['Bypass · 0 cycles','Engage · 1 cycle'],0));b.instructions=['The sensor reports conflict. Authenticate a source using independent audit logs. Copy only its heading and reactor report.','Separately reconcile all diagnostic probes: one gate cycle cancels 3 noise, 2 phase and 4 amplitude units.'];}
- if(sector===4){b.controls.navigation=control('Return corridor',options(['north','east','south','west'],['North · code 0','East · code 1','South · code 2','West · code 3'],0));b.controls.engineering=control('Transmission power',options(['low','high'],['Standby · code 1','Uplink · code 2'],1));b.controls.comms=control('Handshake sequence',options(['blue','amber','green'],['Ping → Echo → Payload · code 1','Echo → Ping → Payload · code 2','Ping → Payload → Echo · code 3'],1));b.controls.shield=control('Transmission gate',options(['off','on'],['Open · code 0','Hold · code 1'],0));b.instructions=['Use all four recovered archive records in the new transmission checks.','Coordinate the return corridor, power, handshake sequence and gate. Past records alone do not solve the new checks.'];}
- return b;
+export function signalDuration(
+  round: number,
+  base: number,
+  timers = defaultSignalTimers,
+) {
+  return base === 60000 ? timers[round] : base;
 }
-function cardsFor(sector:number,b:SignalBoard,target:Action):Telemetry[]{
- const u=(k:Key)=>unit(b,target,k),cards:Omit<Telemetry,'index'>[]=[];
- const sum=(ks:Key[],label:string,offset=0)=>{const value=ks.reduce((n,k)=>n+u(k),0)+offset;cards.push({text:`${label} = ${value}.`,fact:{op:'sum',keys:ks,value,offset}})};
- if(sector===3){const audit=b.sensors![u('comms')-1];cards.push({text:`Signed boot ledger: this station’s active epoch uses sequence ${audit.sequence}.`,fact:{op:'sequence',keys:[],value:audit.sequence}},{text:`Payload audit: this station’s authenticated CRC parity is ${audit.crc}.`,fact:{op:'crc',keys:[],value:audit.crc}},{text:`Clock audit: reports older than ${audit.age} seconds are stale.`,fact:{op:'age',keys:[],value:audit.age}});for(const [label,scale] of [['Noise probe',3],['Phase probe',2],['Amplitude probe',4]] as const)cards.push({text:`${label}: residual ${u('shield')*scale} units. One diagnostic cycle cancels ${scale} units.`,fact:{op:'probe',keys:['shield'],scale,value:u('shield')*scale}});}
- else if(sector===2){sum(['navigation','engineering'],'Forward branch load: life support + engine');sum(['engineering','comms'],'Uplink branch load: engine + transmitter');sum(['comms','shield'],'Aft branch load: transmitter + stabilizer');sum(['shield','navigation'],'Return branch load: stabilizer + life support');for(const [a,c,label] of [['navigation','engineering','Life support / engine'],['comms','shield','Transmitter / stabilizer']] as const){const le=u(a)<=u(c);cards.push({text:`Priority requirement: ${label.split(' / ')[0]} must ${le?'not exceed':'exceed'} ${label.split(' / ')[1]}.`,fact:{op:'compare',keys:[a,c],value:le?1:0}});}}
- else if(sector===1){sum(['navigation','engineering'],'Fuel log: corridor burn + thruster overhead');sum(['navigation','comms'],'Rendezvous log: corridor burn + relay delay');sum(['engineering','shield'],'Hull log: thruster overhead + protection drag');sum(['comms','shield'],'Radio shadow log: relay delay + protection drag');sum(['navigation','shield'],'Clearance log: corridor burn + protection drag');sum(['engineering','comms'],'Arrival log: thruster overhead + relay delay');}
- else {const v=(i:number)=>sector===4?(b.archive[i]?.value||0):0;sum(['navigation','comms'],sector===4?'Return check: corridor + handshake + archive carrier':'Arrival probe: window offset + carrier pulse',v(0));const value=u('engineering')*u('comms');cards.push({text:`Echo probe: ${sector===4?'power code × handshake code':'gain × carrier pulse'} = ${value}.`,fact:{op:'product',keys:['engineering','comms'],value}});sum(['navigation','engineering','shield'],sector===4?'Bus check: corridor + power + gate + archive route':'Phase probe: window offset + gain + gate',v(1));sum(['comms','shield'],sector===4?'Handshake check: sequence + gate + archive grid':'Packet probe: carrier pulse + gate',v(2));sum(['navigation','shield'],sector===4?'Return gate check: corridor + gate + archive sensor':'Window probe: window offset + gate',v(3));sum(['engineering','shield'],sector===4?'Power check: power code + gate':'Gain probe: gain + gate');}
- return cards.map((c,index)=>({...c,index}));
+const keys = ["navigation", "engineering", "comms", "shield"] as const;
+type Key = (typeof keys)[number];
+type Option = { value: string; label: string; units: number };
+export type Fact = {
+  op: "sum" | "product" | "compare" | "sequence" | "crc" | "age" | "probe";
+  keys: Key[];
+  value: number;
+  offset?: number;
+  scale?: number;
+};
+export type Telemetry = { index: number; text: string; fact: Fact };
+export type RecordFragment = {
+  sector: number;
+  label: string;
+  value: number;
+  recovered: boolean;
+};
+export type SignalBoard = {
+  instructions: string[];
+  controls: Record<Key, { title: string; options: Option[] }>;
+  sensors?: {
+    name: string;
+    navigation: string;
+    engineering: string;
+    sequence: number;
+    crc: number;
+    age: number;
+  }[];
+  budget?: number;
+  archive: RecordFragment[];
+};
+export type SignalPuzzle = {
+  id: string;
+  sector: number;
+  board: SignalBoard;
+  cards: Telemetry[];
+  solution: Action;
+  assignments: Record<number, number[][]>;
+};
+export type SignalState = {
+  resolvedAt?: number;
+  drafts?: Record<string, Action>;
+  seed: number;
+  run: number;
+  puzzle: SignalPuzzle | null;
+  shared: Record<string, number[]>;
+  archive: RecordFragment[];
+};
+const options = (values: string[], labels: string[], start: number) =>
+  values.map((value, i) => ({ value, label: labels[i], units: i + start }));
+export function signalResponsibilities(slot: number, count: number) {
+  const a = ["navigation", "engineering", "comms"].filter(
+    (_, i) => i % count === slot % count,
+  );
+  if (count > 3 && slot >= 3)
+    a.push(["navigation", "engineering", "comms"][(slot - 3) % 3]);
+  return a as Key[];
 }
-export function makeSignalPuzzle(sector:number,seed:number,archive:RecordFragment[]=[],run=1):SignalPuzzle{
- if(sector<0||sector>4)throw Error('Invalid Signal sector.');
- const base=boardFor(sector,archive),all=signalCandidates(base),start=(seed+sector*17+(sector===4?archive.reduce((n,x)=>n+(x.sector+1)*x.value,0):0))>>>0;
- for(let n=0;n<all.length;n++){
-  const target=all[(start+n)%all.length],board=structuredClone(base);
-  if(sector===3){const good=unit(board,target,'comms')-1;board.sensors=[0,1,2].map(i=>({name:`Sensor ${'ABC'[i]}`,navigation:board.controls.navigation.options[(unit(board,target,'navigation')+(i-good+3)%3)%4].value,engineering:board.controls.engineering.options[i===good?unit(board,target,'engineering')-1:1-(unit(board,target,'engineering')-1)].value,sequence:8+(seed%3)*2+(i===(good+1)%3?2:0),crc:i===(good+2)%3?1-seed%2:seed%2,age:2+seed%3+(i===(good+1)%3?3:0)}));}
-  const p:SignalPuzzle={id:createHash('sha256').update(`${run}:${sector}:${seed}:${n}`).digest('hex').slice(0,20),sector,board,cards:cardsFor(sector,board,target),solution:{...target},assignments:{}};
-  if(validateSignalPuzzle(p))return p;
- }
- throw Error(`No valid asymmetric puzzle for sector ${sector+1}.`);
+export function signalRole(slot: number, count: number) {
+  return signalResponsibilities(slot, count)
+    .map(
+      (x) =>
+        ({
+          navigation: "Navigator",
+          engineering: "Engineer",
+          comms: "Signal Analyst",
+          shield: "Crew",
+        })[x],
+    )
+    .join(" + ");
 }
-const defaults=new Map<number,SignalPuzzle>();
-export function defaultSignalPuzzle(sector:number){if(!defaults.has(sector))defaults.set(sector,makeSignalPuzzle(sector,0));return defaults.get(sector)!}
-export function signalBrief(p:SignalPuzzle,slot:number,count:number):Brief{
- const own=signalResponsibilities(slot,count),tasks:Task[]=[...own,'shield' as Key].map(key=>({key,title:p.board.controls[key].title,hint:key==='shield'?'Shared system: every operator must lock the same compatible setting.':'Combine your telemetry with the Crew Communications log.',options:p.board.controls[key].options.map(({value,label})=>({value,label}))}));
- return{role:signalRole(slot,count),message:'Your telemetry is private until you choose Share with Crew. Combine the crew’s readings before locking orders.',tasks};
+export function signalCandidates(board: SignalBoard) {
+  let all: Action[] = [{}];
+  for (const key of keys)
+    all = all.flatMap((a) =>
+      board.controls[key].options.map((o) => ({ ...a, [key]: o.value })),
+    );
+  return all.filter((a) => {
+    if (
+      board.budget !== undefined &&
+      keys.reduce((n, k) => n + unit(board, a, k), 0) !== board.budget
+    )
+      return false;
+    if (board.sensors) {
+      const s = board.sensors[unit(board, a, "comms") - 1];
+      if (s.navigation !== a.navigation || s.engineering !== a.engineering)
+        return false;
+    }
+    return true;
+  });
 }
-export function resolveSignal(p:SignalPuzzle,actions:Action[],bonus:number){const errors:string[]=[];actions.forEach((a,i)=>signalBrief(p,i,actions.length).tasks.forEach(t=>{if(a[t.key]!==p.solution[t.key])errors.push(`Operator ${i+1}: ${t.title}`)}));return{success:!errors.length,bonus,details:keys.map(k=>`${p.board.controls[k].title}: ${p.board.controls[k].options.find(o=>o.value===p.solution[k])!.label}`).join(' · ')+(errors.length?'. Unaligned: '+errors.join('; ')+'.':'.'),message:errors.length?'Link unstable. The emergency system preserves the crew; integrity drops by 1.':'Signal acquired. All systems aligned.'}}
-export function recoverSignalRecord(state:SignalState,success:boolean){const p=state.puzzle!;if(p.sector>=4||state.archive.some(x=>x.sector===p.sector))return;const k:Key=p.sector===0?'comms':p.sector===1?'navigation':p.sector===2?'shield':'comms';state.archive.push({sector:p.sector,label:['Carrier record','Route record','Grid record','Sensor record'][p.sector],value:unit(p.board,p.solution,k),recovered:!success})}
+function unit(board: SignalBoard, a: Action, k: Key) {
+  return board.controls[k].options.find((o) => o.value === a[k])!.units;
+}
+export function matchesTelemetry(board: SignalBoard, a: Action, f: Fact) {
+  const n = f.keys.map((k) => unit(board, a, k));
+  switch (f.op) {
+    case "sum":
+      return n.reduce((x, y) => x + y, 0) + (f.offset || 0) === f.value;
+    case "product":
+      return n.reduce((x, y) => x * y, 1) === f.value;
+    case "compare":
+      return (n[0] <= n[1] ? 1 : 0) === f.value;
+    case "probe":
+      return n[0] * (f.scale ?? 1) === f.value;
+    default: {
+      const s = board.sensors![unit(board, a, "comms") - 1];
+      return f.op === "sequence"
+        ? s.sequence === f.value
+        : f.op === "crc"
+          ? s.crc === f.value
+          : s.age <= f.value;
+    }
+  }
+}
+export function solveSignal(
+  board: SignalBoard,
+  cards: Pick<Telemetry, "fact">[],
+) {
+  return signalCandidates(board).filter((a) =>
+    cards.every((c) => matchesTelemetry(board, a, c.fact)),
+  );
+}
+function partition(p: SignalPuzzle, count: number) {
+  const candidates = signalCandidates(p.board),
+    cache = new Map<number, number>();
+  const left = (mask: number) => {
+    if (!cache.has(mask))
+      cache.set(
+        mask,
+        candidates.filter((a) =>
+          p.cards.every(
+            (c, i) =>
+              !(mask & (1 << i)) || matchesTelemetry(p.board, a, c.fact),
+          ),
+        ).length,
+      );
+    return cache.get(mask)!;
+  };
+  const sizes = Array.from(
+    { length: count },
+    (_, i) => Math.floor(6 / count) + (i < 6 % count ? 1 : 0),
+  );
+  function go(rem: number, slot: number): number[][] | null {
+    if (slot === count) return rem === 0 ? [] : null;
+    for (let m = 1; m < 64; m++) {
+      if (
+        (m & rem) !== m ||
+        m.toString(2).replaceAll("0", "").length !== sizes[slot] ||
+        left(m) <= 1 ||
+        left(m) >= candidates.length
+      )
+        continue;
+      const rest = go(rem ^ m, slot + 1);
+      if (rest)
+        return [
+          p.cards.filter((_, i) => m & (1 << i)).map((c) => c.index),
+          ...rest,
+        ];
+    }
+    return null;
+  }
+  return go(63, 0);
+}
+export function validateSignalPuzzle(p: SignalPuzzle) {
+  const solutions = solveSignal(p.board, p.cards);
+  if (solutions.length !== 1) return false;
+  for (let count = 2; count <= 6; count++) {
+    const a = partition(p, count);
+    if (!a) return false;
+    p.assignments[count] = a;
+  }
+  return true;
+}
+function boardFor(sector: number, archive: RecordFragment[]): SignalBoard {
+  const control = (title: string, opts: Option[]) => ({ title, options: opts });
+  const b: SignalBoard = {
+    archive: archive.map((x) => ({ ...x })),
+    instructions: [],
+    controls: {
+      navigation: control(
+        "Receiver window",
+        options(
+          ["north", "east", "south", "west"],
+          [
+            "Window N · offset 0",
+            "Window E · offset 1",
+            "Window S · offset 2",
+            "Window W · offset 3",
+          ],
+          0,
+        ),
+      ),
+      engineering: control(
+        "Receiver gain",
+        options(["low", "high"], ["Gain ×1", "Gain ×2"], 1),
+      ),
+      comms: control(
+        "Carrier",
+        options(
+          ["blue", "amber", "green"],
+          [
+            "Blue · 144 MHz · pulse 1",
+            "Amber · 218 MHz · pulse 2",
+            "Green · 390 MHz · pulse 3",
+          ],
+          1,
+        ),
+      ),
+      shield: control(
+        "Echo gate",
+        options(["off", "on"], ["Gate bypass · 0", "Gate engaged · 1"], 0),
+      ),
+    },
+  };
+  if (sector === 0)
+    b.instructions = [
+      "Match measured arrival, echo and phase readings to the equipment table.",
+      "Add the listed codes unless a probe explicitly says multiply. No probe names the correct setting.",
+    ];
+  if (sector === 1) {
+    b.controls.navigation = control(
+      "Flight corridor",
+      options(
+        ["north", "east", "south", "west"],
+        ["North · burn 1", "East · burn 2", "South · burn 3", "West · burn 4"],
+        1,
+      ),
+    );
+    b.controls.engineering = control(
+      "Thruster overhead",
+      options(
+        ["low", "high"],
+        ["Cruise · overhead 1", "Boost · overhead 2"],
+        1,
+      ),
+    );
+    b.controls.comms = control(
+      "Rendezvous relay",
+      options(
+        ["blue", "amber", "green"],
+        ["Blue · delay 1", "Amber · delay 2", "Green · delay 3"],
+        1,
+      ),
+    );
+    b.controls.shield = control(
+      "Hull protection",
+      options(["off", "on"], ["Retracted · drag 0", "Deployed · drag 1"], 0),
+    );
+    b.instructions = [
+      "Plot a corridor that satisfies every measured fuel and rendezvous limit.",
+      "Burn, overhead, relay delay and protection drag must agree with separate crew logs.",
+    ];
+  }
+  if (sector === 2) {
+    for (const k of keys)
+      b.controls[k] = control(
+        {
+          navigation: "Life support cells",
+          engineering: "Engine cells",
+          comms: "Transmitter cells",
+          shield: "Stabilizer cells",
+        }[k],
+        options(["1", "2", "3"], ["1 cell", "2 cells", "3 cells"], 1),
+      );
+    b.budget = 8;
+    b.instructions = [
+      "Exactly 8 cells are available: life support + engine + transmitter + stabilizer = 8.",
+      "Assign 1–3 cells to every system. Combine branch-load readings and priority constraints.",
+    ];
+  }
+  if (sector === 3) {
+    b.controls.navigation = control(
+      "Verified heading",
+      options(
+        ["north", "east", "south", "west"],
+        ["North", "East", "South", "West"],
+        0,
+      ),
+    );
+    b.controls.engineering = control(
+      "Verified reactor setting",
+      options(["low", "high"], ["Low", "High"], 1),
+    );
+    b.controls.comms = control(
+      "Authenticated source",
+      options(
+        ["blue", "amber", "green"],
+        ["Sensor A", "Sensor B", "Sensor C"],
+        1,
+      ),
+    );
+    b.controls.shield = control(
+      "Diagnostic gate",
+      options(["off", "on"], ["Bypass · 0 cycles", "Engage · 1 cycle"], 0),
+    );
+    b.instructions = [
+      "The sensor reports conflict. Authenticate a source using independent audit logs. Copy only its heading and reactor report.",
+      "Separately reconcile all diagnostic probes: one gate cycle cancels 3 noise, 2 phase and 4 amplitude units.",
+    ];
+  }
+  if (sector === 4) {
+    b.controls.navigation = control(
+      "Return corridor",
+      options(
+        ["north", "east", "south", "west"],
+        ["North · code 0", "East · code 1", "South · code 2", "West · code 3"],
+        0,
+      ),
+    );
+    b.controls.engineering = control(
+      "Transmission power",
+      options(["low", "high"], ["Standby · code 1", "Uplink · code 2"], 1),
+    );
+    b.controls.comms = control(
+      "Handshake sequence",
+      options(
+        ["blue", "amber", "green"],
+        [
+          "Ping → Echo → Payload · code 1",
+          "Echo → Ping → Payload · code 2",
+          "Ping → Payload → Echo · code 3",
+        ],
+        1,
+      ),
+    );
+    b.controls.shield = control(
+      "Transmission gate",
+      options(["off", "on"], ["Open · code 0", "Hold · code 1"], 0),
+    );
+    b.instructions = [
+      "Use all four recovered archive records in the new transmission checks.",
+      "Coordinate the return corridor, power, handshake sequence and gate. Past records alone do not solve the new checks.",
+    ];
+  }
+  return b;
+}
+function cardsFor(sector: number, b: SignalBoard, target: Action): Telemetry[] {
+  const u = (k: Key) => unit(b, target, k),
+    cards: Omit<Telemetry, "index">[] = [];
+  const sum = (ks: Key[], label: string, offset = 0) => {
+    const value = ks.reduce((n, k) => n + u(k), 0) + offset;
+    cards.push({
+      text: `${label} = ${value}.`,
+      fact: { op: "sum", keys: ks, value, offset },
+    });
+  };
+  if (sector === 3) {
+    const audit = b.sensors![u("comms") - 1];
+    cards.push(
+      {
+        text: `Signed boot ledger: this station’s active epoch uses sequence ${audit.sequence}.`,
+        fact: { op: "sequence", keys: [], value: audit.sequence },
+      },
+      {
+        text: `Payload audit: this station’s authenticated CRC parity is ${audit.crc}.`,
+        fact: { op: "crc", keys: [], value: audit.crc },
+      },
+      {
+        text: `Clock audit: reports older than ${audit.age} seconds are stale.`,
+        fact: { op: "age", keys: [], value: audit.age },
+      },
+    );
+    for (const [label, scale] of [
+      ["Noise probe", 3],
+      ["Phase probe", 2],
+      ["Amplitude probe", 4],
+    ] as const)
+      cards.push({
+        text: `${label}: residual ${u("shield") * scale} units. One diagnostic cycle cancels ${scale} units.`,
+        fact: {
+          op: "probe",
+          keys: ["shield"],
+          scale,
+          value: u("shield") * scale,
+        },
+      });
+  } else if (sector === 2) {
+    sum(
+      ["navigation", "engineering"],
+      "Forward branch load: life support + engine",
+    );
+    sum(["engineering", "comms"], "Uplink branch load: engine + transmitter");
+    sum(["comms", "shield"], "Aft branch load: transmitter + stabilizer");
+    sum(
+      ["shield", "navigation"],
+      "Return branch load: stabilizer + life support",
+    );
+    for (const [a, c, label] of [
+      ["navigation", "engineering", "Life support / engine"],
+      ["comms", "shield", "Transmitter / stabilizer"],
+    ] as const) {
+      const le = u(a) <= u(c);
+      cards.push({
+        text: `Priority requirement: ${label.split(" / ")[0]} must ${le ? "not exceed" : "exceed"} ${label.split(" / ")[1]}.`,
+        fact: { op: "compare", keys: [a, c], value: le ? 1 : 0 },
+      });
+    }
+  } else if (sector === 1) {
+    sum(
+      ["navigation", "engineering"],
+      "Fuel log: corridor burn + thruster overhead",
+    );
+    sum(["navigation", "comms"], "Rendezvous log: corridor burn + relay delay");
+    sum(
+      ["engineering", "shield"],
+      "Hull log: thruster overhead + protection drag",
+    );
+    sum(["comms", "shield"], "Radio shadow log: relay delay + protection drag");
+    sum(
+      ["navigation", "shield"],
+      "Clearance log: corridor burn + protection drag",
+    );
+    sum(
+      ["engineering", "comms"],
+      "Arrival log: thruster overhead + relay delay",
+    );
+  } else {
+    const v = (i: number) => (sector === 4 ? b.archive[i]?.value || 0 : 0);
+    sum(
+      ["navigation", "comms"],
+      sector === 4
+        ? "Return check: corridor + handshake + archive carrier"
+        : "Arrival probe: window offset + carrier pulse",
+      v(0),
+    );
+    const value = u("engineering") * u("comms");
+    cards.push({
+      text: `Echo probe: ${sector === 4 ? "power code × handshake code" : "gain × carrier pulse"} = ${value}.`,
+      fact: { op: "product", keys: ["engineering", "comms"], value },
+    });
+    sum(
+      ["navigation", "engineering", "shield"],
+      sector === 4
+        ? "Bus check: corridor + power + gate + archive route"
+        : "Phase probe: window offset + gain + gate",
+      v(1),
+    );
+    sum(
+      ["comms", "shield"],
+      sector === 4
+        ? "Handshake check: sequence + gate + archive grid"
+        : "Packet probe: carrier pulse + gate",
+      v(2),
+    );
+    sum(
+      ["navigation", "shield"],
+      sector === 4
+        ? "Return gate check: corridor + gate + archive sensor"
+        : "Window probe: window offset + gate",
+      v(3),
+    );
+    sum(
+      ["engineering", "shield"],
+      sector === 4
+        ? "Power check: power code + gate"
+        : "Gain probe: gain + gate",
+    );
+  }
+  return cards.map((c, index) => ({ ...c, index }));
+}
+export function makeSignalPuzzle(
+  sector: number,
+  seed: number,
+  archive: RecordFragment[] = [],
+  run = 1,
+): SignalPuzzle {
+  if (sector < 0 || sector > 4) throw Error("Invalid Signal sector.");
+  const base = boardFor(sector, archive),
+    all = signalCandidates(base),
+    start =
+      (seed +
+        sector * 17 +
+        (sector === 4
+          ? archive.reduce((n, x) => n + (x.sector + 1) * x.value, 0)
+          : 0)) >>>
+      0;
+  for (let n = 0; n < all.length; n++) {
+    const target = all[(start + n) % all.length],
+      board = structuredClone(base);
+    if (sector === 3) {
+      const good = unit(board, target, "comms") - 1;
+      board.sensors = [0, 1, 2].map((i) => ({
+        name: `Sensor ${"ABC"[i]}`,
+        navigation:
+          board.controls.navigation.options[
+            (unit(board, target, "navigation") + ((i - good + 3) % 3)) % 4
+          ].value,
+        engineering:
+          board.controls.engineering.options[
+            i === good
+              ? unit(board, target, "engineering") - 1
+              : 1 - (unit(board, target, "engineering") - 1)
+          ].value,
+        sequence: 8 + (seed % 3) * 2 + (i === (good + 1) % 3 ? 2 : 0),
+        crc: i === (good + 2) % 3 ? 1 - (seed % 2) : seed % 2,
+        age: 2 + (seed % 3) + (i === (good + 1) % 3 ? 3 : 0),
+      }));
+    }
+    const p: SignalPuzzle = {
+      id: createHash("sha256")
+        .update(`${run}:${sector}:${seed}:${n}`)
+        .digest("hex")
+        .slice(0, 20),
+      sector,
+      board,
+      cards: cardsFor(sector, board, target),
+      solution: { ...target },
+      assignments: {},
+    };
+    if (validateSignalPuzzle(p)) return p;
+  }
+  throw Error(`No valid asymmetric puzzle for sector ${sector + 1}.`);
+}
+const defaults = new Map<number, SignalPuzzle>();
+export function defaultSignalPuzzle(sector: number) {
+  if (!defaults.has(sector)) defaults.set(sector, makeSignalPuzzle(sector, 0));
+  return defaults.get(sector)!;
+}
+export function signalBrief(
+  p: SignalPuzzle,
+  slot: number,
+  count: number,
+): Brief {
+  const own = signalResponsibilities(slot, count),
+    tasks: Task[] = [...own, "shield" as Key].map((key) => ({
+      key,
+      title: p.board.controls[key].title,
+      hint:
+        key === "shield"
+          ? "Shared system: every operator must lock the same compatible setting."
+          : "Combine your telemetry with the Crew Communications log.",
+      options: p.board.controls[key].options.map(({ value, label }) => ({
+        value,
+        label,
+      })),
+    }));
+  return {
+    role: signalRole(slot, count),
+    message:
+      "Your telemetry is private until you choose Share with Crew. Combine the crew’s readings before locking orders.",
+    tasks,
+  };
+}
+export function resolveSignal(
+  p: SignalPuzzle,
+  actions: Action[],
+  bonus: number,
+) {
+  const errors: string[] = [];
+  actions.forEach((a, i) =>
+    signalBrief(p, i, actions.length).tasks.forEach((t) => {
+      if (a[t.key] !== p.solution[t.key])
+        errors.push(`Operator ${i + 1}: ${t.title}`);
+    }),
+  );
+  return {
+    success: !errors.length,
+    bonus,
+    details:
+      keys
+        .map(
+          (k) =>
+            `${p.board.controls[k].title}: ${p.board.controls[k].options.find((o) => o.value === p.solution[k])!.label}`,
+        )
+        .join(" · ") +
+      (errors.length ? ". Unaligned: " + errors.join("; ") + "." : "."),
+    message: errors.length
+      ? "Link unstable. The emergency system preserves the crew; integrity drops by 1."
+      : "Signal acquired. All systems aligned.",
+  };
+}
+export function recoverSignalRecord(state: SignalState, success: boolean) {
+  const p = state.puzzle!;
+  if (p.sector >= 4 || state.archive.some((x) => x.sector === p.sector)) return;
+  const k: Key =
+    p.sector === 0
+      ? "comms"
+      : p.sector === 1
+        ? "navigation"
+        : p.sector === 2
+          ? "shield"
+          : "comms";
+  state.archive.push({
+    sector: p.sector,
+    label: ["Carrier record", "Route record", "Grid record", "Sensor record"][
+      p.sector
+    ],
+    value: unit(p.board, p.solution, k),
+    recovered: !success,
+  });
+}

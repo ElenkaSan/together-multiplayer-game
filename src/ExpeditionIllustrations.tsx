@@ -1,65 +1,884 @@
-import {SkyClueIllustration,skyCluePictures} from './SkyClueIllustration';
-import {useId} from 'react';
+import { SkyClueIllustration, skyCluePictures } from "./SkyClueIllustration";
+import { useId } from "react";
 
 // Decorative miniatures describe only the public object, never route validity or hazards.
-export function expeditionPicture(name:string,label=''){
- const t=label.toLowerCase();
- if(t.includes('surf beach'))return 'surf-beach';
- if((name==='water'&&t==='water')||t.includes('drinking water'))return 'water-bottle';
- if(t==='shimmer pool'||t.includes('shimmer pool'))return 'mirage-pool';
- if(t==='behind the rock'||t.includes('behind the rock is protected'))return 'rock-windbreak';
- if(t==='soft basin'||t.includes('basin has deep, soft sand'))return 'sand-basin';
- if(t==='check landing'||t==='secure crossing'||t==='lead team')return {'check landing':'canyon-check','secure crossing':'canyon-rope','lead team':'canyon-team'}[t]!;
- if(t==='snow sled'||t.includes('snow sleds'))return 'sled';
- if(name==='flag'&&t.includes('left to right'))return 'read-left-right';
- if(name==='flag'&&t.includes('broad-leaf marker'))return 'leaf-marker';
- if(['river','marsh','bridge'].includes(name)&&t.includes('marsh'))return 'marsh';
- if(['river','bridge'].includes(name)&&t.includes('stream'))return 'stream';
- if(/^(marsh|stream|cliff) trail$/.test(t))return t.split(' ')[0];
- if(t==='captain’s cabin')return 'cabin';
- if(t==='flooded hold')return 'hold';
- if(t==='broken deck')return 'deck';
- if(t==='twin palms'||t.includes('two palms together'))return 'palms';
- if(t==='old mast')return 'mast';
- if(t==='rock arch'||t==='arch cove')return 'arch';
- if(t==='surf beach'||t==='crescent beach'||t==='soft sand')return 'beach';
- if(t==='jungle path'||t==='garden passage')return 'garden';
- if(t==='deep pool')return 'pool';
- if(t==='tide tunnel'||t==='river passage')return 'water-cave';
- if(t==='high cave')return 'high-cave';
- if(t==='loose rocks')return 'rocks';
- if(t==='stream')return 'stream';
- if(name==='river')return 'stream';
- return name;
+export function expeditionPicture(name: string, label = "") {
+  const t = label.toLowerCase();
+  if (t.includes("surf beach")) return "surf-beach";
+  if ((name === "water" && t === "water") || t.includes("drinking water"))
+    return "water-bottle";
+  if (t === "shimmer pool" || t.includes("shimmer pool")) return "mirage-pool";
+  if (t === "behind the rock" || t.includes("behind the rock is protected"))
+    return "rock-windbreak";
+  if (t === "soft basin" || t.includes("basin has deep, soft sand"))
+    return "sand-basin";
+  if (t === "check landing" || t === "secure crossing" || t === "lead team")
+    return {
+      "check landing": "canyon-check",
+      "secure crossing": "canyon-rope",
+      "lead team": "canyon-team",
+    }[t]!;
+  if (t === "snow sled" || t.includes("snow sleds")) return "sled";
+  if (name === "flag" && t.includes("left to right")) return "read-left-right";
+  if (name === "flag" && t.includes("broad-leaf marker")) return "leaf-marker";
+  if (["river", "marsh", "bridge"].includes(name) && t.includes("marsh"))
+    return "marsh";
+  if (["river", "bridge"].includes(name) && t.includes("stream"))
+    return "stream";
+  if (/^(marsh|stream|cliff) trail$/.test(t)) return t.split(" ")[0];
+  if (t === "captain’s cabin") return "cabin";
+  if (t === "flooded hold") return "hold";
+  if (t === "broken deck") return "deck";
+  if (t === "twin palms" || t.includes("two palms together")) return "palms";
+  if (t === "old mast") return "mast";
+  if (t === "rock arch" || t === "arch cove") return "arch";
+  if (t === "surf beach" || t === "crescent beach" || t === "soft sand")
+    return "beach";
+  if (t === "jungle path" || t === "garden passage") return "garden";
+  if (t === "deep pool") return "pool";
+  if (t === "tide tunnel" || t === "river passage") return "water-cave";
+  if (t === "high cave") return "high-cave";
+  if (t === "loose rocks") return "rocks";
+  if (t === "stream") return "stream";
+  if (name === "river") return "stream";
+  return name;
 }
-const scenes=new Set([...skyCluePictures,'surf-beach','water-bottle','mirage-pool','rock-windbreak','sand-basin','canyon-check','canyon-rope','canyon-team','sled','read-left-right','leaf-marker','marsh','stream','cliff','vine','bridge','cave','arch','ship','shelter','tracks','leaf','flower','coral','water','depth','current','wind','supplies','builder','scout','rover','submarine','gate','cabin','hold','deck','palms','mast','beach','garden','pool','water-cave','high-cave','rocks','flag','map','look','sonar','power','power-off','engine','light','beacon','compass','parrot','mirror','gear','canteen']);
-export const illustrationAtlases={
- places:{asset:'/art/tiny/expedition-places-v1.webp',pictures:['marsh','stream','cliff','bridge','cave','arch','ship','beach','palms','garden','shelter','tracks','cabin','hold','deck','water-cave']},
- objects:{asset:'/art/tiny/expedition-objects-v1.webp',pictures:['canteen','compass','supplies','builder','coral','submarine','engine','sonar','rover','power','mirror','gear','leaf','flower','parrot','beacon']}
+const scenes = new Set([
+  ...skyCluePictures,
+  "surf-beach",
+  "water-bottle",
+  "mirage-pool",
+  "rock-windbreak",
+  "sand-basin",
+  "canyon-check",
+  "canyon-rope",
+  "canyon-team",
+  "sled",
+  "read-left-right",
+  "leaf-marker",
+  "marsh",
+  "stream",
+  "cliff",
+  "vine",
+  "bridge",
+  "cave",
+  "arch",
+  "ship",
+  "shelter",
+  "tracks",
+  "leaf",
+  "flower",
+  "coral",
+  "water",
+  "depth",
+  "current",
+  "wind",
+  "supplies",
+  "builder",
+  "scout",
+  "rover",
+  "submarine",
+  "gate",
+  "cabin",
+  "hold",
+  "deck",
+  "palms",
+  "mast",
+  "beach",
+  "garden",
+  "pool",
+  "water-cave",
+  "high-cave",
+  "rocks",
+  "flag",
+  "map",
+  "look",
+  "sonar",
+  "power",
+  "power-off",
+  "engine",
+  "light",
+  "beacon",
+  "compass",
+  "parrot",
+  "mirror",
+  "gear",
+  "canteen",
+]);
+export const illustrationAtlases = {
+  places: {
+    asset: "/art/tiny/expedition-places-v1.webp",
+    pictures: [
+      "marsh",
+      "stream",
+      "cliff",
+      "bridge",
+      "cave",
+      "arch",
+      "ship",
+      "beach",
+      "palms",
+      "garden",
+      "shelter",
+      "tracks",
+      "cabin",
+      "hold",
+      "deck",
+      "water-cave",
+    ],
+  },
+  objects: {
+    asset: "/art/tiny/expedition-objects-v1.webp",
+    pictures: [
+      "canteen",
+      "compass",
+      "supplies",
+      "builder",
+      "coral",
+      "submarine",
+      "engine",
+      "sonar",
+      "rover",
+      "power",
+      "mirror",
+      "gear",
+      "leaf",
+      "flower",
+      "parrot",
+      "beacon",
+    ],
+  },
 };
-const atlasPicture=(p:string)=>({vine:'bridge',scout:'tracks','high-cave':'cave',rocks:'cliff',pool:'stream',mast:'ship','power-off':'power'}[p]||p);
-export const hasExpeditionDrawing=(name:string,label='')=>scenes.has(expeditionPicture(name,label));
-export function ExpeditionIllustration({name,label=''}:{name:string;label?:string}){
- const id=useId().replace(/:/g,''),p=expeditionPicture(name,label),paint=(s:string)=>`url(#${id}-${s})`;
- if(skyCluePictures.includes(p))return <SkyClueIllustration name={p}/>;
- const tile=atlasPicture(p),atlas=Object.values(illustrationAtlases).find(a=>a.pictures.includes(tile));
- if(atlas){const index=atlas.pictures.indexOf(tile);return <svg className="expedition-icon expedition-illustration expedition-painted" viewBox={p==='parrot'||p==='leaf'?'0 -14 100 114':'0 0 100 100'} aria-hidden="true" data-picture={p} style={{overflow:'hidden'}}><image href={atlas.asset} x={-(index%4)*100} y={-Math.floor(index/4)*100} width="400" height="400"/>{p==='power-off'&&<path d="m16 16 68 68" fill="none" stroke="#ac665c" strokeWidth="5"/>}</svg>;}
- const plant=(x:number,y:number,s=1)=><g transform={`translate(${x} ${y}) scale(${s})`}><path d="M0 0q-5-15 0-32M0-11q-18-16-22-8 4 13 22 14M0-20q8-20 18-16 3 12-18 20" fill="#4d8861" stroke="#37664b" strokeWidth="1.5"/><path d="M0-16q-12-20-21-16 2 13 21 18M0-6q13-16 25-12-4 11-25 16" fill="#80ad69" stroke="#547c4e" strokeWidth="1.5"/></g>;
- const rocks=(x:number,y:number,s=1)=><g transform={`translate(${x} ${y}) scale(${s})`}><path d="m-16 0 5-16 15-5L18-7l-4 10Z" fill="#a9b2ad"/><path d="m-11-16 15-5 2 16-22 5Z" fill="#d2d8c9"/><path d="m6-5 12-2-4 10-30-3Z" fill="#788e87"/></g>;
- const water=<><path d="M65 33q-35 18 7 33t-17 52h69q28-30-6-48T96 33Z" fill={paint('water')}/><path d="M74 42q-19 9 10 21m-9 15q31 7 8 22" fill="none" stroke="#d1f3ec" strokeWidth="3"/><path d="M43 110h26m35-17h20" stroke="#9cddd8" strokeWidth="2"/></>;
- const sceneBase=<><path d="M5 87Q24 47 64 60t89 22v31H5Z" fill="#c2d4a0"/><path d="M5 98q44-22 75-5t75-3v24H5Z" fill={paint('grass')}/></>;
- let art;
- if(['stream','marsh','pool','current','depth','water'].includes(p))art=<>{sceneBase}{water}{p==='marsh'?<>{[22,35,121,136].map((x,i)=><g key={x}><path d={`M${x} 100v-${32+i%2*14}m0 20-8-13m8 6 8-19`} stroke="#638447" strokeWidth="2.5"/><path d={`M${x} ${57-i%2*14}v13`} stroke="#92734d" strokeWidth="6" strokeLinecap="round"/></g>)}<ellipse cx="97" cy="91" rx="11" ry="4" fill="#93b372"/></>:<>{rocks(58,81,.7)}{rocks(94,98,.65)}{plant(26,90,.8)}{plant(134,103,.6)}</>}{p==='current'&&<path d="m94 56-9 8 9 8m-9-8h31" fill="none" stroke="#fff3d1" strokeWidth="3"/>}{p==='depth'&&<path d="M111 53v42m-5-37 5-5 5 5m-10 32 5 5 5-5" fill="none" stroke="#456f80" strokeWidth="3"/>}</>;
- else if(p==='surf-beach')art=<><path d="M3 30h154v83H3Z" fill={paint('water')}/><path d="M4 103q37-41 65-34t88-17v61H4Z" fill="#e4c58e"/><path d="M10 90q30-34 58-26t82-15M6 73q28-24 53-17t86-17" fill="none" stroke="#f6f9e9" strokeWidth="5" strokeLinecap="round"/><path d="M11 40q15-9 31-1m47-8q21 5 46-3M22 56l26-5m69 19 26-8" fill="none" stroke="#a6dfd9" strokeWidth="2"/><path d="m14 96 24-5 12 12-33 3Z" fill="#b0b8a1"/><path d="M134 57V22m-2 10q-28-16-30 0 15-8 30 0m3 0q18-18 22-3-13-5-22 3" fill="#79a078" stroke="#71936b" strokeWidth="2"/></>;
- else if(p==='water-bottle')art=<><ellipse cx="80" cy="110" rx="38" ry="6" fill="#d9d5ba"/><path d="M64 28h32v17q0 7 12 17v40q0 8-9 8H61q-9 0-9-8V62q12-10 12-17Z" fill="#dcefe9" fillOpacity=".65" stroke="#6b9e9c" strokeWidth="2.5"/><path d="M56 72q12-5 24 0t24 0v29q0 5-7 5H63q-7 0-7-5Z" fill={paint('water')}/><path d="M60 78v19m5-37 4-5" stroke="#fffdf1" strokeWidth="4" strokeLinecap="round"/><rect x="62" y="20" width="36" height="14" rx="3" fill={paint('wood')} stroke="#98774c" strokeWidth="2"/><path d="M66 24h28" stroke="#eed4a5" strokeWidth="2"/><path d="M81 80q-12 14-6 20t13 0q4-6-7-20" fill="#d9f3ee" opacity=".8"/></>;
- else if(['mirage-pool','sand-basin','rock-windbreak'].includes(p))art=<><path d="M3 74Q30 44 65 68q36-43 92 5v40H3Z" fill="#e8c58b"/><path d="M3 90q45-32 82-9t72-1v33H3Z" fill="#d4a66b"/><path d="M3 103q44-27 81-8t73 1v18H3Z" fill="#f2d6a0"/>{p==='mirage-pool'?<><ellipse cx="80" cy="88" rx="48" ry="10" fill="#a2d1cc" opacity=".65"/><path d="M39 85h77m-69 7h54m-45-4h59" stroke="#f8f1c8" strokeWidth="2"/><path d="M53 70q-6-9 0-17t0-17m28 30q-6-9 0-17t0-17m27 40q-6-9 0-17t0-17" fill="none" stroke="#e2b270" strokeWidth="2.5" opacity=".65"/></>:p==='sand-basin'?<><path d="M22 90q57-42 118-2-64 36-118 2Z" fill="#c8945f"/><path d="M31 88q51-24 99 0m-82 5q29-13 65-1m-48 6h31" fill="none" stroke="#eac391" strokeWidth="2.5"/><path d="m111 70 4 5m9-8 4 5" stroke="#a7794b" strokeWidth="3" strokeLinecap="round"/></>:<><path d="m28 99 6-48 28-24 32 10 17 35-9 27Z" fill={paint('stone')} stroke="#887b66" strokeWidth="2"/><path d="m34 51 28-24 7 38-41 34Z" fill="#c5bda3"/><path d="m69 65 25-28 17 35-9 27H66Z" fill="#938f78"/><path d="M111 83q21-8 37 2v17h-42Z" fill="#e6cf9a"/><path d="M5 40h24M3 57h19m-10 16h11" stroke="#b99264" strokeWidth="2" strokeDasharray="4 5"/><path d="m122 92 5-6 4 6" fill="none" stroke="#856e4a" strokeWidth="2"/></>}</>;
- else if(['canyon-check','canyon-rope','canyon-team'].includes(p))art=<><path d="m2 63 42-12 13 61H2Zm107-10 48 10v49h-59Z" fill="#ca946f"/><path d="m2 63 42-12 6 16L2 78m107-25 48 10v14l-52-11" fill="#e7ba8b"/><path d="M54 75h48v37H54Z" fill="#a97e63"/><path d="M26 76q51 19 107-1" stroke="#b4915f" strokeWidth="5" fill="none"/><path d="M27 61q51 19 106-1M27 57v31m106-33v30" stroke="#876943" strokeWidth="2.5" fill="none"/>{[39,57,75,93,113].map(x=><path key={x} d={`M${x} 66v16`} stroke="#c6a36f" strokeWidth="2"/>)}{p==='canyon-team'?<>{['scout','builder','rescuer'].map((hero,i)=><image key={hero} href={`/art/tiny/${hero}-idle.webp`} x={22+i*37} y={14+i%2*4} width="40" height="56"/>)}<path d="M51 100h58m-8-6 8 6-8 6" fill="none" stroke="#537d62" strokeWidth="3"/></>:p==='canyon-rope'?<><path d="M29 62q21-31 38-6T29 62m0 0q28-14 9-27" stroke="#e9c791" strokeWidth="4" fill="none"/><path d="m21 33 8-9 10 11-6 9Z" fill="#9fae9b" stroke="#667765" strokeWidth="2"/></>:<><circle cx="103" cy="29" r="17" fill="#dbe6d6" stroke="#5d8078" strokeWidth="3"/><path d="m115 42 13 13" stroke="#7b684c" strokeWidth="6" strokeLinecap="round"/><path d="m93 28 7 7 11-13" fill="none" stroke="#6c987c" strokeWidth="3"/></>}</>;
- else if(p==='sled')art=<><ellipse cx="79" cy="105" rx="70" ry="10" fill="#dcebea"/><path d="M12 105q24-10 47-3t53-2 36 3" fill="none" stroke="#f9fcf7" strokeWidth="4"/><g strokeLinecap="round" strokeLinejoin="round"><path d="M37 86v10m69-16v11M54 80v12m67-17v11" stroke="#728e98" strokeWidth="5"/><path d="M24 99h91q21 0 25-15m-99 9h78q19 0 22-15" fill="none" stroke="#607c89" strokeWidth="5"/><path d="M25 97h90q18 0 21-12" fill="none" stroke="#d4e3df" strokeWidth="2"/><path d="m27 72 78-12 25 13-77 14Z" fill={paint('wood')} stroke="#80603f" strokeWidth="2.5"/><path d="m30 74 24 15 74-13v-5L53 83 28 69Z" fill="#a77546" stroke="#80603f" strokeWidth="2"/><path d="m45 69 57-9 18 10-57 9Z" fill="#c7846c" stroke="#9c6555" strokeWidth="2"/><path d="m51 68 51-6 12 7-50 7" fill="none" stroke="#e4ab89" strokeWidth="2"/><path d="M36 71V49m0 4 59-9v17m-58-7 58-9" fill="none" stroke="#9f7448" strokeWidth="5"/><path d="m37 47 57-8v10l-57 9Z" fill={paint('wood')} stroke="#80603f" strokeWidth="2"/><path d="m38 49 54-7" stroke="#edcea0" strokeWidth="2"/><path d="M126 73q24-18 24-30 0-9-9-4" fill="none" stroke="#ac9164" strokeWidth="2.5"/><g transform="translate(23 24)" fill="none" stroke="#7bb5c8" strokeWidth="2"><path d="M0-12v24m-10-18 20 12m-20 0 20-12M-4-8l4 4 4-4m-8 16 4-4 4 4M-9-1l5-1-1-5m10 14-1-5 5-1M-9 1l5 1-1 5m10-14-1 5 5 1"/></g></g></>;
- else if(p==='read-left-right')art=<><ellipse cx="80" cy="95" rx="73" ry="7" fill="#d8ddc2"/>{[15,63,111].map(x=><g key={x}><path d={`M${x} 92V43q17-40 34 0v49Z`} fill={paint('stone')} stroke="#738878" strokeWidth="2"/><path d={`M${x+6} 87V45q11-28 22 0v42Z`} fill="#dfe4ce" stroke="#9aaa8f" strokeWidth="1.5"/><path d={`M${x+11} 49h12m-12 7h12m-12 7h12`} stroke="#a9b69a" strokeWidth="2"/><path d={`M${x+6} 77h22`} stroke="#b8c4a7" strokeWidth="2"/></g>)}<path d="M24 107h111m-11-8 11 8-11 8" fill="none" stroke="#3e7659" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/></>;
- else if(p==='leaf-marker')art=<>{sceneBase}{water}<path d="M49 109V42" stroke="#826a47" strokeWidth="7"/><path d="m23 28 48-4 9 24-9 24-48-3Z" fill={paint('wood')} stroke="#92764f" strokeWidth="2"/><path d="M32 56q-4-26 30-23 4 27-30 23Z" fill="#62945d" stroke="#3b714c" strokeWidth="2"/><path d="m31 58 27-21m-13 10-1-9m3 6 10 2" fill="none" stroke="#d7e3a8" strokeWidth="2"/>{rocks(107,100,.65)}{plant(15,110,.5)}</>;
- else if(p==='gate')art=<>{sceneBase}<path d="M30 106V32h100v74" fill={paint('stone')} stroke="#7e9278" strokeWidth="2"/><path d="M48 105V46h65v59" fill="#5a8070"/><path d="M53 105V51h55v54" fill={paint('wood')}/><path d="M80 52v52M54 66h52m-52 25h52" stroke="#806b49" strokeWidth="2"/><circle cx="89" cy="78" r="4" fill="#e9c96c"/>{plant(27,105,.7)}{plant(135,108,.65)}</>;
- else if(['flag','map','compass','look','sonar'].includes(p))art=<><ellipse cx="80" cy="110" rx="45" ry="5" fill="#d8ddc2"/>{p==='flag'?<><path d="M51 108V20" stroke="#877250" strokeWidth="5"/><path d="M54 23q24 10 52 0v39q-28 10-52 0Z" fill={paint('canvas')} stroke="#b3975f" strokeWidth="2"/><path d="M58 28q20 8 42 1" stroke="#fff1be" strokeWidth="3"/></>:p==='map'?<><path d="m22 42 37-15 36 13 39-13v65l-39 15-36-13-37 14Z" fill="#efdfad" stroke="#aa9563" strokeWidth="2"/><path d="M59 27v67m36-54v67" stroke="#b7a573" strokeWidth="2"/><path d="m34 79 15-21 24 20 22-20 27 8" stroke="#799c68" strokeWidth="4" strokeDasharray="4 4" fill="none"/><circle cx="121" cy="65" r="7" fill="#c5885a"/></>:p==='look'?<><path d="m36 45 27 6-8 44-32-8Z" fill={paint('metal')} stroke="#58787a" strokeWidth="2"/><path d="m96 45 27-1 13 43-32 8Z" fill={paint('metal')} stroke="#58787a" strokeWidth="2"/><path d="M59 64h45" stroke="#547778" strokeWidth="10"/><ellipse cx="39" cy="87" rx="17" ry="12" fill="#b8dada" stroke="#4b747a" strokeWidth="5"/><ellipse cx="120" cy="87" rx="17" ry="12" fill="#b8dada" stroke="#4b747a" strokeWidth="5"/><path d="m31 84 9-3m71 3 9-3" stroke="#f4f9df" strokeWidth="3"/></>:<><circle cx="80" cy="62" r="42" fill={paint('canvas')} stroke="#9a8255" strokeWidth="3"/><circle cx="80" cy="62" r="34" fill="#eaf1da" stroke="#f9efc8" strokeWidth="2"/>{p==='compass'?<><path d="m80 34 11 29-11 26-11-26Z" fill="#c9876a"/><path d="m80 34 11 29H80Z" fill="#5e9897"/><circle cx="80" cy="63" r="4" fill="#f8dfa1"/><path d="M80 27v4m31 31h-4m-27 31v4M49 62h4" stroke="#68847d" strokeWidth="2"/></>:<><circle cx="80" cy="62" r="22" fill="none" stroke="#90b9a7"/><path d="M80 28v34l26 20M47 62h66m-33 0v34" fill="none" stroke="#72998b" strokeWidth="2"/><circle cx="65" cy="53" r="4" fill="#c5a957"/></>}</>}</>;
- else if(['light','beacon'].includes(p))art=<><ellipse cx="81" cy="109" rx="46" ry="6" fill="#d7dbc0"/><path d="M47 104h68l-6-10H53Z" fill="#859d88"/><path d="M60 94V50h42v44" fill={paint('metal')} stroke="#6d8b83" strokeWidth="2"/><path d="M64 78V51h34v27Z" fill={paint('canvas')}/><path d="m53 50 28-25 29 25Z" fill="#648d7c" stroke="#4f7769" strokeWidth="2"/><path d="M71 51v26m19-26v26" stroke="#ad975c" strokeWidth="2"/><path d="M81 17V8M36 39l-8-5m97 5 8-5" stroke="#e5c87a" strokeWidth="3"/></>;
- else if(p==='wind')art=<>{sceneBase}<path d="M17 64h90q31 0 21-21-10-13-22 0M29 82h98q24 0 17 17-8 13-19 1M17 99h49" stroke="#87b6bc" strokeWidth="5" strokeLinecap="round" fill="none"/>{plant(36,108,.8)}<path d="m94 29 14 2-7 9Z" fill="#c5ab67"/></>;
- return <svg className="expedition-icon expedition-illustration" viewBox="0 0 160 120" aria-hidden="true" data-picture={p}><defs><linearGradient id={`${id}-grass`} x2="0" y2="1"><stop stopColor="#afc794"/><stop offset="1" stopColor="#789d6d"/></linearGradient><linearGradient id={`${id}-water`} x2="1" y2="1"><stop stopColor="#b3e4dc"/><stop offset=".5" stopColor="#70b7c3"/><stop offset="1" stopColor="#4397aa"/></linearGradient><linearGradient id={`${id}-stone`} x2=".8" y2="1"><stop stopColor="#c9d0bd"/><stop offset="1" stopColor="#778f83"/></linearGradient><linearGradient id={`${id}-wood`} x2="0" y2="1"><stop stopColor="#d7b57c"/><stop offset="1" stopColor="#a17c4e"/></linearGradient><linearGradient id={`${id}-leaf`} x2="1" y2="1"><stop stopColor="#b0ca7b"/><stop offset=".55" stopColor="#76a466"/><stop offset="1" stopColor="#4d8058"/></linearGradient><linearGradient id={`${id}-metal`} x2=".8" y2="1"><stop stopColor="#d5e2cc"/><stop offset=".5" stopColor="#abc7bb"/><stop offset="1" stopColor="#80a69c"/></linearGradient><linearGradient id={`${id}-canvas`} x2=".8" y2="1"><stop stopColor="#fbebbe"/><stop offset=".55" stopColor="#e9ce89"/><stop offset="1" stopColor="#cbaa68"/></linearGradient></defs>{art}</svg>;
+const atlasPicture = (p: string) =>
+  ({
+    vine: "bridge",
+    scout: "tracks",
+    "high-cave": "cave",
+    rocks: "cliff",
+    pool: "stream",
+    mast: "ship",
+    "power-off": "power",
+  })[p] || p;
+export const hasExpeditionDrawing = (name: string, label = "") =>
+  scenes.has(expeditionPicture(name, label));
+export function ExpeditionIllustration({
+  name,
+  label = "",
+}: {
+  name: string;
+  label?: string;
+}) {
+  const id = useId().replace(/:/g, ""),
+    p = expeditionPicture(name, label),
+    paint = (s: string) => `url(#${id}-${s})`;
+  if (skyCluePictures.includes(p)) return <SkyClueIllustration name={p} />;
+  const tile = atlasPicture(p),
+    atlas = Object.values(illustrationAtlases).find((a) =>
+      a.pictures.includes(tile),
+    );
+  if (atlas) {
+    const index = atlas.pictures.indexOf(tile);
+    return (
+      <svg
+        className="expedition-icon expedition-illustration expedition-painted"
+        viewBox={
+          p === "parrot" || p === "leaf" ? "0 -14 100 114" : "0 0 100 100"
+        }
+        aria-hidden="true"
+        data-picture={p}
+        style={{ overflow: "hidden" }}
+      >
+        <image
+          href={atlas.asset}
+          x={-(index % 4) * 100}
+          y={-Math.floor(index / 4) * 100}
+          width="400"
+          height="400"
+        />
+        {p === "power-off" && (
+          <path d="m16 16 68 68" fill="none" stroke="#ac665c" strokeWidth="5" />
+        )}
+      </svg>
+    );
+  }
+  const plant = (x: number, y: number, s = 1) => (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <path
+        d="M0 0q-5-15 0-32M0-11q-18-16-22-8 4 13 22 14M0-20q8-20 18-16 3 12-18 20"
+        fill="#4d8861"
+        stroke="#37664b"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M0-16q-12-20-21-16 2 13 21 18M0-6q13-16 25-12-4 11-25 16"
+        fill="#80ad69"
+        stroke="#547c4e"
+        strokeWidth="1.5"
+      />
+    </g>
+  );
+  const rocks = (x: number, y: number, s = 1) => (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <path d="m-16 0 5-16 15-5L18-7l-4 10Z" fill="#a9b2ad" />
+      <path d="m-11-16 15-5 2 16-22 5Z" fill="#d2d8c9" />
+      <path d="m6-5 12-2-4 10-30-3Z" fill="#788e87" />
+    </g>
+  );
+  const water = (
+    <>
+      <path
+        d="M65 33q-35 18 7 33t-17 52h69q28-30-6-48T96 33Z"
+        fill={paint("water")}
+      />
+      <path
+        d="M74 42q-19 9 10 21m-9 15q31 7 8 22"
+        fill="none"
+        stroke="#d1f3ec"
+        strokeWidth="3"
+      />
+      <path d="M43 110h26m35-17h20" stroke="#9cddd8" strokeWidth="2" />
+    </>
+  );
+  const sceneBase = (
+    <>
+      <path d="M5 87Q24 47 64 60t89 22v31H5Z" fill="#c2d4a0" />
+      <path d="M5 98q44-22 75-5t75-3v24H5Z" fill={paint("grass")} />
+    </>
+  );
+  let art;
+  if (["stream", "marsh", "pool", "current", "depth", "water"].includes(p))
+    art = (
+      <>
+        {sceneBase}
+        {water}
+        {p === "marsh" ? (
+          <>
+            {[22, 35, 121, 136].map((x, i) => (
+              <g key={x}>
+                <path
+                  d={`M${x} 100v-${32 + (i % 2) * 14}m0 20-8-13m8 6 8-19`}
+                  stroke="#638447"
+                  strokeWidth="2.5"
+                />
+                <path
+                  d={`M${x} ${57 - (i % 2) * 14}v13`}
+                  stroke="#92734d"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                />
+              </g>
+            ))}
+            <ellipse cx="97" cy="91" rx="11" ry="4" fill="#93b372" />
+          </>
+        ) : (
+          <>
+            {rocks(58, 81, 0.7)}
+            {rocks(94, 98, 0.65)}
+            {plant(26, 90, 0.8)}
+            {plant(134, 103, 0.6)}
+          </>
+        )}
+        {p === "current" && (
+          <path
+            d="m94 56-9 8 9 8m-9-8h31"
+            fill="none"
+            stroke="#fff3d1"
+            strokeWidth="3"
+          />
+        )}
+        {p === "depth" && (
+          <path
+            d="M111 53v42m-5-37 5-5 5 5m-10 32 5 5 5-5"
+            fill="none"
+            stroke="#456f80"
+            strokeWidth="3"
+          />
+        )}
+      </>
+    );
+  else if (p === "surf-beach")
+    art = (
+      <>
+        <path d="M3 30h154v83H3Z" fill={paint("water")} />
+        <path d="M4 103q37-41 65-34t88-17v61H4Z" fill="#e4c58e" />
+        <path
+          d="M10 90q30-34 58-26t82-15M6 73q28-24 53-17t86-17"
+          fill="none"
+          stroke="#f6f9e9"
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M11 40q15-9 31-1m47-8q21 5 46-3M22 56l26-5m69 19 26-8"
+          fill="none"
+          stroke="#a6dfd9"
+          strokeWidth="2"
+        />
+        <path d="m14 96 24-5 12 12-33 3Z" fill="#b0b8a1" />
+        <path
+          d="M134 57V22m-2 10q-28-16-30 0 15-8 30 0m3 0q18-18 22-3-13-5-22 3"
+          fill="#79a078"
+          stroke="#71936b"
+          strokeWidth="2"
+        />
+      </>
+    );
+  else if (p === "water-bottle")
+    art = (
+      <>
+        <ellipse cx="80" cy="110" rx="38" ry="6" fill="#d9d5ba" />
+        <path
+          d="M64 28h32v17q0 7 12 17v40q0 8-9 8H61q-9 0-9-8V62q12-10 12-17Z"
+          fill="#dcefe9"
+          fillOpacity=".65"
+          stroke="#6b9e9c"
+          strokeWidth="2.5"
+        />
+        <path
+          d="M56 72q12-5 24 0t24 0v29q0 5-7 5H63q-7 0-7-5Z"
+          fill={paint("water")}
+        />
+        <path
+          d="M60 78v19m5-37 4-5"
+          stroke="#fffdf1"
+          strokeWidth="4"
+          strokeLinecap="round"
+        />
+        <rect
+          x="62"
+          y="20"
+          width="36"
+          height="14"
+          rx="3"
+          fill={paint("wood")}
+          stroke="#98774c"
+          strokeWidth="2"
+        />
+        <path d="M66 24h28" stroke="#eed4a5" strokeWidth="2" />
+        <path
+          d="M81 80q-12 14-6 20t13 0q4-6-7-20"
+          fill="#d9f3ee"
+          opacity=".8"
+        />
+      </>
+    );
+  else if (["mirage-pool", "sand-basin", "rock-windbreak"].includes(p))
+    art = (
+      <>
+        <path d="M3 74Q30 44 65 68q36-43 92 5v40H3Z" fill="#e8c58b" />
+        <path d="M3 90q45-32 82-9t72-1v33H3Z" fill="#d4a66b" />
+        <path d="M3 103q44-27 81-8t73 1v18H3Z" fill="#f2d6a0" />
+        {p === "mirage-pool" ? (
+          <>
+            <ellipse
+              cx="80"
+              cy="88"
+              rx="48"
+              ry="10"
+              fill="#a2d1cc"
+              opacity=".65"
+            />
+            <path
+              d="M39 85h77m-69 7h54m-45-4h59"
+              stroke="#f8f1c8"
+              strokeWidth="2"
+            />
+            <path
+              d="M53 70q-6-9 0-17t0-17m28 30q-6-9 0-17t0-17m27 40q-6-9 0-17t0-17"
+              fill="none"
+              stroke="#e2b270"
+              strokeWidth="2.5"
+              opacity=".65"
+            />
+          </>
+        ) : p === "sand-basin" ? (
+          <>
+            <path d="M22 90q57-42 118-2-64 36-118 2Z" fill="#c8945f" />
+            <path
+              d="M31 88q51-24 99 0m-82 5q29-13 65-1m-48 6h31"
+              fill="none"
+              stroke="#eac391"
+              strokeWidth="2.5"
+            />
+            <path
+              d="m111 70 4 5m9-8 4 5"
+              stroke="#a7794b"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+          </>
+        ) : (
+          <>
+            <path
+              d="m28 99 6-48 28-24 32 10 17 35-9 27Z"
+              fill={paint("stone")}
+              stroke="#887b66"
+              strokeWidth="2"
+            />
+            <path d="m34 51 28-24 7 38-41 34Z" fill="#c5bda3" />
+            <path d="m69 65 25-28 17 35-9 27H66Z" fill="#938f78" />
+            <path d="M111 83q21-8 37 2v17h-42Z" fill="#e6cf9a" />
+            <path
+              d="M5 40h24M3 57h19m-10 16h11"
+              stroke="#b99264"
+              strokeWidth="2"
+              strokeDasharray="4 5"
+            />
+            <path
+              d="m122 92 5-6 4 6"
+              fill="none"
+              stroke="#856e4a"
+              strokeWidth="2"
+            />
+          </>
+        )}
+      </>
+    );
+  else if (["canyon-check", "canyon-rope", "canyon-team"].includes(p))
+    art = (
+      <>
+        <path d="m2 63 42-12 13 61H2Zm107-10 48 10v49h-59Z" fill="#ca946f" />
+        <path d="m2 63 42-12 6 16L2 78m107-25 48 10v14l-52-11" fill="#e7ba8b" />
+        <path d="M54 75h48v37H54Z" fill="#a97e63" />
+        <path
+          d="M26 76q51 19 107-1"
+          stroke="#b4915f"
+          strokeWidth="5"
+          fill="none"
+        />
+        <path
+          d="M27 61q51 19 106-1M27 57v31m106-33v30"
+          stroke="#876943"
+          strokeWidth="2.5"
+          fill="none"
+        />
+        {[39, 57, 75, 93, 113].map((x) => (
+          <path key={x} d={`M${x} 66v16`} stroke="#c6a36f" strokeWidth="2" />
+        ))}
+        {p === "canyon-team" ? (
+          <>
+            {["scout", "builder", "rescuer"].map((hero, i) => (
+              <image
+                key={hero}
+                href={`/art/tiny/${hero}-idle.webp`}
+                x={22 + i * 37}
+                y={14 + (i % 2) * 4}
+                width="40"
+                height="56"
+              />
+            ))}
+            <path
+              d="M51 100h58m-8-6 8 6-8 6"
+              fill="none"
+              stroke="#537d62"
+              strokeWidth="3"
+            />
+          </>
+        ) : p === "canyon-rope" ? (
+          <>
+            <path
+              d="M29 62q21-31 38-6T29 62m0 0q28-14 9-27"
+              stroke="#e9c791"
+              strokeWidth="4"
+              fill="none"
+            />
+            <path
+              d="m21 33 8-9 10 11-6 9Z"
+              fill="#9fae9b"
+              stroke="#667765"
+              strokeWidth="2"
+            />
+          </>
+        ) : (
+          <>
+            <circle
+              cx="103"
+              cy="29"
+              r="17"
+              fill="#dbe6d6"
+              stroke="#5d8078"
+              strokeWidth="3"
+            />
+            <path
+              d="m115 42 13 13"
+              stroke="#7b684c"
+              strokeWidth="6"
+              strokeLinecap="round"
+            />
+            <path
+              d="m93 28 7 7 11-13"
+              fill="none"
+              stroke="#6c987c"
+              strokeWidth="3"
+            />
+          </>
+        )}
+      </>
+    );
+  else if (p === "sled")
+    art = (
+      <>
+        <ellipse cx="79" cy="105" rx="70" ry="10" fill="#dcebea" />
+        <path
+          d="M12 105q24-10 47-3t53-2 36 3"
+          fill="none"
+          stroke="#f9fcf7"
+          strokeWidth="4"
+        />
+        <g strokeLinecap="round" strokeLinejoin="round">
+          <path
+            d="M37 86v10m69-16v11M54 80v12m67-17v11"
+            stroke="#728e98"
+            strokeWidth="5"
+          />
+          <path
+            d="M24 99h91q21 0 25-15m-99 9h78q19 0 22-15"
+            fill="none"
+            stroke="#607c89"
+            strokeWidth="5"
+          />
+          <path
+            d="M25 97h90q18 0 21-12"
+            fill="none"
+            stroke="#d4e3df"
+            strokeWidth="2"
+          />
+          <path
+            d="m27 72 78-12 25 13-77 14Z"
+            fill={paint("wood")}
+            stroke="#80603f"
+            strokeWidth="2.5"
+          />
+          <path
+            d="m30 74 24 15 74-13v-5L53 83 28 69Z"
+            fill="#a77546"
+            stroke="#80603f"
+            strokeWidth="2"
+          />
+          <path
+            d="m45 69 57-9 18 10-57 9Z"
+            fill="#c7846c"
+            stroke="#9c6555"
+            strokeWidth="2"
+          />
+          <path
+            d="m51 68 51-6 12 7-50 7"
+            fill="none"
+            stroke="#e4ab89"
+            strokeWidth="2"
+          />
+          <path
+            d="M36 71V49m0 4 59-9v17m-58-7 58-9"
+            fill="none"
+            stroke="#9f7448"
+            strokeWidth="5"
+          />
+          <path
+            d="m37 47 57-8v10l-57 9Z"
+            fill={paint("wood")}
+            stroke="#80603f"
+            strokeWidth="2"
+          />
+          <path d="m38 49 54-7" stroke="#edcea0" strokeWidth="2" />
+          <path
+            d="M126 73q24-18 24-30 0-9-9-4"
+            fill="none"
+            stroke="#ac9164"
+            strokeWidth="2.5"
+          />
+          <g
+            transform="translate(23 24)"
+            fill="none"
+            stroke="#7bb5c8"
+            strokeWidth="2"
+          >
+            <path d="M0-12v24m-10-18 20 12m-20 0 20-12M-4-8l4 4 4-4m-8 16 4-4 4 4M-9-1l5-1-1-5m10 14-1-5 5-1M-9 1l5 1-1 5m10-14-1 5 5 1" />
+          </g>
+        </g>
+      </>
+    );
+  else if (p === "read-left-right")
+    art = (
+      <>
+        <ellipse cx="80" cy="95" rx="73" ry="7" fill="#d8ddc2" />
+        {[15, 63, 111].map((x) => (
+          <g key={x}>
+            <path
+              d={`M${x} 92V43q17-40 34 0v49Z`}
+              fill={paint("stone")}
+              stroke="#738878"
+              strokeWidth="2"
+            />
+            <path
+              d={`M${x + 6} 87V45q11-28 22 0v42Z`}
+              fill="#dfe4ce"
+              stroke="#9aaa8f"
+              strokeWidth="1.5"
+            />
+            <path
+              d={`M${x + 11} 49h12m-12 7h12m-12 7h12`}
+              stroke="#a9b69a"
+              strokeWidth="2"
+            />
+            <path d={`M${x + 6} 77h22`} stroke="#b8c4a7" strokeWidth="2" />
+          </g>
+        ))}
+        <path
+          d="M24 107h111m-11-8 11 8-11 8"
+          fill="none"
+          stroke="#3e7659"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </>
+    );
+  else if (p === "leaf-marker")
+    art = (
+      <>
+        {sceneBase}
+        {water}
+        <path d="M49 109V42" stroke="#826a47" strokeWidth="7" />
+        <path
+          d="m23 28 48-4 9 24-9 24-48-3Z"
+          fill={paint("wood")}
+          stroke="#92764f"
+          strokeWidth="2"
+        />
+        <path
+          d="M32 56q-4-26 30-23 4 27-30 23Z"
+          fill="#62945d"
+          stroke="#3b714c"
+          strokeWidth="2"
+        />
+        <path
+          d="m31 58 27-21m-13 10-1-9m3 6 10 2"
+          fill="none"
+          stroke="#d7e3a8"
+          strokeWidth="2"
+        />
+        {rocks(107, 100, 0.65)}
+        {plant(15, 110, 0.5)}
+      </>
+    );
+  else if (p === "gate")
+    art = (
+      <>
+        {sceneBase}
+        <path
+          d="M30 106V32h100v74"
+          fill={paint("stone")}
+          stroke="#7e9278"
+          strokeWidth="2"
+        />
+        <path d="M48 105V46h65v59" fill="#5a8070" />
+        <path d="M53 105V51h55v54" fill={paint("wood")} />
+        <path
+          d="M80 52v52M54 66h52m-52 25h52"
+          stroke="#806b49"
+          strokeWidth="2"
+        />
+        <circle cx="89" cy="78" r="4" fill="#e9c96c" />
+        {plant(27, 105, 0.7)}
+        {plant(135, 108, 0.65)}
+      </>
+    );
+  else if (["flag", "map", "compass", "look", "sonar"].includes(p))
+    art = (
+      <>
+        <ellipse cx="80" cy="110" rx="45" ry="5" fill="#d8ddc2" />
+        {p === "flag" ? (
+          <>
+            <path d="M51 108V20" stroke="#877250" strokeWidth="5" />
+            <path
+              d="M54 23q24 10 52 0v39q-28 10-52 0Z"
+              fill={paint("canvas")}
+              stroke="#b3975f"
+              strokeWidth="2"
+            />
+            <path d="M58 28q20 8 42 1" stroke="#fff1be" strokeWidth="3" />
+          </>
+        ) : p === "map" ? (
+          <>
+            <path
+              d="m22 42 37-15 36 13 39-13v65l-39 15-36-13-37 14Z"
+              fill="#efdfad"
+              stroke="#aa9563"
+              strokeWidth="2"
+            />
+            <path d="M59 27v67m36-54v67" stroke="#b7a573" strokeWidth="2" />
+            <path
+              d="m34 79 15-21 24 20 22-20 27 8"
+              stroke="#799c68"
+              strokeWidth="4"
+              strokeDasharray="4 4"
+              fill="none"
+            />
+            <circle cx="121" cy="65" r="7" fill="#c5885a" />
+          </>
+        ) : p === "look" ? (
+          <>
+            <path
+              d="m36 45 27 6-8 44-32-8Z"
+              fill={paint("metal")}
+              stroke="#58787a"
+              strokeWidth="2"
+            />
+            <path
+              d="m96 45 27-1 13 43-32 8Z"
+              fill={paint("metal")}
+              stroke="#58787a"
+              strokeWidth="2"
+            />
+            <path d="M59 64h45" stroke="#547778" strokeWidth="10" />
+            <ellipse
+              cx="39"
+              cy="87"
+              rx="17"
+              ry="12"
+              fill="#b8dada"
+              stroke="#4b747a"
+              strokeWidth="5"
+            />
+            <ellipse
+              cx="120"
+              cy="87"
+              rx="17"
+              ry="12"
+              fill="#b8dada"
+              stroke="#4b747a"
+              strokeWidth="5"
+            />
+            <path d="m31 84 9-3m71 3 9-3" stroke="#f4f9df" strokeWidth="3" />
+          </>
+        ) : (
+          <>
+            <circle
+              cx="80"
+              cy="62"
+              r="42"
+              fill={paint("canvas")}
+              stroke="#9a8255"
+              strokeWidth="3"
+            />
+            <circle
+              cx="80"
+              cy="62"
+              r="34"
+              fill="#eaf1da"
+              stroke="#f9efc8"
+              strokeWidth="2"
+            />
+            {p === "compass" ? (
+              <>
+                <path d="m80 34 11 29-11 26-11-26Z" fill="#c9876a" />
+                <path d="m80 34 11 29H80Z" fill="#5e9897" />
+                <circle cx="80" cy="63" r="4" fill="#f8dfa1" />
+                <path
+                  d="M80 27v4m31 31h-4m-27 31v4M49 62h4"
+                  stroke="#68847d"
+                  strokeWidth="2"
+                />
+              </>
+            ) : (
+              <>
+                <circle cx="80" cy="62" r="22" fill="none" stroke="#90b9a7" />
+                <path
+                  d="M80 28v34l26 20M47 62h66m-33 0v34"
+                  fill="none"
+                  stroke="#72998b"
+                  strokeWidth="2"
+                />
+                <circle cx="65" cy="53" r="4" fill="#c5a957" />
+              </>
+            )}
+          </>
+        )}
+      </>
+    );
+  else if (["light", "beacon"].includes(p))
+    art = (
+      <>
+        <ellipse cx="81" cy="109" rx="46" ry="6" fill="#d7dbc0" />
+        <path d="M47 104h68l-6-10H53Z" fill="#859d88" />
+        <path
+          d="M60 94V50h42v44"
+          fill={paint("metal")}
+          stroke="#6d8b83"
+          strokeWidth="2"
+        />
+        <path d="M64 78V51h34v27Z" fill={paint("canvas")} />
+        <path
+          d="m53 50 28-25 29 25Z"
+          fill="#648d7c"
+          stroke="#4f7769"
+          strokeWidth="2"
+        />
+        <path d="M71 51v26m19-26v26" stroke="#ad975c" strokeWidth="2" />
+        <path
+          d="M81 17V8M36 39l-8-5m97 5 8-5"
+          stroke="#e5c87a"
+          strokeWidth="3"
+        />
+      </>
+    );
+  else if (p === "wind")
+    art = (
+      <>
+        {sceneBase}
+        <path
+          d="M17 64h90q31 0 21-21-10-13-22 0M29 82h98q24 0 17 17-8 13-19 1M17 99h49"
+          stroke="#87b6bc"
+          strokeWidth="5"
+          strokeLinecap="round"
+          fill="none"
+        />
+        {plant(36, 108, 0.8)}
+        <path d="m94 29 14 2-7 9Z" fill="#c5ab67" />
+      </>
+    );
+  return (
+    <svg
+      className="expedition-icon expedition-illustration"
+      viewBox="0 0 160 120"
+      aria-hidden="true"
+      data-picture={p}
+    >
+      <defs>
+        <linearGradient id={`${id}-grass`} x2="0" y2="1">
+          <stop stopColor="#afc794" />
+          <stop offset="1" stopColor="#789d6d" />
+        </linearGradient>
+        <linearGradient id={`${id}-water`} x2="1" y2="1">
+          <stop stopColor="#b3e4dc" />
+          <stop offset=".5" stopColor="#70b7c3" />
+          <stop offset="1" stopColor="#4397aa" />
+        </linearGradient>
+        <linearGradient id={`${id}-stone`} x2=".8" y2="1">
+          <stop stopColor="#c9d0bd" />
+          <stop offset="1" stopColor="#778f83" />
+        </linearGradient>
+        <linearGradient id={`${id}-wood`} x2="0" y2="1">
+          <stop stopColor="#d7b57c" />
+          <stop offset="1" stopColor="#a17c4e" />
+        </linearGradient>
+        <linearGradient id={`${id}-leaf`} x2="1" y2="1">
+          <stop stopColor="#b0ca7b" />
+          <stop offset=".55" stopColor="#76a466" />
+          <stop offset="1" stopColor="#4d8058" />
+        </linearGradient>
+        <linearGradient id={`${id}-metal`} x2=".8" y2="1">
+          <stop stopColor="#d5e2cc" />
+          <stop offset=".5" stopColor="#abc7bb" />
+          <stop offset="1" stopColor="#80a69c" />
+        </linearGradient>
+        <linearGradient id={`${id}-canvas`} x2=".8" y2="1">
+          <stop stopColor="#fbebbe" />
+          <stop offset=".55" stopColor="#e9ce89" />
+          <stop offset="1" stopColor="#cbaa68" />
+        </linearGradient>
+      </defs>
+      {art}
+    </svg>
+  );
 }

@@ -1,303 +1,1577 @@
 /* Hybrid Tiny Heroes UI: cinematic cards, soft controls, restrained map HUD.
    Presentation only. All selectors are scoped away from Signal Lost. */
 .tiny {
-  --game-ink:#202e35; --game-muted:#58646a; --game-surface:#fffdf8;
-  --game-line:#d8d5cc; --world-deep:#24533f; --world-light:#f0cc76;
-  --world-soft:#edf3ee; --world-focus:#926014;
-  --accent:var(--world-deep); --accent-text:#fff; --border:var(--game-line); --muted:var(--game-muted);
-  color:var(--game-ink); background:var(--tiny-page-background)!important;
+  --game-ink: #202e35;
+  --game-muted: #58646a;
+  --game-surface: #fffdf8;
+  --game-line: #d8d5cc;
+  --world-deep: #24533f;
+  --world-light: #f0cc76;
+  --world-soft: #edf3ee;
+  --world-focus: #926014;
+  --accent: var(--world-deep);
+  --accent-text: #fff;
+  --border: var(--game-line);
+  --muted: var(--game-muted);
+  color: var(--game-ink);
+  background: var(--tiny-page-background) !important;
 }
-.tiny[data-world="ice"],.tiny [data-world="ice"] {--world-deep:#183e58;--world-light:#b1e9f3;--world-soft:#eaf3f8;--world-focus:#226384}
-.tiny [data-world="jungle"] {--world-deep:#165543;--world-light:#f1c374;--world-soft:#eaf2ea}
-.tiny [data-world="treasure"] {--world-deep:#19565d;--world-light:#f2d084;--world-soft:#edf5f4}
-.tiny [data-world="moon"] {--world-deep:#252c53;--world-light:#d4c6f4;--world-soft:#f0eef8}
-.tiny h1,.tiny h2,.tiny h3 {color:var(--game-ink);letter-spacing:-.035em;line-height:1.15}
-.tiny p {line-height:1.5}
-.tiny .eyebrow,.tiny .world-topline {letter-spacing:.04em;color:var(--game-muted)}
-.tiny .panel,.tiny .player-requirements {border:1px solid var(--game-line);border-radius:24px;background:var(--game-surface);box-shadow:0 4px 16px #26323908}
-.tiny .panel {padding:24px}
-.tiny button {min-height:44px;touch-action:manipulation;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
-.tiny :is(.primary,.secondary,.text-button,.read-to-me,.sound-toggle,.map-travel-controls button) {border-radius:16px;font-weight:650;line-height:1.3;min-height:48px;padding:12px 20px}
-.tiny .primary {background:var(--world-deep);color:#fff;border:1px solid #00000024;box-shadow:inset 0 1px 0 #ffffff28,0 3px 8px #172e2320}
-.tiny .secondary,.tiny .map-travel-controls button {background:#f5eddd;color:var(--game-ink);border:1px solid #d3c5ac;box-shadow:inset 0 1px 0 #ffffffc0,0 2px 5px #26323908}
-.tiny .text-button {color:var(--world-deep);background:transparent;box-shadow:none}
-.tiny :is(.primary,.secondary,.read-to-me,.sound-toggle,.map-travel-controls button):active:not(:disabled) {transform:translateY(1px) scale(.985);box-shadow:inset 0 1px 3px #18282b18}
-.tiny button:disabled {cursor:not-allowed}
-.tiny :is(.primary,.secondary,.read-to-me):disabled {opacity:1;background:#e8e6df;color:#737b7c;border-color:#d3d5cd;box-shadow:none;transform:none}
-.tiny :is(button,input,select,summary):focus-visible {outline:3px solid var(--world-focus);outline-offset:4px}
-.tiny input,.tiny select {min-height:48px;border:1px solid #b9c1bf;border-radius:12px;background:#fff;color:var(--game-ink);box-shadow:inset 0 1px 3px #26323906;font-size:16px;padding:12px 16px;max-width:100%}
-.tiny input:focus {border-color:var(--world-deep)}
-.tiny label {color:var(--game-ink);font-weight:600;font-size:15px}
-.tiny .room-code {color:var(--world-deep)}
+.tiny[data-world="ice"],
+.tiny [data-world="ice"] {
+  --world-deep: #183e58;
+  --world-light: #b1e9f3;
+  --world-soft: #eaf3f8;
+  --world-focus: #226384;
+}
+.tiny [data-world="jungle"] {
+  --world-deep: #165543;
+  --world-light: #f1c374;
+  --world-soft: #eaf2ea;
+}
+.tiny [data-world="treasure"] {
+  --world-deep: #19565d;
+  --world-light: #f2d084;
+  --world-soft: #edf5f4;
+}
+.tiny [data-world="moon"] {
+  --world-deep: #252c53;
+  --world-light: #d4c6f4;
+  --world-soft: #f0eef8;
+}
+.tiny h1,
+.tiny h2,
+.tiny h3 {
+  color: var(--game-ink);
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+.tiny p {
+  line-height: 1.5;
+}
+.tiny .eyebrow,
+.tiny .world-topline {
+  letter-spacing: 0.04em;
+  color: var(--game-muted);
+}
+.tiny .panel,
+.tiny .player-requirements {
+  border: 1px solid var(--game-line);
+  border-radius: 24px;
+  background: var(--game-surface);
+  box-shadow: 0 4px 16px #26323908;
+}
+.tiny .panel {
+  padding: 24px;
+}
+.tiny button {
+  min-height: 44px;
+  touch-action: manipulation;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
+}
+.tiny
+  :is(
+    .primary,
+    .secondary,
+    .text-button,
+    .read-to-me,
+    .sound-toggle,
+    .map-travel-controls button
+  ) {
+  border-radius: 16px;
+  font-weight: 650;
+  line-height: 1.3;
+  min-height: 48px;
+  padding: 12px 20px;
+}
+.tiny .primary {
+  background: var(--world-deep);
+  color: #fff;
+  border: 1px solid #00000024;
+  box-shadow:
+    inset 0 1px 0 #ffffff28,
+    0 3px 8px #172e2320;
+}
+.tiny .secondary,
+.tiny .map-travel-controls button {
+  background: #f5eddd;
+  color: var(--game-ink);
+  border: 1px solid #d3c5ac;
+  box-shadow:
+    inset 0 1px 0 #ffffffc0,
+    0 2px 5px #26323908;
+}
+.tiny .text-button {
+  color: var(--world-deep);
+  background: transparent;
+  box-shadow: none;
+}
+.tiny
+  :is(
+    .primary,
+    .secondary,
+    .read-to-me,
+    .sound-toggle,
+    .map-travel-controls button
+  ):active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: inset 0 1px 3px #18282b18;
+}
+.tiny button:disabled {
+  cursor: not-allowed;
+}
+.tiny :is(.primary, .secondary, .read-to-me):disabled {
+  opacity: 1;
+  background: #e8e6df;
+  color: #737b7c;
+  border-color: #d3d5cd;
+  box-shadow: none;
+  transform: none;
+}
+.tiny :is(button, input, select, summary):focus-visible {
+  outline: 3px solid var(--world-focus);
+  outline-offset: 4px;
+}
+.tiny input,
+.tiny select {
+  min-height: 48px;
+  border: 1px solid #b9c1bf;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--game-ink);
+  box-shadow: inset 0 1px 3px #26323906;
+  font-size: 16px;
+  padding: 12px 16px;
+  max-width: 100%;
+}
+.tiny input:focus {
+  border-color: var(--world-deep);
+}
+.tiny label {
+  color: var(--game-ink);
+  font-weight: 600;
+  font-size: 15px;
+}
+.tiny .room-code {
+  color: var(--world-deep);
+}
 /* Image-led world selection, using the existing artwork. */
-.tiny .illustrated-world-cards,.tiny .expedition-map .illustrated-world-cards {grid-auto-columns:44%;gap:16px;scroll-snap-type:x mandatory;scroll-padding-inline:8px;padding:8px 8px 20px;scrollbar-width:thin;scrollbar-color:#a5afa9 transparent}
-.tiny .level-card {min-height:320px;padding:0;border:1px solid #ffffff90;border-radius:28px;overflow:hidden;box-shadow:0 5px 16px #162b3020;color:#fff;background:#22323a;scroll-snap-align:start;text-align:left}
-.tiny .level-card::after {background:linear-gradient(180deg,#0e1b2520 0,transparent 34%,#101d2a80 64%,#101d2aeb 100%)}
-.tiny .level-card-top {inset:16px 16px auto;font-size:13px;font-weight:650}
-.tiny .level-card-top>span {background:#fffaf0f2;color:#26363a;border:1px solid #ffffff60;padding:7px 12px;box-shadow:0 1px 4px #00000012}
-.tiny .level-card-top>span:last-child {background:var(--world-deep);color:#fff;border-color:#ffffff70}
-.tiny .coming-soon-world .level-card-top>span:last-child {background:#26323bde}
-.tiny .level-card .world-card-copy {inset:auto 20px 20px;gap:8px}
-.tiny .level-card .world-card-copy>strong {font-size:28px;letter-spacing:-.025em;line-height:1.1;text-shadow:0 1px 3px #00000055}
-.tiny .level-card .world-card-copy>small {font-size:15px;color:#fff5e5}
-.tiny .level-card .world-card-action {min-height:48px;margin-top:4px;border-radius:99px;padding:12px 20px;background:var(--world-light);color:#1c303a;border:1px solid #ffffff60;box-shadow:inset 0 1px 0 #ffffff70,0 2px 5px #00000018;font-size:16px;font-weight:700}
-.tiny .level-card .world-card-lock {color:#f2f4f5;background:transparent;padding:4px 0;border:0;font-size:14px}
-.tiny .coming-soon-world {opacity:1;filter:none}
-.tiny .coming-soon-world>img {filter:saturate(.8)}
-.tiny .level-card[aria-pressed="true"] {border-color:var(--world-deep);box-shadow:0 0 0 3px var(--world-light),0 5px 16px #162b3020}
-.tiny .world-swipe-hint {font-size:15px;color:var(--game-muted);margin-bottom:8px}
+.tiny .illustrated-world-cards,
+.tiny .expedition-map .illustrated-world-cards {
+  grid-auto-columns: 44%;
+  gap: 16px;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 8px;
+  padding: 8px 8px 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #a5afa9 transparent;
+}
+.tiny .level-card {
+  min-height: 320px;
+  padding: 0;
+  border: 1px solid #ffffff90;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 5px 16px #162b3020;
+  color: #fff;
+  background: #22323a;
+  scroll-snap-align: start;
+  text-align: left;
+}
+.tiny .level-card::after {
+  background: linear-gradient(
+    180deg,
+    #0e1b2520 0,
+    transparent 34%,
+    #101d2a80 64%,
+    #101d2aeb 100%
+  );
+}
+.tiny .level-card-top {
+  inset: 16px 16px auto;
+  font-size: 13px;
+  font-weight: 650;
+}
+.tiny .level-card-top > span {
+  background: #fffaf0f2;
+  color: #26363a;
+  border: 1px solid #ffffff60;
+  padding: 7px 12px;
+  box-shadow: 0 1px 4px #00000012;
+}
+.tiny .level-card-top > span:last-child {
+  background: var(--world-deep);
+  color: #fff;
+  border-color: #ffffff70;
+}
+.tiny .coming-soon-world .level-card-top > span:last-child {
+  background: #26323bde;
+}
+.tiny .level-card .world-card-copy {
+  inset: auto 20px 20px;
+  gap: 8px;
+}
+.tiny .level-card .world-card-copy > strong {
+  font-size: 28px;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  text-shadow: 0 1px 3px #00000055;
+}
+.tiny .level-card .world-card-copy > small {
+  font-size: 15px;
+  color: #fff5e5;
+}
+.tiny .level-card .world-card-action {
+  min-height: 48px;
+  margin-top: 4px;
+  border-radius: 99px;
+  padding: 12px 20px;
+  background: var(--world-light);
+  color: #1c303a;
+  border: 1px solid #ffffff60;
+  box-shadow:
+    inset 0 1px 0 #ffffff70,
+    0 2px 5px #00000018;
+  font-size: 16px;
+  font-weight: 700;
+}
+.tiny .level-card .world-card-lock {
+  color: #f2f4f5;
+  background: transparent;
+  padding: 4px 0;
+  border: 0;
+  font-size: 14px;
+}
+.tiny .coming-soon-world {
+  opacity: 1;
+  filter: none;
+}
+.tiny .coming-soon-world > img {
+  filter: saturate(0.8);
+}
+.tiny .level-card[aria-pressed="true"] {
+  border-color: var(--world-deep);
+  box-shadow:
+    0 0 0 3px var(--world-light),
+    0 5px 16px #162b3020;
+}
+.tiny .world-swipe-hint {
+  font-size: 15px;
+  color: var(--game-muted);
+  margin-bottom: 8px;
+}
 /* Compact lobby entry. Same command handlers and form semantics. */
-.tiny .setup-layout {gap:24px;align-items:start}
-.tiny .lobby-entry {display:flex;flex-direction:column;gap:8px;text-align:left}
-.tiny .entry-heading {display:flex;align-items:center;gap:12px;margin-bottom:8px}
-.tiny .entry-heading>.tiny-icon {width:40px;height:40px;flex-shrink:0}
-.tiny .entry-heading h2 {font-size:24px;margin:0 0 4px}
-.tiny .entry-heading span {font-size:14px;color:var(--game-muted)}
-.tiny .lobby-entry input {width:100%;margin:0 0 8px}
-.tiny .lobby-entry :is(.primary,.secondary) {width:100%;margin:0;min-height:52px}
-.tiny .lobby-entry .divider {display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--game-muted);font-size:14px}
-.tiny .lobby-entry .divider::before,.tiny .lobby-entry .divider::after {content:"";height:1px;background:var(--game-line);flex:1;position:static}
-.tiny .lobby-entry small {font-size:14px;line-height:1.4;margin-top:8px;color:var(--game-muted)}
+.tiny .setup-layout {
+  gap: 24px;
+  align-items: start;
+}
+.tiny .lobby-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+.tiny .entry-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.tiny .entry-heading > .tiny-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+.tiny .entry-heading h2 {
+  font-size: 24px;
+  margin: 0 0 4px;
+}
+.tiny .entry-heading span {
+  font-size: 14px;
+  color: var(--game-muted);
+}
+.tiny .lobby-entry input {
+  width: 100%;
+  margin: 0 0 8px;
+}
+.tiny .lobby-entry :is(.primary, .secondary) {
+  width: 100%;
+  margin: 0;
+  min-height: 52px;
+}
+.tiny .lobby-entry .divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--game-muted);
+  font-size: 14px;
+}
+.tiny .lobby-entry .divider::before,
+.tiny .lobby-entry .divider::after {
+  content: "";
+  height: 1px;
+  background: var(--game-line);
+  flex: 1;
+  position: static;
+}
+.tiny .lobby-entry small {
+  font-size: 14px;
+  line-height: 1.4;
+  margin-top: 8px;
+  color: var(--game-muted);
+}
 /* Play tiles: real accessible buttons, UI selection only. */
-.tiny .hero-guide {gap:8px;margin:16px 0;grid-template-columns:repeat(4,minmax(0,1fr))}
-.tiny .hero-guide li,.tiny .hero-guide li:nth-child(n) {padding:0;background:transparent;border:0;border-radius:16px}
-.tiny .guide-tile {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;height:100%;min-height:112px;padding:16px 8px;border:1px solid var(--game-line);border-radius:16px;background:#f6f3eb;color:var(--game-ink);box-shadow:inset 0 1px 0 #ffffffb0,0 2px 4px #26323906}
-.tiny .guide-tile>span {display:block;width:48px;height:48px}
-.tiny .guide-tile .guide-icon {width:48px;height:48px}
-.tiny .hero-guide strong {font-size:15px;font-weight:650;color:var(--game-ink);line-height:1.3}
-.tiny .guide-tile[aria-pressed="true"] {background:var(--world-soft);border-color:var(--world-deep);box-shadow:0 0 0 1px var(--world-deep)}
-.tiny .guide-tile:active {transform:scale(.98)}
-.tiny .hero-full-rules {margin:16px 0;background:transparent;border:0;border-top:1px solid var(--game-line);padding:0;border-radius:0}
-.tiny .hero-full-rules summary {font-size:15px;padding:16px 4px;min-height:48px}
+.tiny .hero-guide {
+  gap: 8px;
+  margin: 16px 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.tiny .hero-guide li,
+.tiny .hero-guide li:nth-child(n) {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 16px;
+}
+.tiny .guide-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  min-height: 112px;
+  padding: 16px 8px;
+  border: 1px solid var(--game-line);
+  border-radius: 16px;
+  background: #f6f3eb;
+  color: var(--game-ink);
+  box-shadow:
+    inset 0 1px 0 #ffffffb0,
+    0 2px 4px #26323906;
+}
+.tiny .guide-tile > span {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+.tiny .guide-tile .guide-icon {
+  width: 48px;
+  height: 48px;
+}
+.tiny .hero-guide strong {
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--game-ink);
+  line-height: 1.3;
+}
+.tiny .guide-tile[aria-pressed="true"] {
+  background: var(--world-soft);
+  border-color: var(--world-deep);
+  box-shadow: 0 0 0 1px var(--world-deep);
+}
+.tiny .guide-tile:active {
+  transform: scale(0.98);
+}
+.tiny .hero-full-rules {
+  margin: 16px 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--game-line);
+  padding: 0;
+  border-radius: 0;
+}
+.tiny .hero-full-rules summary {
+  font-size: 15px;
+  padding: 16px 4px;
+  min-height: 48px;
+}
 /* Readability-first HUD glass: confined to controls and map labels. */
-.tiny .read-to-me {background:var(--world-soft);color:var(--world-deep);border:1px solid #b5c7bd;border-radius:99px;box-shadow:inset 0 1px 0 #fff,0 2px 6px #2632390d;min-height:56px;padding:8px 16px;gap:12px;font-size:18px}
-.tiny .read-to-me .narration-emblem {width:36px;height:36px;flex:0 0 36px;background:var(--world-light);color:var(--world-deep);border-radius:50%;box-shadow:none}
-.tiny .read-to-me .narration-emblem svg {width:24px;height:24px}
-.tiny .read-to-me .narration-status {border-color:#b5c7bd;color:var(--world-deep)}
-.tiny .read-to-me:hover:not(:disabled) {background:var(--world-soft);box-shadow:0 3px 8px #26323916}
-.tiny .read-to-me[aria-pressed="true"] {background:var(--world-deep);color:#fff;border-color:var(--world-deep);box-shadow:inset 0 1px 0 #ffffff30}
-.tiny .read-to-me[aria-pressed="true"] .narration-status {color:#fff;border-color:#ffffff80}
-.tiny .sound-toggle {background:#fffdf5eF;color:var(--game-ink);border:1px solid #cbd2cc;border-radius:99px;font-size:14px;box-shadow:0 2px 6px #2632390d;min-height:48px;padding:10px 14px}
-.tiny .sound-toggle[aria-pressed="true"] {background:var(--world-soft);color:var(--world-deep)}
-.tiny .illustrated-map .map-caption {background:transparent;padding:12px;gap:8px}
-.tiny .illustrated-map .map-caption span {color:#233941;background:#fffdf4ed;border:1px solid #ffffffc0;border-radius:12px;padding:8px 12px;font-size:13px;line-height:1.3;box-shadow:0 2px 6px #17293b15}
-@supports(backdrop-filter:blur(8px)) {.tiny .illustrated-map .map-caption span {background:#fffdf4df;backdrop-filter:blur(8px)}}
-.tiny .timer {color:var(--world-deep);background:var(--world-soft);border:1px solid #c2cfc9;box-shadow:inset 0 1px 0 #fff;border-radius:16px}
-.tiny .hero-trail,.tiny .ice-resource-guide {background:var(--world-soft);border-color:#c7d0ca;color:var(--game-ink);box-shadow:none}
-.tiny .hero-clue {background:#f9f1dd;border:1px solid #e2d2ad;border-radius:20px}
-.tiny .little-hero .tool-choices button,.tiny .little-hero .tool-choices button:nth-child(n) {background:var(--game-surface);border:1px solid #cbcfc5;border-radius:20px;box-shadow:inset 0 1px 0 #fff,0 3px 8px #2632390a;color:var(--game-ink)}
-.tiny .choices button.selected,.tiny .little-hero .tool-choices button.selected {background:var(--world-soft);border:2px solid var(--world-deep);color:var(--game-ink);box-shadow:0 0 0 2px var(--world-light);transform:none}
-.tiny .little-hero .hero-submit {border-radius:20px!important;min-height:64px;font-size:24px}
-.tiny .rescue-map-toggle {background:var(--game-surface);border:1px solid var(--game-line);border-radius:20px;padding:0}
+.tiny .read-to-me {
+  background: var(--world-soft);
+  color: var(--world-deep);
+  border: 1px solid #b5c7bd;
+  border-radius: 99px;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 2px 6px #2632390d;
+  min-height: 56px;
+  padding: 8px 16px;
+  gap: 12px;
+  font-size: 18px;
+}
+.tiny .read-to-me .narration-emblem {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  background: var(--world-light);
+  color: var(--world-deep);
+  border-radius: 50%;
+  box-shadow: none;
+}
+.tiny .read-to-me .narration-emblem svg {
+  width: 24px;
+  height: 24px;
+}
+.tiny .read-to-me .narration-status {
+  border-color: #b5c7bd;
+  color: var(--world-deep);
+}
+.tiny .read-to-me:hover:not(:disabled) {
+  background: var(--world-soft);
+  box-shadow: 0 3px 8px #26323916;
+}
+.tiny .read-to-me[aria-pressed="true"] {
+  background: var(--world-deep);
+  color: #fff;
+  border-color: var(--world-deep);
+  box-shadow: inset 0 1px 0 #ffffff30;
+}
+.tiny .read-to-me[aria-pressed="true"] .narration-status {
+  color: #fff;
+  border-color: #ffffff80;
+}
+.tiny .sound-toggle {
+  background: #fffdf5ef;
+  color: var(--game-ink);
+  border: 1px solid #cbd2cc;
+  border-radius: 99px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px #2632390d;
+  min-height: 48px;
+  padding: 10px 14px;
+}
+.tiny .sound-toggle[aria-pressed="true"] {
+  background: var(--world-soft);
+  color: var(--world-deep);
+}
+.tiny .illustrated-map .map-caption {
+  background: transparent;
+  padding: 12px;
+  gap: 8px;
+}
+.tiny .illustrated-map .map-caption span {
+  color: #233941;
+  background: #fffdf4ed;
+  border: 1px solid #ffffffc0;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.3;
+  box-shadow: 0 2px 6px #17293b15;
+}
+@supports (backdrop-filter: blur(8px)) {
+  .tiny .illustrated-map .map-caption span {
+    background: #fffdf4df;
+    backdrop-filter: blur(8px);
+  }
+}
+.tiny .timer {
+  color: var(--world-deep);
+  background: var(--world-soft);
+  border: 1px solid #c2cfc9;
+  box-shadow: inset 0 1px 0 #fff;
+  border-radius: 16px;
+}
+.tiny .hero-trail,
+.tiny .ice-resource-guide {
+  background: var(--world-soft);
+  border-color: #c7d0ca;
+  color: var(--game-ink);
+  box-shadow: none;
+}
+.tiny .hero-clue {
+  background: #f9f1dd;
+  border: 1px solid #e2d2ad;
+  border-radius: 20px;
+}
+.tiny .little-hero .tool-choices button,
+.tiny .little-hero .tool-choices button:nth-child(n) {
+  background: var(--game-surface);
+  border: 1px solid #cbcfc5;
+  border-radius: 20px;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 3px 8px #2632390a;
+  color: var(--game-ink);
+}
+.tiny .choices button.selected,
+.tiny .little-hero .tool-choices button.selected {
+  background: var(--world-soft);
+  border: 2px solid var(--world-deep);
+  color: var(--game-ink);
+  box-shadow: 0 0 0 2px var(--world-light);
+  transform: none;
+}
+.tiny .little-hero .hero-submit {
+  border-radius: 20px !important;
+  min-height: 64px;
+  font-size: 24px;
+}
+.tiny .rescue-map-toggle {
+  background: var(--game-surface);
+  border: 1px solid var(--game-line);
+  border-radius: 20px;
+  padding: 0;
+}
 /* Artwork fills the disclosure at every breakpoint; only the summary is inset.
    Cover Forest/Ice, expedition and collection maps for both crew roles. */
-.app.tiny .rescue-map-toggle>:is(.adventure-map,.ice-expedition-world,.expedition-living-map,.collection-map){
- clear:both;width:100%;max-width:100%;margin:0;border:0;box-sizing:border-box;
+.app.tiny
+  .rescue-map-toggle
+  > :is(
+    .adventure-map,
+    .ice-expedition-world,
+    .expedition-living-map,
+    .collection-map
+  ) {
+  clear: both;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  border: 0;
+  box-sizing: border-box;
 }
-.tiny .rescue-map-toggle>summary {color:var(--world-deep)}
-@media(hover:hover) {.tiny .level-card.available-world:not(:disabled):hover {transform:translateY(-3px);border-color:var(--world-light);box-shadow:0 8px 20px #162b3026}.tiny .primary:hover:not(:disabled) {box-shadow:inset 0 1px 0 #ffffff38,0 4px 10px #172e2328}}
-@media(max-width:600px) {
- .tiny .panel {padding:20px}.tiny .illustrated-world-cards,.tiny .expedition-map .illustrated-world-cards {grid-auto-columns:88%;gap:12px}
- .tiny .level-card {min-height:310px}.tiny .level-card .world-card-copy>strong {font-size:26px}
- .tiny .setup-layout {gap:16px}.tiny .hero-guide {grid-template-columns:repeat(2,minmax(0,1fr))}
- .tiny .guide-tile {min-height:104px;padding:12px 8px}.tiny .hero-guide strong {font-size:16px}
- .tiny .read-to-me {font-size:18px}.tiny .illustrated-map .map-caption {padding:8px}
- .tiny .illustrated-map .map-caption span {font-size:11px;padding:6px 8px;max-width:60%}
- .tiny .room-buttons {gap:8px}.tiny .room-buttons :is(.text-button,.secondary) {min-height:44px}
+.tiny .rescue-map-toggle > summary {
+  color: var(--world-deep);
 }
-@media(prefers-reduced-motion:reduce) {.tiny button,.tiny .level-card>img {transition:none!important}.tiny button:active,.tiny .level-card:hover,.tiny .level-card:hover>img {transform:none!important}}
-.tiny-effects-scope[data-effects="off"] .tiny button {transition:none!important}
-.tiny-effects-scope[data-effects="off"] .tiny .level-card:hover,.tiny-effects-scope[data-effects="off"] .tiny .level-card:hover>img {transform:none!important}
+@media (hover: hover) {
+  .tiny .level-card.available-world:not(:disabled):hover {
+    transform: translateY(-3px);
+    border-color: var(--world-light);
+    box-shadow: 0 8px 20px #162b3026;
+  }
+  .tiny .primary:hover:not(:disabled) {
+    box-shadow:
+      inset 0 1px 0 #ffffff38,
+      0 4px 10px #172e2328;
+  }
+}
+@media (max-width: 600px) {
+  .tiny .panel {
+    padding: 20px;
+  }
+  .tiny .illustrated-world-cards,
+  .tiny .expedition-map .illustrated-world-cards {
+    grid-auto-columns: 88%;
+    gap: 12px;
+  }
+  .tiny .level-card {
+    min-height: 310px;
+  }
+  .tiny .level-card .world-card-copy > strong {
+    font-size: 26px;
+  }
+  .tiny .setup-layout {
+    gap: 16px;
+  }
+  .tiny .hero-guide {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tiny .guide-tile {
+    min-height: 104px;
+    padding: 12px 8px;
+  }
+  .tiny .hero-guide strong {
+    font-size: 16px;
+  }
+  .tiny .read-to-me {
+    font-size: 18px;
+  }
+  .tiny .illustrated-map .map-caption {
+    padding: 8px;
+  }
+  .tiny .illustrated-map .map-caption span {
+    font-size: 11px;
+    padding: 6px 8px;
+    max-width: 60%;
+  }
+  .tiny .room-buttons {
+    gap: 8px;
+  }
+  .tiny .room-buttons :is(.text-button, .secondary) {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tiny button,
+  .tiny .level-card > img {
+    transition: none !important;
+  }
+  .tiny button:active,
+  .tiny .level-card:hover,
+  .tiny .level-card:hover > img {
+    transform: none !important;
+  }
+}
+.tiny-effects-scope[data-effects="off"] .tiny button {
+  transition: none !important;
+}
+.tiny-effects-scope[data-effects="off"] .tiny .level-card:hover,
+.tiny-effects-scope[data-effects="off"] .tiny .level-card:hover > img {
+  transform: none !important;
+}
 /* Compact narration toolbar: settings left, explicit speech action right. */
-.tiny .hero-audio {display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:8px;margin-bottom:16px;text-align:left}
-.tiny .hero-audio .read-to-me {grid-column:2;grid-row:1;justify-self:end;align-self:start;width:auto;min-height:48px;padding:6px 12px;gap:8px;font-size:16px;white-space:nowrap;z-index:1}
-.tiny .hero-audio .narration-emblem {width:30px;height:30px;flex-basis:30px}
-.tiny .hero-audio .narration-emblem svg {width:21px;height:21px}
-.tiny .hero-audio .narration-status {display:none}
-.tiny .hero-audio .audio-help {grid-column:1/-1;grid-row:2;margin:0!important;font-size:13px!important;text-align:right}
-.tiny .hero-audio .voice-settings {grid-column:1/-1;grid-row:1;margin:0;padding:0;border:0;font-size:14px;color:var(--world-deep)}
-.tiny .hero-audio .voice-settings>summary {display:flex;align-items:center;justify-content:flex-start;gap:6px;width:max-content;max-width:calc(100% - 160px);min-height:48px;line-height:1.25;padding:8px 0;list-style:none;white-space:nowrap}
-.tiny .hero-audio .voice-settings>summary::-webkit-details-marker {display:none}
-.tiny .hero-audio .voice-settings>summary::after {display:inline-block;position:static;flex:none;line-height:1;font-size:18px;margin:0}
-.tiny .hero-audio .voice-settings-controls {max-width:none;margin:8px 0 0;background:var(--game-surface);box-shadow:none;border-color:var(--game-line)}
-.tiny .map-hero-pose {display:block;width:100%;height:100%}
-.tiny .scout-greeting {display:block;width:100%;height:100%;overflow:visible;animation:scout-hello-idle 3.6s ease-in-out infinite;transform-origin:50% 90%}
-.tiny .scout-greeting-paw {transform-origin:79px 148px;animation:scout-hello-wave 3.6s ease-in-out infinite}
-@keyframes scout-hello-wave {0%,40%,100%{transform:rotate(0deg)}10%,26%{transform:rotate(-13deg)}18%,34%{transform:rotate(9deg)}}
-@keyframes scout-hello-idle {0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
-@media(max-width:360px){.tiny .hero-audio .read-to-me{font-size:14px;padding-inline:8px;gap:6px}.tiny .hero-audio .voice-settings>summary{font-size:13px;max-width:calc(100% - 140px)}}
-@media(prefers-reduced-motion:reduce){.tiny .scout-greeting,.tiny .scout-greeting-paw{animation:none!important}}
+.tiny .hero-audio {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 8px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+.tiny .hero-audio .read-to-me {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  align-self: start;
+  width: auto;
+  min-height: 48px;
+  padding: 6px 12px;
+  gap: 8px;
+  font-size: 16px;
+  white-space: nowrap;
+  z-index: 1;
+}
+.tiny .hero-audio .narration-emblem {
+  width: 30px;
+  height: 30px;
+  flex-basis: 30px;
+}
+.tiny .hero-audio .narration-emblem svg {
+  width: 21px;
+  height: 21px;
+}
+.tiny .hero-audio .narration-status {
+  display: none;
+}
+.tiny .hero-audio .audio-help {
+  grid-column: 1/-1;
+  grid-row: 2;
+  margin: 0 !important;
+  font-size: 13px !important;
+  text-align: right;
+}
+.tiny .hero-audio .voice-settings {
+  grid-column: 1/-1;
+  grid-row: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 14px;
+  color: var(--world-deep);
+}
+.tiny .hero-audio .voice-settings > summary {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: max-content;
+  max-width: calc(100% - 160px);
+  min-height: 48px;
+  line-height: 1.25;
+  padding: 8px 0;
+  list-style: none;
+  white-space: nowrap;
+}
+.tiny .hero-audio .voice-settings > summary::-webkit-details-marker {
+  display: none;
+}
+.tiny .hero-audio .voice-settings > summary::after {
+  display: inline-block;
+  position: static;
+  flex: none;
+  line-height: 1;
+  font-size: 18px;
+  margin: 0;
+}
+.tiny .hero-audio .voice-settings-controls {
+  max-width: none;
+  margin: 8px 0 0;
+  background: var(--game-surface);
+  box-shadow: none;
+  border-color: var(--game-line);
+}
+.tiny .map-hero-pose {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.tiny .scout-greeting {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: scout-hello-idle 3.6s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+.tiny .scout-greeting-paw {
+  transform-origin: 79px 148px;
+  animation: scout-hello-wave 3.6s ease-in-out infinite;
+}
+@keyframes scout-hello-wave {
+  0%,
+  40%,
+  100% {
+    transform: rotate(0deg);
+  }
+  10%,
+  26% {
+    transform: rotate(-13deg);
+  }
+  18%,
+  34% {
+    transform: rotate(9deg);
+  }
+}
+@keyframes scout-hello-idle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+@media (max-width: 360px) {
+  .tiny .hero-audio .read-to-me {
+    font-size: 14px;
+    padding-inline: 8px;
+    gap: 6px;
+  }
+  .tiny .hero-audio .voice-settings > summary {
+    font-size: 13px;
+    max-width: calc(100% - 140px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tiny .scout-greeting,
+  .tiny .scout-greeting-paw {
+    animation: none !important;
+  }
+}
 
 /* Setup sections share the same content edges as player requirements. */
-.tiny .setup .tiny-setup-world {width:100%;max-width:none;margin-inline:0}
-.tiny .setup .tiny-setup-world .adventure-map {width:100%;max-width:none}
-.tiny .setup .lobby-entry {scroll-margin-top:24px}
+.tiny .setup .tiny-setup-world {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+}
+.tiny .setup .tiny-setup-world .adventure-map {
+  width: 100%;
+  max-width: none;
+}
+.tiny .setup .lobby-entry {
+  scroll-margin-top: 24px;
+}
 /* Baseline-safe disclosure icon and a left-aligned compact settings card. */
-.tiny .hero-audio .voice-settings>summary::after {content:none}
-.tiny .voice-chevron {display:block;width:16px;height:16px;flex:0 0 16px;transition:transform .16s ease}
-.tiny .voice-settings[open] .voice-chevron {transform:rotate(180deg)}
-.tiny .hero-audio .voice-settings-controls {width:100%;min-width:0;max-width:none;margin-inline:0;padding:16px}
-.tiny .voice-settings-controls small {overflow-wrap:break-word}
+.tiny .hero-audio .voice-settings > summary::after {
+  content: none;
+}
+.tiny .voice-chevron {
+  display: block;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  transition: transform 0.16s ease;
+}
+.tiny .voice-settings[open] .voice-chevron {
+  transform: rotate(180deg);
+}
+.tiny .hero-audio .voice-settings-controls {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  margin-inline: 0;
+  padding: 16px;
+}
+.tiny .voice-settings-controls small {
+  overflow-wrap: break-word;
+}
 /* Soft edge fade blends the carousel into its surrounding surface. */
-.tiny .world-carousel-frame {position:relative;min-width:0;width:100%}
-.tiny .world-carousel-frame .illustrated-world-cards {width:100%;mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent)}
-.tiny .scout-greeting-paw {transform-origin:91px 172px}
-@keyframes scout-hello-wave {0%,40%,100%{transform:rotate(0deg)}10%,26%{transform:rotate(13deg)}18%,34%{transform:rotate(-8deg)}}
-@keyframes scout-hello-idle {0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.014)}}
-@media(max-width:600px){.tiny .world-carousel-frame .illustrated-world-cards{mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent)}}
+.tiny .world-carousel-frame {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+}
+.tiny .world-carousel-frame .illustrated-world-cards {
+  width: 100%;
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 20px,
+    #000 calc(100% - 20px),
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 20px,
+    #000 calc(100% - 20px),
+    transparent
+  );
+}
+.tiny .scout-greeting-paw {
+  transform-origin: 91px 172px;
+}
+@keyframes scout-hello-wave {
+  0%,
+  40%,
+  100% {
+    transform: rotate(0deg);
+  }
+  10%,
+  26% {
+    transform: rotate(13deg);
+  }
+  18%,
+  34% {
+    transform: rotate(-8deg);
+  }
+}
+@keyframes scout-hello-idle {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.014);
+  }
+}
+@media (max-width: 600px) {
+  .tiny .world-carousel-frame .illustrated-world-cards {
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 12px,
+      #000 calc(100% - 12px),
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 12px,
+      #000 calc(100% - 12px),
+      transparent
+    );
+  }
+}
 
-@media(min-width:700px){.tiny .hero-audio .voice-settings-controls{width:300px;max-width:100%}}
+@media (min-width: 700px) {
+  .tiny .hero-audio .voice-settings-controls {
+    width: 300px;
+    max-width: 100%;
+  }
+}
 /* Keep lobby entry before instructions on phone and tablet widths. */
-@media(width < 899px){.tiny .setup-layout{grid-template-columns:minmax(0,1fr)}}
+@media (width < 899px) {
+  .tiny .setup-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 /* Ice has its own ascending geography, environmental HUD and route controls. */
-.tiny .ice-expedition-world {overflow:hidden;border:1px solid #bdcfdc;border-radius:24px;background:#edf5fa;margin-bottom:18px}
-.tiny .ice-expedition-world .adventure-progress {margin:0;border-radius:0}
-.tiny .ice-journey {border:0;border-radius:0;box-shadow:none;background:#d4e5f1}
-.tiny .ice-journey-landscape {position:relative;aspect-ratio:3/2;overflow:hidden}
-.tiny .ice-journey-landscape>img:first-child {display:block;width:100%;height:100%;object-fit:cover}
-.tiny .ice-journey .map-caption {position:static;padding:12px;pointer-events:auto}
-.tiny .ice-journey-status {display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 12px 14px;color:#23475e;font-size:14px}
-.tiny .ice-journey-status>.tiny-icon {width:30px;height:30px}
-.tiny .ice-stops {list-style:none;margin:0;padding:0;position:absolute;inset:0}
-.tiny .ice-stops>li {position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;max-width:24%}
-.tiny :is(.ice-stop-pin,.expedition-stops li>span,.collection-markers li>span) {display:grid;place-items:center;background:#edf9ff;border:2px solid #f7ffff;box-shadow:0 3px 7px #102b5550!important;color:#254765;font-size:18px;font-weight:800;border-radius:10px 10px 10px 2px!important;width:34px;height:36px;flex-shrink:0}
-.tiny :is(.ice-stop-pin,.expedition-stops li>span,.collection-markers li>span)>.tiny-icon {width:28px;height:28px}
-.tiny :is(.ice-stop-home .ice-stop-pin,.expedition-stops .stop-complete>span,.collection-markers .done>span) {background:#7fb6bd!important}
-.tiny :is(.ice-stop-current .ice-stop-pin,.expedition-stops .stop-active>span,.collection-markers .active>span) {border-color:#f3cf82;background:#fcf0c9}
-.tiny .ice-stop-current .ice-stop-pin {animation:ice-stop-glow 2.8s ease-in-out infinite}
-.tiny .ice-stop-label {font-size:11px;font-weight:700;line-height:1.2;background:#f6fbffee;border-radius:8px;padding:4px 6px;box-shadow:0 1px 4px #182d441f;color:#22405a;text-align:center;white-space:normal}
+.tiny .ice-expedition-world {
+  overflow: hidden;
+  border: 1px solid #bdcfdc;
+  border-radius: 24px;
+  background: #edf5fa;
+  margin-bottom: 18px;
+}
+.tiny .ice-expedition-world .adventure-progress {
+  margin: 0;
+  border-radius: 0;
+}
+.tiny .ice-journey {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #d4e5f1;
+}
+.tiny .ice-journey-landscape {
+  position: relative;
+  aspect-ratio: 3/2;
+  overflow: hidden;
+}
+.tiny .ice-journey-landscape > img:first-child {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.tiny .ice-journey .map-caption {
+  position: static;
+  padding: 12px;
+  pointer-events: auto;
+}
+.tiny .ice-journey-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 12px 14px;
+  color: #23475e;
+  font-size: 14px;
+}
+.tiny .ice-journey-status > .tiny-icon {
+  width: 30px;
+  height: 30px;
+}
+.tiny .ice-stops {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  inset: 0;
+}
+.tiny .ice-stops > li {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 24%;
+}
+.tiny
+  :is(
+    .ice-stop-pin,
+    .expedition-stops li > span,
+    .collection-markers li > span
+  ) {
+  display: grid;
+  place-items: center;
+  background: #edf9ff;
+  border: 2px solid #f7ffff;
+  box-shadow: 0 3px 7px #102b5550 !important;
+  color: #254765;
+  font-size: 18px;
+  font-weight: 800;
+  border-radius: 10px 10px 10px 2px !important;
+  width: 34px;
+  height: 36px;
+  flex-shrink: 0;
+}
+.tiny
+  :is(.ice-stop-pin, .expedition-stops li > span, .collection-markers li > span)
+  > .tiny-icon {
+  width: 28px;
+  height: 28px;
+}
+.tiny
+  :is(
+    .ice-stop-home .ice-stop-pin,
+    .expedition-stops .stop-complete > span,
+    .collection-markers .done > span
+  ) {
+  background: #7fb6bd !important;
+}
+.tiny
+  :is(
+    .ice-stop-current .ice-stop-pin,
+    .expedition-stops .stop-active > span,
+    .collection-markers .active > span
+  ) {
+  border-color: #f3cf82;
+  background: #fcf0c9;
+}
+.tiny .ice-stop-current .ice-stop-pin {
+  animation: ice-stop-glow 2.8s ease-in-out infinite;
+}
+.tiny .ice-stop-label {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  background: #f6fbffee;
+  border-radius: 8px;
+  padding: 4px 6px;
+  box-shadow: 0 1px 4px #182d441f;
+  color: #22405a;
+  text-align: center;
+  white-space: normal;
+}
 /* Keep the feet anchored in every frame; map-idle replaces the positioning transform. */
-.tiny .ice-team-scout {position:absolute;width:9%;height:16%;object-fit:contain;transform:translate(-50%,-100%);transform-origin:50% 100%;animation:ice-scout-idle 4s ease-in-out infinite;filter:drop-shadow(0 2px 2px #29455733)}
-@keyframes ice-scout-idle {0%,100%{transform:translate(-50%,-100%) scaleY(1)}50%{transform:translate(-50%,-100%) scaleY(1.012)}}
-.tiny .ice-travelled-path {position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.tiny .ice-travelled-path polyline {fill:none;stroke:#ffe6a2;stroke-width:.55;stroke-dasharray:1.1 1.7;opacity:.8}
-.tiny .ice-aurora {position:absolute;top:0;left:25%;width:65%;height:25%;background:radial-gradient(ellipse,#77e5d330,transparent 70%);animation:ice-aurora-drift 10s ease-in-out infinite alternate;pointer-events:none}
-.tiny .ice-snow-drift {position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,#ffffffb0 1px,transparent 2px);background-size:59px 67px;opacity:.35;animation:ice-snow-drift 16s linear infinite}
-.tiny .map-motion-off .ice-aurora,.tiny .map-motion-off .ice-snow-drift {display:none}
-.tiny .map-motion-off .ice-team-scout,.tiny .map-motion-off .ice-stop-pin {animation:none}
-.tiny .route-art {display:block;width:100%;max-width:160px;height:105px;flex-shrink:0}
-.tiny[data-world=ice] .choices button {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:150px;min-width:0;flex:1 1 140px}
-.tiny[data-world=ice] .choices button>.tiny-icon {width:60px;height:60px}
-.tiny .ice-private-pictures {display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
-.tiny .ice-private-pictures>span {display:grid;place-items:center;flex:1 1 72px;max-width:140px;min-height:65px;padding:6px;border:1px solid #c7dce6;border-radius:14px;background:#edf6fa}
-.tiny .ice-private-pictures svg {max-width:100%;height:65px}
-.tiny .blue-ribbon {padding:10px;background:#5a9bd4;color:#fff;border-radius:4px 4px 18px 4px;font-size:14px}
-.tiny .hero-trail .route-art {width:42px;height:46px}
-.tiny .rescue-hint .route-art,.tiny .captain-helper-tool .route-art {width:84px;height:65px}
-.tiny .adventure-progress li>span {display:flex;align-items:center;gap:4px}
-.tiny .adventure-progress li>.progress-friend {display:block}
-.tiny .assist-label {font-size:10px;line-height:1.15;max-width:40px;color:#34566d}
-.tiny .assist-count {display:inline-flex;align-items:center;gap:6px;font-size:14px}
-.tiny .assist-count>.tiny-icon {width:28px;height:28px}
-.tiny .world-ice.illustrated-scene .scene-picture>.animal-art {left:12%;bottom:3%;height:49%;width:24%}
-@keyframes ice-stop-glow {50%{box-shadow:0 0 12px #fae5a5}}
-@keyframes ice-aurora-drift {to{opacity:.55;transform:translateX(3%)}}
-@keyframes ice-snow-drift {to{background-position:59px 67px}}
-@media(max-width:600px){.tiny :is(.ice-stop-pin,.expedition-stops li>span,.collection-markers li>span){width:26px;height:28px;font-size:14px}.tiny :is(.ice-stop-pin,.expedition-stops li>span,.collection-markers li>span)>.tiny-icon{width:22px;height:22px}.tiny .ice-stop-label{font-size:9px;padding:3px 4px}.tiny .ice-journey-status{font-size:12px}.tiny .route-art{height:90px}.tiny[data-world=ice] .choices button{flex-basis:100px;min-height:125px}.tiny .hero-trail .route-art{width:30px;height:38px}}
-@media(prefers-reduced-motion:reduce){.tiny .ice-aurora,.tiny .ice-snow-drift,.tiny .ice-stop-pin,.tiny .ice-team-scout{animation:none!important}}
-
+.tiny .ice-team-scout {
+  position: absolute;
+  width: 9%;
+  height: 16%;
+  object-fit: contain;
+  transform: translate(-50%, -100%);
+  transform-origin: 50% 100%;
+  animation: ice-scout-idle 4s ease-in-out infinite;
+  filter: drop-shadow(0 2px 2px #29455733);
+}
+@keyframes ice-scout-idle {
+  0%,
+  100% {
+    transform: translate(-50%, -100%) scaleY(1);
+  }
+  50% {
+    transform: translate(-50%, -100%) scaleY(1.012);
+  }
+}
+.tiny .ice-travelled-path {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.tiny .ice-travelled-path polyline {
+  fill: none;
+  stroke: #ffe6a2;
+  stroke-width: 0.55;
+  stroke-dasharray: 1.1 1.7;
+  opacity: 0.8;
+}
+.tiny .ice-aurora {
+  position: absolute;
+  top: 0;
+  left: 25%;
+  width: 65%;
+  height: 25%;
+  background: radial-gradient(ellipse, #77e5d330, transparent 70%);
+  animation: ice-aurora-drift 10s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.tiny .ice-snow-drift {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #ffffffb0 1px, transparent 2px);
+  background-size: 59px 67px;
+  opacity: 0.35;
+  animation: ice-snow-drift 16s linear infinite;
+}
+.tiny .map-motion-off .ice-aurora,
+.tiny .map-motion-off .ice-snow-drift {
+  display: none;
+}
+.tiny .map-motion-off .ice-team-scout,
+.tiny .map-motion-off .ice-stop-pin {
+  animation: none;
+}
+.tiny .route-art {
+  display: block;
+  width: 100%;
+  max-width: 160px;
+  height: 105px;
+  flex-shrink: 0;
+}
+.tiny[data-world="ice"] .choices button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 150px;
+  min-width: 0;
+  flex: 1 1 140px;
+}
+.tiny[data-world="ice"] .choices button > .tiny-icon {
+  width: 60px;
+  height: 60px;
+}
+.tiny .ice-private-pictures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.tiny .ice-private-pictures > span {
+  display: grid;
+  place-items: center;
+  flex: 1 1 72px;
+  max-width: 140px;
+  min-height: 65px;
+  padding: 6px;
+  border: 1px solid #c7dce6;
+  border-radius: 14px;
+  background: #edf6fa;
+}
+.tiny .ice-private-pictures svg {
+  max-width: 100%;
+  height: 65px;
+}
+.tiny .blue-ribbon {
+  padding: 10px;
+  background: #5a9bd4;
+  color: #fff;
+  border-radius: 4px 4px 18px 4px;
+  font-size: 14px;
+}
+.tiny .hero-trail .route-art {
+  width: 42px;
+  height: 46px;
+}
+.tiny .rescue-hint .route-art,
+.tiny .captain-helper-tool .route-art {
+  width: 84px;
+  height: 65px;
+}
+.tiny .adventure-progress li > span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.tiny .adventure-progress li > .progress-friend {
+  display: block;
+}
+.tiny .assist-label {
+  font-size: 10px;
+  line-height: 1.15;
+  max-width: 40px;
+  color: #34566d;
+}
+.tiny .assist-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.tiny .assist-count > .tiny-icon {
+  width: 28px;
+  height: 28px;
+}
+.tiny .world-ice.illustrated-scene .scene-picture > .animal-art {
+  left: 12%;
+  bottom: 3%;
+  height: 49%;
+  width: 24%;
+}
+@keyframes ice-stop-glow {
+  50% {
+    box-shadow: 0 0 12px #fae5a5;
+  }
+}
+@keyframes ice-aurora-drift {
+  to {
+    opacity: 0.55;
+    transform: translateX(3%);
+  }
+}
+@keyframes ice-snow-drift {
+  to {
+    background-position: 59px 67px;
+  }
+}
+@media (max-width: 600px) {
+  .tiny
+    :is(
+      .ice-stop-pin,
+      .expedition-stops li > span,
+      .collection-markers li > span
+    ) {
+    width: 26px;
+    height: 28px;
+    font-size: 14px;
+  }
+  .tiny
+    :is(
+      .ice-stop-pin,
+      .expedition-stops li > span,
+      .collection-markers li > span
+    )
+    > .tiny-icon {
+    width: 22px;
+    height: 22px;
+  }
+  .tiny .ice-stop-label {
+    font-size: 9px;
+    padding: 3px 4px;
+  }
+  .tiny .ice-journey-status {
+    font-size: 12px;
+  }
+  .tiny .route-art {
+    height: 90px;
+  }
+  .tiny[data-world="ice"] .choices button {
+    flex-basis: 100px;
+    min-height: 125px;
+  }
+  .tiny .hero-trail .route-art {
+    width: 30px;
+    height: 38px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tiny .ice-aurora,
+  .tiny .ice-snow-drift,
+  .tiny .ice-stop-pin,
+  .tiny .ice-team-scout {
+    animation: none !important;
+  }
+}
 
 /* Location captions follow the rounded Ice map pins; other UI remains sharp. */
-.tiny :is(.expedition-stops strong,.collection-markers strong){border-radius:8px!important}
+.tiny :is(.expedition-stops strong, .collection-markers strong) {
+  border-radius: 8px !important;
+}
 
 /* Joined Little Heroes also see the public team, without any private clue data. */
-.tiny .compact-team-roster .crew-note{display:none}
-.tiny .compact-team-roster .eyebrow{font-size:11px;margin-bottom:8px}
-.tiny .compact-team-roster h3{font-size:17px;margin-bottom:10px}
-.tiny .compact-team-roster .avatar{padding:0;background:transparent;min-width:38px;width:38px;height:48px}
-.tiny .compact-team-roster .avatar .animal-art{width:100%;height:100%;object-fit:contain;position:static}
-@media(min-width:1000px){
- .app.tiny .hero-layout.has-team-roster{grid-template-columns:240px minmax(0,780px);justify-content:center}
- /* Shrink the whole map frame once, with no empty side gutters inside it. */
- .app.tiny .rescue-map-toggle:has(>.expedition-living-map,>.collection-map){width:80%;margin-inline:auto;padding-inline:0}
- .app.tiny .rescue-map-toggle>:is(.expedition-living-map,.collection-map){width:100%}
+.tiny .compact-team-roster .crew-note {
+  display: none;
 }
-@media(max-width:999px){
- .tiny .compact-team-roster{padding:12px 16px}
- .tiny .compact-team-roster .team-roster-players{display:flex;gap:12px;overflow-x:auto}
- .tiny .compact-team-roster .player{flex:0 0 160px;padding:8px 0}
+.tiny .compact-team-roster .eyebrow {
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+.tiny .compact-team-roster h3 {
+  font-size: 17px;
+  margin-bottom: 10px;
+}
+.tiny .compact-team-roster .avatar {
+  padding: 0;
+  background: transparent;
+  min-width: 38px;
+  width: 38px;
+  height: 48px;
+}
+.tiny .compact-team-roster .avatar .animal-art {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: static;
+}
+@media (min-width: 1000px) {
+  .app.tiny .hero-layout.has-team-roster {
+    grid-template-columns: 240px minmax(0, 780px);
+    justify-content: center;
+  }
+  /* Shrink the whole map frame once, with no empty side gutters inside it. */
+  .app.tiny
+    .rescue-map-toggle:has(> .expedition-living-map, > .collection-map) {
+    width: 80%;
+    margin-inline: auto;
+    padding-inline: 0;
+  }
+  .app.tiny .rescue-map-toggle > :is(.expedition-living-map, .collection-map) {
+    width: 100%;
+  }
+}
+@media (max-width: 999px) {
+  .tiny .compact-team-roster {
+    padding: 12px 16px;
+  }
+  .tiny .compact-team-roster .team-roster-players {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+  }
+  .tiny .compact-team-roster .player {
+    flex: 0 0 160px;
+    padding: 8px 0;
+  }
 }
 
 /* Inset Level 3–10 map headings without adding gutters around the artwork. */
-.app.tiny .rescue-map-toggle:has(>.expedition-living-map,>.collection-map)>summary{padding-inline:16px}
+.app.tiny
+  .rescue-map-toggle:has(> .expedition-living-map, > .collection-map)
+  > summary {
+  padding-inline: 16px;
+}
 
 /* Every Living Map header is a clear native disclosure control. */
-.app.tiny .rescue-map-toggle>summary{
- position:relative;list-style:none;padding-inline:16px 52px;min-height:52px;
- background:var(--world-soft);cursor:pointer;
- transition:background .16s ease;
+.app.tiny .rescue-map-toggle > summary {
+  position: relative;
+  list-style: none;
+  padding-inline: 16px 52px;
+  min-height: 52px;
+  background: var(--world-soft);
+  cursor: pointer;
+  transition: background 0.16s ease;
 }
-.app.tiny .rescue-map-toggle>summary::-webkit-details-marker{display:none}
-.app.tiny .rescue-map-toggle>summary::marker{content:""}
-.app.tiny .rescue-map-toggle>summary::after{
- content:"";position:absolute;right:20px;top:50%;width:10px;height:10px;
- border-right:2px solid currentColor;border-bottom:2px solid currentColor;
- transform:translateY(-70%) rotate(45deg);pointer-events:none;
- transition:transform .16s ease;
+.app.tiny .rescue-map-toggle > summary::-webkit-details-marker {
+  display: none;
 }
-.app.tiny .rescue-map-toggle[open]>summary::after{transform:translateY(-30%) rotate(225deg)}
-.app.tiny .rescue-map-toggle:has(>.expedition-living-map,>.collection-map)>summary{padding-inline:16px 52px}
-@media(hover:hover){.app.tiny .rescue-map-toggle>summary:hover{background:#e3ece5}}
-@media(prefers-reduced-motion:reduce){.app.tiny .rescue-map-toggle>summary,.app.tiny .rescue-map-toggle>summary::after{transition:none}}
-.tiny-effects-scope[data-effects="off"] .app.tiny .rescue-map-toggle>summary,
-.tiny-effects-scope[data-effects="off"] .app.tiny .rescue-map-toggle>summary::after{transition:none}
-
+.app.tiny .rescue-map-toggle > summary::marker {
+  content: "";
+}
+.app.tiny .rescue-map-toggle > summary::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+  transition: transform 0.16s ease;
+}
+.app.tiny .rescue-map-toggle[open] > summary::after {
+  transform: translateY(-30%) rotate(225deg);
+}
+.app.tiny
+  .rescue-map-toggle:has(> .expedition-living-map, > .collection-map)
+  > summary {
+  padding-inline: 16px 52px;
+}
+@media (hover: hover) {
+  .app.tiny .rescue-map-toggle > summary:hover {
+    background: #e3ece5;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app.tiny .rescue-map-toggle > summary,
+  .app.tiny .rescue-map-toggle > summary::after {
+    transition: none;
+  }
+}
+.tiny-effects-scope[data-effects="off"] .app.tiny .rescue-map-toggle > summary,
+.tiny-effects-scope[data-effects="off"]
+  .app.tiny
+  .rescue-map-toggle
+  > summary::after {
+  transition: none;
+}
 
 /* Illustrated public choices: larger silhouettes, no answer or safety indicators. */
-.app.tiny .expedition-choices .expedition-illustration{width:104px;height:96px;object-fit:contain}
+.app.tiny .expedition-choices .expedition-illustration {
+  width: 104px;
+  height: 96px;
+  object-fit: contain;
+}
 .app.tiny .clue-sharing-list .expedition-illustration,
-.app.tiny .expedition-observations .expedition-illustration{width:88px;height:80px}
-@media(max-width:600px){
- .app.tiny .expedition-choices .expedition-illustration{width:80px;height:76px}
- .app.tiny .clue-sharing-list .expedition-illustration,
- .app.tiny .expedition-observations .expedition-illustration{width:68px;height:64px}
+.app.tiny .expedition-observations .expedition-illustration {
+  width: 88px;
+  height: 80px;
+}
+@media (max-width: 600px) {
+  .app.tiny .expedition-choices .expedition-illustration {
+    width: 80px;
+    height: 76px;
+  }
+  .app.tiny .clue-sharing-list .expedition-illustration,
+  .app.tiny .expedition-observations .expedition-illustration {
+    width: 68px;
+    height: 64px;
+  }
 }
 
 /* Keep rescue-trail pictures together in the centre instead of spreading them apart. */
-.app.tiny .hero-trail ol{justify-content:center;gap:8px;min-width:0}
-.app.tiny .hero-trail li{flex:0 1 auto}
-@media(max-width:600px){.app.tiny .hero-trail ol{gap:6px}}
-@media(max-width:360px){.app.tiny .hero-trail ol{gap:4px}}
+.app.tiny .hero-trail ol {
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+}
+.app.tiny .hero-trail li {
+  flex: 0 1 auto;
+}
+@media (max-width: 600px) {
+  .app.tiny .hero-trail ol {
+    gap: 6px;
+  }
+}
+@media (max-width: 360px) {
+  .app.tiny .hero-trail ol {
+    gap: 4px;
+  }
+}
 
 /* One explicit send action for small teams: clue pictures are not selectable answers. */
-.app.tiny .bulk-clue-share{margin-top:16px}
-.app.tiny .bulk-clue-share>button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px}
-.app.tiny .bulk-clue-share>button>.tiny-icon{width:26px;height:26px}
-.app.tiny .bulk-clue-share>p{font-size:14px;margin:8px 0}
-.app.tiny .clue-sharing-list article>div>span{display:inline-flex;align-items:center;gap:6px;color:var(--world-deep);font-weight:600}
-.app.tiny .clue-sharing-list article>div>span>.tiny-icon{width:22px;height:22px}
-@media(max-width:600px){.app.tiny .bulk-clue-share>button{width:100%}}
+.app.tiny .bulk-clue-share {
+  margin-top: 16px;
+}
+.app.tiny .bulk-clue-share > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+}
+.app.tiny .bulk-clue-share > button > .tiny-icon {
+  width: 26px;
+  height: 26px;
+}
+.app.tiny .bulk-clue-share > p {
+  font-size: 14px;
+  margin: 8px 0;
+}
+.app.tiny .clue-sharing-list article > div > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--world-deep);
+  font-weight: 600;
+}
+.app.tiny .clue-sharing-list article > div > span > .tiny-icon {
+  width: 22px;
+  height: 22px;
+}
+@media (max-width: 600px) {
+  .app.tiny .bulk-clue-share > button {
+    width: 100%;
+  }
+}
 
 /* Invite URLs lead straight to a name-first joining panel. */
-.app.tiny .invite-landing{width:100%;max-width:480px;margin:0 auto}
-.app.tiny .invite-landing .lobby-entry{padding:24px}
+.app.tiny .invite-landing {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.app.tiny .invite-landing .lobby-entry {
+  padding: 24px;
+}
 /* Identical outer height in every location and at every breakpoint. */
-.app.tiny .sound-toggle,.app.tiny .room-buttons .sound-toggle,
-.app .room-buttons .copy-invite-button{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;height:48px;min-height:48px;padding-block:8px;line-height:20px;font-size:14px;white-space:nowrap}
-.app.tiny .sound-toggle>.tiny-icon{width:26px;height:26px;flex:0 0 26px}
+.app.tiny .sound-toggle,
+.app.tiny .room-buttons .sound-toggle,
+.app .room-buttons .copy-invite-button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  min-height: 48px;
+  padding-block: 8px;
+  line-height: 20px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.app.tiny .sound-toggle > .tiny-icon {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+}
 
 /* Shared Ready/Start/Launch chrome across all ten Tiny Heroes adventures. */
-.app.tiny .hero-ready{width:fit-content;max-width:100%;min-height:48px;font-size:16px;line-height:1.3;padding:14px 22px;border-radius:0!important;margin:14px auto!important}
-.app.tiny .hero-ready>.tiny-icon{width:24px;height:24px;flex-shrink:0}
+.app.tiny .hero-ready {
+  width: fit-content;
+  max-width: 100%;
+  min-height: 48px;
+  font-size: 16px;
+  line-height: 1.3;
+  padding: 14px 22px;
+  border-radius: 0 !important;
+  margin: 14px auto !important;
+}
+.app.tiny .hero-ready > .tiny-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
 /* Flush full-width artwork inside the disclosure, without inherited compact-map gaps. */
-.app.tiny .little-hero .rescue-map-toggle{padding:0;overflow:hidden}
-.app.tiny .little-hero .rescue-map-toggle>.ice-expedition-world{clear:both;width:100%;max-width:100%;margin:0;border:0;box-sizing:border-box}
-.app.tiny .little-hero .rescue-map-toggle .adventure-map{width:100%;max-width:100%;margin:0;border:0;box-sizing:border-box}
+.app.tiny .little-hero .rescue-map-toggle {
+  padding: 0;
+  overflow: hidden;
+}
+.app.tiny .little-hero .rescue-map-toggle > .ice-expedition-world {
+  clear: both;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  border: 0;
+  box-sizing: border-box;
+}
+.app.tiny .little-hero .rescue-map-toggle .adventure-map {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  border: 0;
+  box-sizing: border-box;
+}
 
 /* Captain lobby actions sit together like the Level 1 Ready/Start controls. */
-.app.tiny .team-expedition .hero-lobby>.hero-ready{display:inline-flex;vertical-align:middle;margin:14px 6px!important}
+.app.tiny .team-expedition .hero-lobby > .hero-ready {
+  display: inline-flex;
+  vertical-align: middle;
+  margin: 14px 6px !important;
+}
 
 /* Compact Forest/Ice crew clues: picture left, readable text right, sharp flat chrome. */
-.app.tiny .captain-clues{width:100%;max-width:680px;box-sizing:border-box;margin:20px auto;padding:16px;border:1px solid var(--game-line);border-radius:0;background:var(--world-soft)}
-.app.tiny .captain-clues h4{font-size:17px;color:var(--world-deep)}
-.app.tiny .captain-clues .captain-clues-hint{color:var(--game-muted);line-height:1.45}
-.app.tiny .captain-clues ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
-.app.tiny .captain-clues li{display:grid;grid-template-columns:64px minmax(0,1fr);align-items:start;gap:12px;padding:12px;border:1px solid var(--game-line);border-radius:0;background:var(--game-surface)}
-.app.tiny .captain-clues .captain-helper-tool{width:64px;min-height:64px;padding:0;gap:0;border-radius:0;background:transparent;color:var(--world-deep)}
-.app.tiny .captain-clues .captain-helper-tool :is(.tool-art,.route-art){width:64px;height:58px;max-width:100%}
-.app.tiny .captain-helper-heading{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
-.app.tiny .captain-helper-heading strong{font-size:15px;color:var(--game-ink)}
-.app.tiny .captain-helper-heading small{font-size:12px;color:var(--game-muted)}
-.app.tiny .captain-helper-copy p{font-size:14px;line-height:1.5;margin:6px 0;color:var(--game-ink)}
-.app.tiny .captain-helper-choice{display:block;font-size:13px;line-height:1.4;font-weight:700;color:var(--world-deep)}
-@media(max-width:600px){.app.tiny .captain-clues{padding:12px}.app.tiny .captain-clues li{grid-template-columns:52px minmax(0,1fr);gap:10px}.app.tiny .captain-clues .captain-helper-tool{width:52px;min-height:52px}.app.tiny .captain-clues .captain-helper-tool :is(.tool-art,.route-art){width:52px;height:48px}}
+.app.tiny .captain-clues {
+  width: 100%;
+  max-width: 680px;
+  box-sizing: border-box;
+  margin: 20px auto;
+  padding: 16px;
+  border: 1px solid var(--game-line);
+  border-radius: 0;
+  background: var(--world-soft);
+}
+.app.tiny .captain-clues h4 {
+  font-size: 17px;
+  color: var(--world-deep);
+}
+.app.tiny .captain-clues .captain-clues-hint {
+  color: var(--game-muted);
+  line-height: 1.45;
+}
+.app.tiny .captain-clues ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 12px;
+}
+.app.tiny .captain-clues li {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--game-line);
+  border-radius: 0;
+  background: var(--game-surface);
+}
+.app.tiny .captain-clues .captain-helper-tool {
+  width: 64px;
+  min-height: 64px;
+  padding: 0;
+  gap: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--world-deep);
+}
+.app.tiny .captain-clues .captain-helper-tool :is(.tool-art, .route-art) {
+  width: 64px;
+  height: 58px;
+  max-width: 100%;
+}
+.app.tiny .captain-helper-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+.app.tiny .captain-helper-heading strong {
+  font-size: 15px;
+  color: var(--game-ink);
+}
+.app.tiny .captain-helper-heading small {
+  font-size: 12px;
+  color: var(--game-muted);
+}
+.app.tiny .captain-helper-copy p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 6px 0;
+  color: var(--game-ink);
+}
+.app.tiny .captain-helper-choice {
+  display: block;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 700;
+  color: var(--world-deep);
+}
+@media (max-width: 600px) {
+  .app.tiny .captain-clues {
+    padding: 12px;
+  }
+  .app.tiny .captain-clues li {
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 10px;
+  }
+  .app.tiny .captain-clues .captain-helper-tool {
+    width: 52px;
+    min-height: 52px;
+  }
+  .app.tiny .captain-clues .captain-helper-tool :is(.tool-art, .route-art) {
+    width: 52px;
+    height: 48px;
+  }
+}

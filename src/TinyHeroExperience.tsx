@@ -1,77 +1,726 @@
-import {ShareClues} from './ShareClues';
-import {IceChoiceArt,RouteArt} from './IceExpedition';
-import {TinyProgression,progressionAudio,IceResourceGuide} from './TinyProgression';
-import {TinyIcon} from './TinyIcon';
-import {useEffect,useRef,useState,useId} from 'react';
-import type {Engine} from '../server/engine';
-import type {Action} from '../server/modes';
-import {createReader,chooseNarrationVoice,narrationVoices,loadNarrationSettings,saveNarrationSettings,type NarrationSettings} from './speech';
-import {GuideIcon,HeroTrail,AdventureProgress,RescueHint,CluePicture,CaptainIcon,Animal,ToolArt,MissionMap,FriendScene,Celebration,useTinySound} from './TinyWorld';
-type View=ReturnType<Engine['view']>;
-const steps=['See your clue','Pick a tool','Ready','Rescue together!'];
-const simpleRules='See your clue. Pick a tool. Tap Ready. Rescue together!';
-export function HeroGuide({ice=false}:{ice?:boolean}={}){const [selected,setSelected]=useState<number|null>(null);return <ol className="hero-guide" aria-label="How to play">{(ice?['See your clue','Choose a route','Ready','Travel together!']:steps).map((label,index)=><li key={label}><button className="guide-tile" type="button" aria-pressed={selected===index} onClick={()=>setSelected(index)}><span aria-hidden="true">{ice&&index===1?<TinyIcon name="map"/>:<GuideIcon step={index}/>}</span><strong>{label}</strong></button></li>)}</ol>}
-
-export const tinyRulesText='Help your animal friends get home together. One player is the Team Captain; everyone else is a Little Hero. Helpers tap Share with Captain to send their secret clues. Each helper chooses the tool that fits the rescue. The captain saves a star or spends one to cover one wrong or missing tool. Tap Ready before the timer ends. The captain sees each helper’s tool after they tap Ready. The rescue result appears together after everyone locks in or time runs out. Earn one rescue badge when every helper brings the right tool, including any help from a star. Earn a badge for each successful rescue! After a miss, try the same rescue again with a hint. If the second try is still tricky, the rescue crew helps without awarding a badge. Every friend can get home. Missing choices count as a missed attempt. There is no elimination. Use Share with Captain inside the game. No phone or video call is needed.';
-export function TinyMissionRules({ice=false}:{ice?:boolean}={}){if(ice)return <div className="rules-content"><p>Travel from Frozen Lake to Blizzard Station together.</p><ol><li>Everyone sees different environmental clues. Share them, then agree on a route.</li><li>The captain has two shared Warm Packs. Extreme cold needs a pack. Sheltered paths may be clear or blocked: check the clues.</li><li>Everyone chooses a route and taps Ready. All routes must agree and the captain chooses the matching warmth plan.</li><li>A pack is used only when everyone safely completes a route that needs warmth. Wrong choices use no packs. A protected finale route works with zero packs.</li><li>Retry a miss with a hint. After two missed attempts, Team Assist brings the friend to safety without a Rescue Badge.</li></ol><p>All five friends home completes the expedition. Badges reward successful rescues, not speed.</p></div>;return <div className="rules-content"><p>Help your animal friends get home together. One player is the Team Captain; everyone else is a Little Hero.</p><ol><li>Helpers tap Share with Captain to send their secret clues.</li><li>Each helper chooses the tool that fits the rescue. The captain saves a star or spends one to cover one wrong or missing tool.</li><li>Tap Ready! before the timer ends. The captain sees each helper’s tool after they tap Ready. The rescue result appears together after everyone locks in or time runs out.</li><li>Earn one rescue badge when every helper brings the right tool, including any help from a star. Earn a badge for each successful rescue! After a miss, try the same rescue again with a hint. If the second try is still tricky, the rescue crew helps without awarding a badge. Every friend can get home.</li></ol><p>Missing choices count as a missed attempt. There is no elimination. Use Share with Captain inside the game. No phone or video call is needed.</p></div>}
-export function HeroInstructions({ice=false}:{ice?:boolean}={}){return <><HeroGuide ice={ice}/><details className="hero-full-rules"><summary>Read the mission rules</summary><TinyMissionRules ice={ice}/></details></>}
-export function captainAudio(view:View){
- if(view.phase==='lobby')return `Welcome, Team Captain, to ${view.adventure?.title}. ${view.adventure?.intro} Create a team of two to six players. Share the room code. Everyone taps Ready, then you start the mission. ${view.adventure?.mechanics?.resource?'Ice Rescue: share environmental clues and agree on a route. Start with two shared Warm Packs. Check the clues for extreme cold, safe shelter and blocked paths. A pack is used only on a successful route that needs warmth. Wrong choices use no packs. A protected route remains safe even with zero packs. Retry with a hint; Team Assist helps after two attempts without awarding a badge.':tinyRulesText}`;
- if(view.phase==='finished')return progressionAudio(view);
- if(view.phase==='paused')return 'Waiting for the team. At least two players must reconnect to begin the next round.';
- if(view.phase==='result')return `${view.mission.story} ${view.adventure?.hint?.hint||''} ${view.result?.message||''} ${view.result?.details||''} ${view.result?.hint?.text||''} ${view.result?.retry?'Try this rescue again.':'Our next stop is coming soon.'}`;
- return `${view.mission.story} ${view.brief?.message||''} ${view.brief?.tasks.map(t=>`${t.title}. ${t.hint||''}. ${t.options.map(o=>o.label.replace(/[^a-zA-Z0-9 .]/g,'')).join('. ')}`).join('. ')||''} ${view.submitted?'Your choice is locked. Wait for your team.':'Choose your team plan, then tap Ready.'}`;
-}
-export function ReadToMe({text,context}:{text:string;context:string}){
- const [supported]=useState(()=>typeof window!=='undefined'&&'speechSynthesis' in window&&'SpeechSynthesisUtterance' in window);
- const [state,setState]=useState<'starting'|'reading'|'idle'|'error'>('idle'),[error,setError]=useState('');
- const reader=useRef<ReturnType<typeof createReader>|null>(null);
- const [voices,setVoices]=useState<SpeechSynthesisVoice[]>([]),[preferences,setPreferences]=useState(loadNarrationSettings);const voiceId=useId(),speedId=useId();
- function changePreferences(next:NarrationSettings){reader.current?.stop();setState('idle');setError('');saveNarrationSettings(next);setPreferences(next)}
- useEffect(()=>{
-  if(!supported)return;
-  const synth=window.speechSynthesis;
-  reader.current=createReader(synth,t=>new SpeechSynthesisUtterance(t),(state,error)=>{setState(state);setError(error||'')});
-  // Request voices on mount as some browsers populate them asynchronously.
-  const loadVoices=()=>{setVoices(narrationVoices(synth.getVoices()))};loadVoices();synth.addEventListener('voiceschanged',loadVoices);
-  return()=>{reader.current?.stop();reader.current=null;synth.removeEventListener('voiceschanged',loadVoices)};
- },[supported]);
- useEffect(()=>{reader.current?.stop();setState('idle');setError('')},[text,context]);
- const active=state==='starting'||state==='reading';
- function read(){if(active){reader.current?.stop();setState('idle')}else reader.current?.start(text)}
- const failure=!supported?'This browser cannot read aloud. Ask your captain for help.':error==='not-allowed'?'Sound was blocked. Unmute this site and tap Read to me again.':error==='language-unavailable'||error==='voice-unavailable'?'Karen, Tessa, Daniel and Whisper are unavailable on this device. Try another device or ask your captain for help.':`Could not start the voice (${error}). Try again or use another browser.`;
- return <div className="hero-audio"><button type="button" className="read-to-me" onClick={read} disabled={!supported} aria-pressed={active}><span className="narration-emblem" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M7 12h5l7-6v20l-7-6H7a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2Z" fill="currentColor"/><path className="narration-wave" d="M23 11q5 5 0 10M27 7q8 9 0 18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg></span><span className="narration-label">{active?'Stop reading':'Read to me'}</span><span className="narration-status" aria-hidden="true">{active?<svg viewBox="0 0 20 20"><rect x="5" y="5" width="10" height="10" rx="2" fill="currentColor"/></svg>:<svg viewBox="0 0 20 20"><path d="m8 5 6 5-6 5Z" fill="currentColor"/></svg>}</span></button><p className="audio-help" role="status">{!supported||state==='error'?failure:state==='starting'?'Starting the voice…':state==='reading'?'Reading aloud. No sound? Check device volume and unmute this site.':'Tap to hear this screen.'}</p>{supported&&<details className="voice-settings"><summary><span>Voice settings</span><svg className="voice-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7 5 5 5-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></summary><div className="voice-settings-controls"><label htmlFor={voiceId}>Reading voice</label><select id={voiceId} value={chooseNarrationVoice(voices,preferences.voiceURI)?.voiceURI||''} onChange={e=>changePreferences({...preferences,voiceURI:e.target.value})}>{voices.length===0&&<option value="">No supported voices on this device</option>}{voices.map(v=><option key={v.voiceURI} value={v.voiceURI}>{v.name} · {v.lang}</option>)}</select><label htmlFor={speedId}>Reading pace</label><select id={speedId} value={preferences.rate} onChange={e=>changePreferences({...preferences,rate:Number(e.target.value)})}><option value={.92}>Calm</option><option value={1}>Normal</option></select><button className="secondary" type="button" onClick={()=>reader.current?.start('Hello, hero! Ready for an adventure? Let’s rescue our friends together.')}>Try voice</button><small>Karen (en-AU) is the default. Your choice is saved on this device.</small></div></details>}</div>
-}
-
-export function heroNarration(view:View){const a=view.adventure!,r=a.rescues[view.round],clue=(view.brief?.message||'').replace(/^Your secret clue: /,'').replace(/ Tell your captain\.$/,'');
- if(view.phase==='lobby')return `Welcome to ${a.title}! ${a.intro} ${a.mechanics?.primary==='routes'?'See your clue. Choose a route. Tap Ready. Travel together! Warm Packs keep your team warm in very cold places. You only have two for the whole adventure!':simpleRules} Tap Ready when you want to play.`;
- if(view.phase==='finished')return progressionAudio(view);
- if(view.phase==='paused')return 'Wait for your team to come back.';
- if(view.phase==='result')return view.result?.success?`You did it! ${r.friend} is home! ${a.mechanics?.primary==='routes'?`${view.result?.details||''} Warm Packs remaining: ${view.bonus}.`:''} ${view.round===a.total-1?'Adventure complete!':'Follow the trail to our next friend.'}`:view.result?.assisted?`Team Assist. Our rescue crew helped ${r.friend} home. No Rescue Badge this time. Keep going together!`:`Oops! Let’s try again. ${a.mechanics?.primary==='routes'?'No Warm Pack used.':''} ${view.result?.hint?.text||''}`;
- if(view.submitted||view.phase==='locked')return a.mechanics?.primary==='routes'?'Your route is ready. Wait for your team.':'Your tool is ready. Wait for your team.';
- return `${view.mission.story} Your clue: ${clue} Tap Share with Captain. ${a.mechanics?.primary==='routes'?'Choose a route':'Pick a tool'}, then tap Ready when the buttons open.`;
-}
-export function heroNarrationContext(view:View){return `${view.code}:${view.adventure?.id}:${view.progression?.run}:${view.progression?.mapOpen}:${view.round}:${view.adventure?.attempt}:${view.phase==='briefing'?'action':view.phase}:${view.submitted}`}
-
-export function TinyHeroExperience({view,actions,setActions,connected,pending,remaining,command}:{view:View;actions:Action;setActions:(a:Action)=>void;connected:boolean;pending:boolean;remaining:number;command:(data:Record<string,unknown>)=>Promise<unknown>}){
- const {play}=useTinySound();
- const me=view.players.find(p=>p.id===view.me)!;
- const isHost=view.host===view.me;
- const allReady=view.players.length>=2&&view.players.every(p=>p.connected&&p.ready);
- const a=view.adventure!,rescue=a.rescues[view.round];
- const clue=(view.brief?.message||'').replace(/^Your secret clue: /,'').replace(/ Tell your captain\.$/,'');
- const success=!!view.result?.success;
- const result=success?'You did it! Rescue complete!':view.result?.assisted?'Team Assist — our friend is safe!':"Oops! That didn't work. Let's try something else!";
- const followup=view.result?.retry?'Try again with this hint.':view.result?.assisted?'The rescue team brought our friend home. No badge this time.':view.round===a.total-1?'Your adventure is complete!':a.mechanics?.primary==='routes'?'Next expedition stop soon!':'Next friend soon!';
- const context=heroNarrationContext(view),audio=heroNarration(view);
- return <section className="play-area little-hero"><ShareClues view={view} connected={connected} pending={pending} command={command}/><ReadToMe text={audio} context={context}/>{view.phase!=='lobby'&&view.phase!=='finished'&&<><HeroTrail view={view}/><details className="rescue-map-toggle" open={view.phase==='result'&&!!view.result?.success?true:undefined}><summary><TinyIcon name="map"/> {a.title} map <span>{a.completed.length} / {a.total} home</span></summary><MissionMap view={view} compact connected={connected}/></details></>}
- {view.phase==='lobby'&&<MissionMap view={view} compact connected={connected}/>}
- {view.phase==='lobby'?<div className="panel hero-lobby"><div className="hero-welcome"><Animal kind={rescue.character} happy/><div><span className="eyebrow">{a.title}</span><h1>{a.mechanics?.primary==='routes'?'Let’s start our expedition!':'Let’s help our friends!'}</h1></div></div><p>{a.intro}</p><IceResourceGuide view={view}/><HeroInstructions ice={!!a.mechanics?.resource}/><button className="primary hero-ready" disabled={!connected||pending} onClick={()=>{play('ready');command({type:'ready'})}}><TinyIcon name="ready"/>{me.ready?'Ready!':'Tap Ready'}</button>{isHost&&<button className="secondary hero-ready" disabled={!allReady||!connected||pending} onClick={()=>command({type:'start'})}><TinyIcon name="star"/> Start rescue</button>}<p><TinyIcon name={allReady?'star':'wait'}/>{allReady?'Your team is ready!':'Wait for your team.'}</p></div>:
- view.phase==='finished'?<TinyProgression view={view} connected={connected} pending={pending} command={command}/>: 
- view.phase==='paused'?<div className="panel hero-lobby"><span className="hero-big-icon" aria-hidden="true"><TinyIcon name="wait"/></span><h2>Wait for your team.</h2></div>:
- <><div className="round-header"><h2>Rescue {view.round+1} / {a.total}</h2><div className="timer" aria-label={`${remaining} seconds remaining`}><TinyIcon name={view.phase==='action'?'clock':view.phase==='briefing'?'look':view.phase==='locked'?'ready':success?'star':'hint'}/>{view.phase==='action'?`${remaining}s`:view.phase==='briefing'?'Look':view.phase==='locked'?'Ready':''}</div></div>{a.attempt>1&&view.phase!=='result'&&<p className="try-again-note"><TinyIcon name="hint"/> Let’s try again!</p>}{view.submitted&&view.phase!=='result'&&<div className="hero-locked-status" role="status">{view.ownAction?.tool&&<ToolArt tool={view.ownAction.tool}/>}{view.ownAction?.route&&<IceChoiceArt view={view} value={view.ownAction.route}/>}<TinyIcon name="ready"/><div><strong>Ready!</strong><span>Wait for your team.</span></div></div>}<FriendScene view={view}/><IceResourceGuide view={view}/>
- {view.phase==='result'?<div className={`panel result ${success?'success':'gentle-feedback'}`} role="status">{success&&<Celebration/>}<span className="rescue-star" aria-hidden="true"><TinyIcon name={success?'star':view.result?.assisted?'assist':'hint'}/></span><h2>{result}</h2>{!success&&!view.result?.assisted&&<RescueHint view={view}/>}<p>{followup}</p><small>{view.result?.retry?'Try again':'Next stop'} in {remaining}s</small><AdventureProgress view={view}/></div>:
- <div className="panel private-panel"><div className="hero-clue"><span className="clue-picture" aria-hidden="true">{rescue.art?.clue?<img src={rescue.art.clue} alt=""/>:a.mechanics?.primary==='routes'?<TinyIcon name="look"/>:<CluePicture scene={rescue.scene}/>}</span><div><h3>Your private clue</h3><p>{clue}</p></div></div>{view.brief?.visuals&&<div className="ice-private-pictures" aria-hidden="true">{view.brief.visuals.map((v,i)=><span key={i}>{v==='heat'||v==='clock'?<TinyIcon name={v}/>:v==='flag'?<span className="blue-ribbon">Blue ribbon</span>:v==='wind'?<svg viewBox="0 0 80 55"><path d="M3 16h48q20 0 15-10M7 28h58q18 0 10 15M4 40h38" fill="none" stroke="#799ab4" strokeWidth="5" strokeLinecap="round"/></svg>:<RouteArt visual={v as any}/>}</span>)}</div>}{view.brief?.tasks.map(task=><fieldset key={task.key} disabled={view.phase!=='action'||view.submitted||!connected||pending}><legend>{a.mechanics?.primary==='routes'?task.title:'Pick a tool'}</legend><div className="choices tool-choices">{task.options.map(o=>{const words=a.mechanics?.primary==='routes'?[o.label]:o.label.split(' ').slice(1);return <button type="button" className={actions[task.key]===o.value?'selected':''} aria-pressed={actions[task.key]===o.value} aria-label={words.join(' ')} key={o.value} onClick={()=>{play('select');setActions({...actions,[task.key]:o.value})}}>{a.mechanics?.primary==='routes'?<IceChoiceArt view={view} value={o.value}/>:<ToolArt tool={o.value}/>}<span>{words.join(' ')}</span>{actions[task.key]===o.value&&<span className="tool-check" aria-hidden="true"><TinyIcon name="ready"/></span>}</button>})}</div></fieldset>)}<button className={`primary hero-ready hero-submit ${view.brief?.tasks.every(t=>actions[t.key])?'has-choice':''}`} disabled={view.phase!=='action'||view.submitted||pending||!connected||!view.brief?.tasks.every(t=>actions[t.key])} onClick={()=>{play('ready');command({type:'submit',round:view.round,attempt:a.attempt,adventureId:a.id,run:view.progression?.run,action:actions})}}><TinyIcon name="ready"/>{view.submitted?'Ready!':'Tap Ready'}</button><p className="hero-next">{view.submitted||view.phase==='locked'?<><TinyIcon name="wait"/> Wait for your team.</>:view.phase==='briefing'?<><TinyIcon name="look"/> Look at your clue.</>:<><CaptainIcon/> {view.players.length<=4?'Tap Share all clues.':'Tap Share with Captain.'}</>}</p></div>}</>}
- </section>
+import { ShareClues } from "./ShareClues";
+import { IceChoiceArt, RouteArt } from "./IceExpedition";
+import {
+  TinyProgression,
+  progressionAudio,
+  IceResourceGuide,
+} from "./TinyProgression";
+import { TinyIcon } from "./TinyIcon";
+import { useEffect, useRef, useState, useId } from "react";
+import type { Engine } from "../server/engine";
+import type { Action } from "../server/modes";
+import {
+  createReader,
+  chooseNarrationVoice,
+  narrationVoices,
+  loadNarrationSettings,
+  saveNarrationSettings,
+  type NarrationSettings,
+} from "./speech";
+import {
+  GuideIcon,
+  HeroTrail,
+  AdventureProgress,
+  RescueHint,
+  CluePicture,
+  CaptainIcon,
+  Animal,
+  ToolArt,
+  MissionMap,
+  FriendScene,
+  Celebration,
+  useTinySound,
+} from "./TinyWorld";
+type View = ReturnType<Engine["view"]>;
+const steps = ["See your clue", "Pick a tool", "Ready", "Rescue together!"];
+const simpleRules = "See your clue. Pick a tool. Tap Ready. Rescue together!";
+export function HeroGuide({ ice = false }: { ice?: boolean } = {}) {
+  const [selected, setSelected] = useState<number | null>(null);
+  return (
+    <ol className="hero-guide" aria-label="How to play">
+      {(ice
+        ? ["See your clue", "Choose a route", "Ready", "Travel together!"]
+        : steps
+      ).map((label, index) => (
+        <li key={label}>
+          <button
+            className="guide-tile"
+            type="button"
+            aria-pressed={selected === index}
+            onClick={() => setSelected(index)}
+          >
+            <span aria-hidden="true">
+              {ice && index === 1 ? (
+                <TinyIcon name="map" />
+              ) : (
+                <GuideIcon step={index} />
+              )}
+            </span>
+            <strong>{label}</strong>
+          </button>
+        </li>
+      ))}
+    </ol>
+  );
 }
 
+export const tinyRulesText =
+  "Help your animal friends get home together. One player is the Team Captain; everyone else is a Little Hero. Helpers tap Share with Captain to send their secret clues. Each helper chooses the tool that fits the rescue. The captain saves a star or spends one to cover one wrong or missing tool. Tap Ready before the timer ends. The captain sees each helper’s tool after they tap Ready. The rescue result appears together after everyone locks in or time runs out. Earn one rescue badge when every helper brings the right tool, including any help from a star. Earn a badge for each successful rescue! After a miss, try the same rescue again with a hint. If the second try is still tricky, the rescue crew helps without awarding a badge. Every friend can get home. Missing choices count as a missed attempt. There is no elimination. Use Share with Captain inside the game. No phone or video call is needed.";
+export function TinyMissionRules({ ice = false }: { ice?: boolean } = {}) {
+  if (ice)
+    return (
+      <div className="rules-content">
+        <p>Travel from Frozen Lake to Blizzard Station together.</p>
+        <ol>
+          <li>
+            Everyone sees different environmental clues. Share them, then agree
+            on a route.
+          </li>
+          <li>
+            The captain has two shared Warm Packs. Extreme cold needs a pack.
+            Sheltered paths may be clear or blocked: check the clues.
+          </li>
+          <li>
+            Everyone chooses a route and taps Ready. All routes must agree and
+            the captain chooses the matching warmth plan.
+          </li>
+          <li>
+            A pack is used only when everyone safely completes a route that
+            needs warmth. Wrong choices use no packs. A protected finale route
+            works with zero packs.
+          </li>
+          <li>
+            Retry a miss with a hint. After two missed attempts, Team Assist
+            brings the friend to safety without a Rescue Badge.
+          </li>
+        </ol>
+        <p>
+          All five friends home completes the expedition. Badges reward
+          successful rescues, not speed.
+        </p>
+      </div>
+    );
+  return (
+    <div className="rules-content">
+      <p>
+        Help your animal friends get home together. One player is the Team
+        Captain; everyone else is a Little Hero.
+      </p>
+      <ol>
+        <li>Helpers tap Share with Captain to send their secret clues.</li>
+        <li>
+          Each helper chooses the tool that fits the rescue. The captain saves a
+          star or spends one to cover one wrong or missing tool.
+        </li>
+        <li>
+          Tap Ready! before the timer ends. The captain sees each helper’s tool
+          after they tap Ready. The rescue result appears together after
+          everyone locks in or time runs out.
+        </li>
+        <li>
+          Earn one rescue badge when every helper brings the right tool,
+          including any help from a star. Earn a badge for each successful
+          rescue! After a miss, try the same rescue again with a hint. If the
+          second try is still tricky, the rescue crew helps without awarding a
+          badge. Every friend can get home.
+        </li>
+      </ol>
+      <p>
+        Missing choices count as a missed attempt. There is no elimination. Use
+        Share with Captain inside the game. No phone or video call is needed.
+      </p>
+    </div>
+  );
+}
+export function HeroInstructions({ ice = false }: { ice?: boolean } = {}) {
+  return (
+    <>
+      <HeroGuide ice={ice} />
+      <details className="hero-full-rules">
+        <summary>Read the mission rules</summary>
+        <TinyMissionRules ice={ice} />
+      </details>
+    </>
+  );
+}
+export function captainAudio(view: View) {
+  if (view.phase === "lobby")
+    return `Welcome, Team Captain, to ${view.adventure?.title}. ${view.adventure?.intro} Create a team of two to six players. Share the room code. Everyone taps Ready, then you start the mission. ${view.adventure?.mechanics?.resource ? "Ice Rescue: share environmental clues and agree on a route. Start with two shared Warm Packs. Check the clues for extreme cold, safe shelter and blocked paths. A pack is used only on a successful route that needs warmth. Wrong choices use no packs. A protected route remains safe even with zero packs. Retry with a hint; Team Assist helps after two attempts without awarding a badge." : tinyRulesText}`;
+  if (view.phase === "finished") return progressionAudio(view);
+  if (view.phase === "paused")
+    return "Waiting for the team. At least two players must reconnect to begin the next round.";
+  if (view.phase === "result")
+    return `${view.mission.story} ${view.adventure?.hint?.hint || ""} ${view.result?.message || ""} ${view.result?.details || ""} ${view.result?.hint?.text || ""} ${view.result?.retry ? "Try this rescue again." : "Our next stop is coming soon."}`;
+  return `${view.mission.story} ${view.brief?.message || ""} ${view.brief?.tasks.map((t) => `${t.title}. ${t.hint || ""}. ${t.options.map((o) => o.label.replace(/[^a-zA-Z0-9 .]/g, "")).join(". ")}`).join(". ") || ""} ${view.submitted ? "Your choice is locked. Wait for your team." : "Choose your team plan, then tap Ready."}`;
+}
+export function ReadToMe({ text, context }: { text: string; context: string }) {
+  const [supported] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      "speechSynthesis" in window &&
+      "SpeechSynthesisUtterance" in window,
+  );
+  const [state, setState] = useState<"starting" | "reading" | "idle" | "error">(
+      "idle",
+    ),
+    [error, setError] = useState("");
+  const reader = useRef<ReturnType<typeof createReader> | null>(null);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]),
+    [preferences, setPreferences] = useState(loadNarrationSettings);
+  const voiceId = useId(),
+    speedId = useId();
+  function changePreferences(next: NarrationSettings) {
+    reader.current?.stop();
+    setState("idle");
+    setError("");
+    saveNarrationSettings(next);
+    setPreferences(next);
+  }
+  useEffect(() => {
+    if (!supported) return;
+    const synth = window.speechSynthesis;
+    reader.current = createReader(
+      synth,
+      (t) => new SpeechSynthesisUtterance(t),
+      (state, error) => {
+        setState(state);
+        setError(error || "");
+      },
+    );
+    // Request voices on mount as some browsers populate them asynchronously.
+    const loadVoices = () => {
+      setVoices(narrationVoices(synth.getVoices()));
+    };
+    loadVoices();
+    synth.addEventListener("voiceschanged", loadVoices);
+    return () => {
+      reader.current?.stop();
+      reader.current = null;
+      synth.removeEventListener("voiceschanged", loadVoices);
+    };
+  }, [supported]);
+  useEffect(() => {
+    reader.current?.stop();
+    setState("idle");
+    setError("");
+  }, [text, context]);
+  const active = state === "starting" || state === "reading";
+  function read() {
+    if (active) {
+      reader.current?.stop();
+      setState("idle");
+    } else reader.current?.start(text);
+  }
+  const failure = !supported
+    ? "This browser cannot read aloud. Ask your captain for help."
+    : error === "not-allowed"
+      ? "Sound was blocked. Unmute this site and tap Read to me again."
+      : error === "language-unavailable" || error === "voice-unavailable"
+        ? "Karen, Tessa, Daniel and Whisper are unavailable on this device. Try another device or ask your captain for help."
+        : `Could not start the voice (${error}). Try again or use another browser.`;
+  return (
+    <div className="hero-audio">
+      <button
+        type="button"
+        className="read-to-me"
+        onClick={read}
+        disabled={!supported}
+        aria-pressed={active}
+      >
+        <span className="narration-emblem" aria-hidden="true">
+          <svg viewBox="0 0 32 32">
+            <path
+              d="M7 12h5l7-6v20l-7-6H7a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2Z"
+              fill="currentColor"
+            />
+            <path
+              className="narration-wave"
+              d="M23 11q5 5 0 10M27 7q8 9 0 18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </span>
+        <span className="narration-label">
+          {active ? "Stop reading" : "Read to me"}
+        </span>
+        <span className="narration-status" aria-hidden="true">
+          {active ? (
+            <svg viewBox="0 0 20 20">
+              <rect
+                x="5"
+                y="5"
+                width="10"
+                height="10"
+                rx="2"
+                fill="currentColor"
+              />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 20 20">
+              <path d="m8 5 6 5-6 5Z" fill="currentColor" />
+            </svg>
+          )}
+        </span>
+      </button>
+      <p className="audio-help" role="status">
+        {!supported || state === "error"
+          ? failure
+          : state === "starting"
+            ? "Starting the voice…"
+            : state === "reading"
+              ? "Reading aloud. No sound? Check device volume and unmute this site."
+              : "Tap to hear this screen."}
+      </p>
+      {supported && (
+        <details className="voice-settings">
+          <summary>
+            <span>Voice settings</span>
+            <svg
+              className="voice-chevron"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                d="m5 7 5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </summary>
+          <div className="voice-settings-controls">
+            <label htmlFor={voiceId}>Reading voice</label>
+            <select
+              id={voiceId}
+              value={
+                chooseNarrationVoice(voices, preferences.voiceURI)?.voiceURI ||
+                ""
+              }
+              onChange={(e) =>
+                changePreferences({ ...preferences, voiceURI: e.target.value })
+              }
+            >
+              {voices.length === 0 && (
+                <option value="">No supported voices on this device</option>
+              )}
+              {voices.map((v) => (
+                <option key={v.voiceURI} value={v.voiceURI}>
+                  {v.name} · {v.lang}
+                </option>
+              ))}
+            </select>
+            <label htmlFor={speedId}>Reading pace</label>
+            <select
+              id={speedId}
+              value={preferences.rate}
+              onChange={(e) =>
+                changePreferences({
+                  ...preferences,
+                  rate: Number(e.target.value),
+                })
+              }
+            >
+              <option value={0.92}>Calm</option>
+              <option value={1}>Normal</option>
+            </select>
+            <button
+              className="secondary"
+              type="button"
+              onClick={() =>
+                reader.current?.start(
+                  "Hello, hero! Ready for an adventure? Let’s rescue our friends together.",
+                )
+              }
+            >
+              Try voice
+            </button>
+            <small>
+              Karen (en-AU) is the default. Your choice is saved on this device.
+            </small>
+          </div>
+        </details>
+      )}
+    </div>
+  );
+}
+
+export function heroNarration(view: View) {
+  const a = view.adventure!,
+    r = a.rescues[view.round],
+    clue = (view.brief?.message || "")
+      .replace(/^Your secret clue: /, "")
+      .replace(/ Tell your captain\.$/, "");
+  if (view.phase === "lobby")
+    return `Welcome to ${a.title}! ${a.intro} ${a.mechanics?.primary === "routes" ? "See your clue. Choose a route. Tap Ready. Travel together! Warm Packs keep your team warm in very cold places. You only have two for the whole adventure!" : simpleRules} Tap Ready when you want to play.`;
+  if (view.phase === "finished") return progressionAudio(view);
+  if (view.phase === "paused") return "Wait for your team to come back.";
+  if (view.phase === "result")
+    return view.result?.success
+      ? `You did it! ${r.friend} is home! ${a.mechanics?.primary === "routes" ? `${view.result?.details || ""} Warm Packs remaining: ${view.bonus}.` : ""} ${view.round === a.total - 1 ? "Adventure complete!" : "Follow the trail to our next friend."}`
+      : view.result?.assisted
+        ? `Team Assist. Our rescue crew helped ${r.friend} home. No Rescue Badge this time. Keep going together!`
+        : `Oops! Let’s try again. ${a.mechanics?.primary === "routes" ? "No Warm Pack used." : ""} ${view.result?.hint?.text || ""}`;
+  if (view.submitted || view.phase === "locked")
+    return a.mechanics?.primary === "routes"
+      ? "Your route is ready. Wait for your team."
+      : "Your tool is ready. Wait for your team.";
+  return `${view.mission.story} Your clue: ${clue} Tap Share with Captain. ${a.mechanics?.primary === "routes" ? "Choose a route" : "Pick a tool"}, then tap Ready when the buttons open.`;
+}
+export function heroNarrationContext(view: View) {
+  return `${view.code}:${view.adventure?.id}:${view.progression?.run}:${view.progression?.mapOpen}:${view.round}:${view.adventure?.attempt}:${view.phase === "briefing" ? "action" : view.phase}:${view.submitted}`;
+}
+
+export function TinyHeroExperience({
+  view,
+  actions,
+  setActions,
+  connected,
+  pending,
+  remaining,
+  command,
+}: {
+  view: View;
+  actions: Action;
+  setActions: (a: Action) => void;
+  connected: boolean;
+  pending: boolean;
+  remaining: number;
+  command: (data: Record<string, unknown>) => Promise<unknown>;
+}) {
+  const { play } = useTinySound();
+  const me = view.players.find((p) => p.id === view.me)!;
+  const isHost = view.host === view.me;
+  const allReady =
+    view.players.length >= 2 &&
+    view.players.every((p) => p.connected && p.ready);
+  const a = view.adventure!,
+    rescue = a.rescues[view.round];
+  const clue = (view.brief?.message || "")
+    .replace(/^Your secret clue: /, "")
+    .replace(/ Tell your captain\.$/, "");
+  const success = !!view.result?.success;
+  const result = success
+    ? "You did it! Rescue complete!"
+    : view.result?.assisted
+      ? "Team Assist — our friend is safe!"
+      : "Oops! That didn't work. Let's try something else!";
+  const followup = view.result?.retry
+    ? "Try again with this hint."
+    : view.result?.assisted
+      ? "The rescue team brought our friend home. No badge this time."
+      : view.round === a.total - 1
+        ? "Your adventure is complete!"
+        : a.mechanics?.primary === "routes"
+          ? "Next expedition stop soon!"
+          : "Next friend soon!";
+  const context = heroNarrationContext(view),
+    audio = heroNarration(view);
+  return (
+    <section className="play-area little-hero">
+      <ShareClues
+        view={view}
+        connected={connected}
+        pending={pending}
+        command={command}
+      />
+      <ReadToMe text={audio} context={context} />
+      {view.phase !== "lobby" && view.phase !== "finished" && (
+        <>
+          <HeroTrail view={view} />
+          <details
+            className="rescue-map-toggle"
+            open={
+              view.phase === "result" && !!view.result?.success
+                ? true
+                : undefined
+            }
+          >
+            <summary>
+              <TinyIcon name="map" /> {a.title} map{" "}
+              <span>
+                {a.completed.length} / {a.total} home
+              </span>
+            </summary>
+            <MissionMap view={view} compact connected={connected} />
+          </details>
+        </>
+      )}
+      {view.phase === "lobby" && (
+        <MissionMap view={view} compact connected={connected} />
+      )}
+      {view.phase === "lobby" ? (
+        <div className="panel hero-lobby">
+          <div className="hero-welcome">
+            <Animal kind={rescue.character} happy />
+            <div>
+              <span className="eyebrow">{a.title}</span>
+              <h1>
+                {a.mechanics?.primary === "routes"
+                  ? "Let’s start our expedition!"
+                  : "Let’s help our friends!"}
+              </h1>
+            </div>
+          </div>
+          <p>{a.intro}</p>
+          <IceResourceGuide view={view} />
+          <HeroInstructions ice={!!a.mechanics?.resource} />
+          <button
+            className="primary hero-ready"
+            disabled={!connected || pending}
+            onClick={() => {
+              play("ready");
+              command({ type: "ready" });
+            }}
+          >
+            <TinyIcon name="ready" />
+            {me.ready ? "Ready!" : "Tap Ready"}
+          </button>
+          {isHost && (
+            <button
+              className="secondary hero-ready"
+              disabled={!allReady || !connected || pending}
+              onClick={() => command({ type: "start" })}
+            >
+              <TinyIcon name="star" /> Start rescue
+            </button>
+          )}
+          <p>
+            <TinyIcon name={allReady ? "star" : "wait"} />
+            {allReady ? "Your team is ready!" : "Wait for your team."}
+          </p>
+        </div>
+      ) : view.phase === "finished" ? (
+        <TinyProgression
+          view={view}
+          connected={connected}
+          pending={pending}
+          command={command}
+        />
+      ) : view.phase === "paused" ? (
+        <div className="panel hero-lobby">
+          <span className="hero-big-icon" aria-hidden="true">
+            <TinyIcon name="wait" />
+          </span>
+          <h2>Wait for your team.</h2>
+        </div>
+      ) : (
+        <>
+          <div className="round-header">
+            <h2>
+              Rescue {view.round + 1} / {a.total}
+            </h2>
+            <div
+              className="timer"
+              aria-label={`${remaining} seconds remaining`}
+            >
+              <TinyIcon
+                name={
+                  view.phase === "action"
+                    ? "clock"
+                    : view.phase === "briefing"
+                      ? "look"
+                      : view.phase === "locked"
+                        ? "ready"
+                        : success
+                          ? "star"
+                          : "hint"
+                }
+              />
+              {view.phase === "action"
+                ? `${remaining}s`
+                : view.phase === "briefing"
+                  ? "Look"
+                  : view.phase === "locked"
+                    ? "Ready"
+                    : ""}
+            </div>
+          </div>
+          {a.attempt > 1 && view.phase !== "result" && (
+            <p className="try-again-note">
+              <TinyIcon name="hint" /> Let’s try again!
+            </p>
+          )}
+          {view.submitted && view.phase !== "result" && (
+            <div className="hero-locked-status" role="status">
+              {view.ownAction?.tool && <ToolArt tool={view.ownAction.tool} />}
+              {view.ownAction?.route && (
+                <IceChoiceArt view={view} value={view.ownAction.route} />
+              )}
+              <TinyIcon name="ready" />
+              <div>
+                <strong>Ready!</strong>
+                <span>Wait for your team.</span>
+              </div>
+            </div>
+          )}
+          <FriendScene view={view} />
+          <IceResourceGuide view={view} />
+          {view.phase === "result" ? (
+            <div
+              className={`panel result ${success ? "success" : "gentle-feedback"}`}
+              role="status"
+            >
+              {success && <Celebration />}
+              <span className="rescue-star" aria-hidden="true">
+                <TinyIcon
+                  name={
+                    success ? "star" : view.result?.assisted ? "assist" : "hint"
+                  }
+                />
+              </span>
+              <h2>{result}</h2>
+              {!success && !view.result?.assisted && <RescueHint view={view} />}
+              <p>{followup}</p>
+              <small>
+                {view.result?.retry ? "Try again" : "Next stop"} in {remaining}s
+              </small>
+              <AdventureProgress view={view} />
+            </div>
+          ) : (
+            <div className="panel private-panel">
+              <div className="hero-clue">
+                <span className="clue-picture" aria-hidden="true">
+                  {rescue.art?.clue ? (
+                    <img src={rescue.art.clue} alt="" />
+                  ) : a.mechanics?.primary === "routes" ? (
+                    <TinyIcon name="look" />
+                  ) : (
+                    <CluePicture scene={rescue.scene} />
+                  )}
+                </span>
+                <div>
+                  <h3>Your private clue</h3>
+                  <p>{clue}</p>
+                </div>
+              </div>
+              {view.brief?.visuals && (
+                <div className="ice-private-pictures" aria-hidden="true">
+                  {view.brief.visuals.map((v, i) => (
+                    <span key={i}>
+                      {v === "heat" || v === "clock" ? (
+                        <TinyIcon name={v} />
+                      ) : v === "flag" ? (
+                        <span className="blue-ribbon">Blue ribbon</span>
+                      ) : v === "wind" ? (
+                        <svg viewBox="0 0 80 55">
+                          <path
+                            d="M3 16h48q20 0 15-10M7 28h58q18 0 10 15M4 40h38"
+                            fill="none"
+                            stroke="#799ab4"
+                            strokeWidth="5"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      ) : (
+                        <RouteArt visual={v as any} />
+                      )}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {view.brief?.tasks.map((task) => (
+                <fieldset
+                  key={task.key}
+                  disabled={
+                    view.phase !== "action" ||
+                    view.submitted ||
+                    !connected ||
+                    pending
+                  }
+                >
+                  <legend>
+                    {a.mechanics?.primary === "routes"
+                      ? task.title
+                      : "Pick a tool"}
+                  </legend>
+                  <div className="choices tool-choices">
+                    {task.options.map((o) => {
+                      const words =
+                        a.mechanics?.primary === "routes"
+                          ? [o.label]
+                          : o.label.split(" ").slice(1);
+                      return (
+                        <button
+                          type="button"
+                          className={
+                            actions[task.key] === o.value ? "selected" : ""
+                          }
+                          aria-pressed={actions[task.key] === o.value}
+                          aria-label={words.join(" ")}
+                          key={o.value}
+                          onClick={() => {
+                            play("select");
+                            setActions({ ...actions, [task.key]: o.value });
+                          }}
+                        >
+                          {a.mechanics?.primary === "routes" ? (
+                            <IceChoiceArt view={view} value={o.value} />
+                          ) : (
+                            <ToolArt tool={o.value} />
+                          )}
+                          <span>{words.join(" ")}</span>
+                          {actions[task.key] === o.value && (
+                            <span className="tool-check" aria-hidden="true">
+                              <TinyIcon name="ready" />
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              ))}
+              <button
+                className={`primary hero-ready hero-submit ${view.brief?.tasks.every((t) => actions[t.key]) ? "has-choice" : ""}`}
+                disabled={
+                  view.phase !== "action" ||
+                  view.submitted ||
+                  pending ||
+                  !connected ||
+                  !view.brief?.tasks.every((t) => actions[t.key])
+                }
+                onClick={() => {
+                  play("ready");
+                  command({
+                    type: "submit",
+                    round: view.round,
+                    attempt: a.attempt,
+                    adventureId: a.id,
+                    run: view.progression?.run,
+                    action: actions,
+                  });
+                }}
+              >
+                <TinyIcon name="ready" />
+                {view.submitted ? "Ready!" : "Tap Ready"}
+              </button>
+              <p className="hero-next">
+                {view.submitted || view.phase === "locked" ? (
+                  <>
+                    <TinyIcon name="wait" /> Wait for your team.
+                  </>
+                ) : view.phase === "briefing" ? (
+                  <>
+                    <TinyIcon name="look" /> Look at your clue.
+                  </>
+                ) : (
+                  <>
+                    <CaptainIcon />{" "}
+                    {view.players.length <= 4
+                      ? "Tap Share all clues."
+                      : "Tap Share with Captain."}
+                  </>
+                )}
+              </p>
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  );
+}

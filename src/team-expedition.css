@@ -1,73 +1,1067 @@
-@import './expert-visuals.css';
+@import "./expert-visuals.css";
 /* Uses the existing hybrid UI: world artwork, soft controls, restrained map HUD. */
-.tiny[data-world=jungle]{--tiny-accent:#285e49;--tiny-gold:#cda456}.tiny[data-world=treasure]{--tiny-accent:#1d6e73;--tiny-gold:#d2ad59}
-.expedition-icon{width:72px;height:66px;max-width:100%;flex:none}.expedition-symbol-strip{display:flex;justify-content:center}.expedition-symbol-strip .expedition-icon{width:46px}
-.expedition-living-map{border-radius:24px;overflow:hidden;border:1px solid #bac9b8;background:#eef2df}.expedition-landscape{position:relative;aspect-ratio:2/3;isolation:isolate}.expedition-landscape>img{width:100%;height:100%;object-fit:cover;display:block}.expedition-stops{margin:0;padding:0;list-style:none}.expedition-stops li{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;z-index:3}.expedition-stops li>span{width:38px;height:38px;display:grid;place-items:center;background:#fbf7e9ed;color:#254e42;border:2px solid #fff;border-radius:13px;font-weight:800;box-shadow:0 2px 6px #183c3440}.expedition-stops .tiny-icon{width:25px;height:25px}.expedition-stops strong{font-size:12px;max-width:110px;background:#fbf7e9ed;color:#254e42;padding:5px 8px;border-radius:8px;line-height:1.2}.stop-complete>span{background:#d6e7c7!important}.expedition-motion .stop-active>span{animation:expeditionGlow 2s ease-in-out infinite}
-.expedition-traveler{position:absolute;width:11%;z-index:2;transform:translate(-50%,-65%)}.expedition-traveler .animal{width:100%;height:auto;display:block}.traveler-walking{animation:expeditionWalk 3s ease-in-out both}.traveler-walking .animal{animation:expeditionBob .4s ease-in-out infinite alternate}.expedition-travel-message{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 16px}.expedition-travel-message button{min-height:44px}.expedition-atmosphere{position:absolute;inset:0;pointer-events:none;background:linear-gradient(125deg,#fff7bc14,transparent 45%)}.expedition-motion .expedition-atmosphere{animation:expeditionLight 9s ease-in-out infinite alternate}.expedition-water{position:absolute;inset:75% 0 0;pointer-events:none;background:repeating-linear-gradient(170deg,transparent 0 20px,#ffffff0a 23px 25px)}.expedition-motion .expedition-water{animation:expeditionWater 6s linear infinite}
-.expedition-scene{position:relative;overflow:hidden;border-radius:24px;min-height:230px;margin:16px 0;background:#eaf2df}.expedition-scene>img:not(.animal-art){width:100%;height:280px;object-fit:cover;display:block}.expedition-scene>.animal-art{position:absolute;left:18px;bottom:60px;width:100px;height:auto;max-width:25%;max-height:160px;object-fit:contain;filter:drop-shadow(0 4px 3px #253b3426)}.expedition-scene>p{position:absolute;bottom:0;right:0;left:0;margin:0;padding:16px;background:#fffaf0ee;color:#263e39;font-weight:600}.expedition-observations{display:grid;gap:12px}.expedition-observations>div{display:flex;align-items:center;gap:16px;padding:12px;background:#f3f4e9;border-radius:18px}.expedition-observations p{margin:0;line-height:1.45}.expedition-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.expedition-choices button{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:116px;padding:10px;gap:6px;line-height:1.2;font-size:15px}.expedition-team-plan{background:#eef3eb;border:1px solid #c2d0c1;border-radius:20px;padding:16px;margin:16px 0}.expedition-team-plan ol{list-style:none;padding:0;margin:0;display:grid;gap:8px}.expedition-team-plan li{display:flex;align-items:center;gap:12px}.expedition-team-plan .expedition-icon{width:52px;height:48px}.expedition-progress{display:flex;flex-direction:column;gap:12px}.expedition-progress ol{display:flex;justify-content:center;flex-wrap:wrap;gap:8px}.expedition-progress li{display:flex;align-items:center;justify-content:center;gap:6px;min-width:56px;padding:8px;background:#fff8df;border-radius:14px}.expedition-progress .tiny-icon{width:26px;height:26px}.friendship-compass{width:156px;margin:auto}.friendship-compass svg{width:100%;display:block}.compass-whole{filter:drop-shadow(0 0 10px #e8c76755)}
-@keyframes expeditionWalk{from{left:var(--from-x);top:var(--from-y)}to{left:var(--to-x);top:var(--to-y)}}@keyframes expeditionBob{to{transform:translateY(-3px) rotate(1deg)}}@keyframes expeditionGlow{50%{box-shadow:0 0 0 6px #ffe69a65}}@keyframes expeditionLight{to{opacity:.35;transform:translateX(8px)}}@keyframes expeditionWater{to{background-position:32px 12px}}
-@media(max-width:500px){.expedition-stops strong{max-width:76px;font-size:10px;padding:4px}.expedition-stops li>span{width:30px;height:30px;border-radius:10px}.expedition-stops li{gap:3px}.expedition-choices button{font-size:14px;padding:8px}.expedition-choices .expedition-icon{width:60px;height:55px}.expedition-observations>div{gap:10px;padding:10px}.expedition-observations .expedition-icon{width:58px;height:54px}.expedition-scene .animal{width:80px}}
-@media(prefers-reduced-motion:reduce){.expedition-motion *,.traveler-walking{animation:none!important}}
-.expedition-stops li:nth-child(4){flex-direction:row-reverse;transform:translate(-85%,-50%)}
+.tiny[data-world="jungle"] {
+  --tiny-accent: #285e49;
+  --tiny-gold: #cda456;
+}
+.tiny[data-world="treasure"] {
+  --tiny-accent: #1d6e73;
+  --tiny-gold: #d2ad59;
+}
+.expedition-icon {
+  width: 72px;
+  height: 66px;
+  max-width: 100%;
+  flex: none;
+}
+.expedition-symbol-strip {
+  display: flex;
+  justify-content: center;
+}
+.expedition-symbol-strip .expedition-icon {
+  width: 46px;
+}
+.expedition-living-map {
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid #bac9b8;
+  background: #eef2df;
+}
+.expedition-landscape {
+  position: relative;
+  aspect-ratio: 2/3;
+  isolation: isolate;
+}
+.expedition-landscape > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.expedition-stops {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.expedition-stops li {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 3;
+}
+.expedition-stops li > span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: #fbf7e9ed;
+  color: #254e42;
+  border: 2px solid #fff;
+  border-radius: 13px;
+  font-weight: 800;
+  box-shadow: 0 2px 6px #183c3440;
+}
+.expedition-stops .tiny-icon {
+  width: 25px;
+  height: 25px;
+}
+.expedition-stops strong {
+  font-size: 12px;
+  max-width: 110px;
+  background: #fbf7e9ed;
+  color: #254e42;
+  padding: 5px 8px;
+  border-radius: 8px;
+  line-height: 1.2;
+}
+.stop-complete > span {
+  background: #d6e7c7 !important;
+}
+.expedition-motion .stop-active > span {
+  animation: expeditionGlow 2s ease-in-out infinite;
+}
+.expedition-traveler {
+  position: absolute;
+  width: 11%;
+  z-index: 2;
+  transform: translate(-50%, -65%);
+}
+.expedition-traveler .animal {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.traveler-walking {
+  animation: expeditionWalk 3s ease-in-out both;
+}
+.traveler-walking .animal {
+  animation: expeditionBob 0.4s ease-in-out infinite alternate;
+}
+.expedition-travel-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 16px;
+}
+.expedition-travel-message button {
+  min-height: 44px;
+}
+.expedition-atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(125deg, #fff7bc14, transparent 45%);
+}
+.expedition-motion .expedition-atmosphere {
+  animation: expeditionLight 9s ease-in-out infinite alternate;
+}
+.expedition-water {
+  position: absolute;
+  inset: 75% 0 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    170deg,
+    transparent 0 20px,
+    #ffffff0a 23px 25px
+  );
+}
+.expedition-motion .expedition-water {
+  animation: expeditionWater 6s linear infinite;
+}
+.expedition-scene {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  min-height: 230px;
+  margin: 16px 0;
+  background: #eaf2df;
+}
+.expedition-scene > img:not(.animal-art) {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  display: block;
+}
+.expedition-scene > .animal-art {
+  position: absolute;
+  left: 18px;
+  bottom: 60px;
+  width: 100px;
+  height: auto;
+  max-width: 25%;
+  max-height: 160px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 3px #253b3426);
+}
+.expedition-scene > p {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  margin: 0;
+  padding: 16px;
+  background: #fffaf0ee;
+  color: #263e39;
+  font-weight: 600;
+}
+.expedition-observations {
+  display: grid;
+  gap: 12px;
+}
+.expedition-observations > div {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: #f3f4e9;
+  border-radius: 18px;
+}
+.expedition-observations p {
+  margin: 0;
+  line-height: 1.45;
+}
+.expedition-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.expedition-choices button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 116px;
+  padding: 10px;
+  gap: 6px;
+  line-height: 1.2;
+  font-size: 15px;
+}
+.expedition-team-plan {
+  background: #eef3eb;
+  border: 1px solid #c2d0c1;
+  border-radius: 20px;
+  padding: 16px;
+  margin: 16px 0;
+}
+.expedition-team-plan ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.expedition-team-plan li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.expedition-team-plan .expedition-icon {
+  width: 52px;
+  height: 48px;
+}
+.expedition-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.expedition-progress ol {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.expedition-progress li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 56px;
+  padding: 8px;
+  background: #fff8df;
+  border-radius: 14px;
+}
+.expedition-progress .tiny-icon {
+  width: 26px;
+  height: 26px;
+}
+.friendship-compass {
+  width: 156px;
+  margin: auto;
+}
+.friendship-compass svg {
+  width: 100%;
+  display: block;
+}
+.compass-whole {
+  filter: drop-shadow(0 0 10px #e8c76755);
+}
+@keyframes expeditionWalk {
+  from {
+    left: var(--from-x);
+    top: var(--from-y);
+  }
+  to {
+    left: var(--to-x);
+    top: var(--to-y);
+  }
+}
+@keyframes expeditionBob {
+  to {
+    transform: translateY(-3px) rotate(1deg);
+  }
+}
+@keyframes expeditionGlow {
+  50% {
+    box-shadow: 0 0 0 6px #ffe69a65;
+  }
+}
+@keyframes expeditionLight {
+  to {
+    opacity: 0.35;
+    transform: translateX(8px);
+  }
+}
+@keyframes expeditionWater {
+  to {
+    background-position: 32px 12px;
+  }
+}
+@media (max-width: 500px) {
+  .expedition-stops strong {
+    max-width: 76px;
+    font-size: 10px;
+    padding: 4px;
+  }
+  .expedition-stops li > span {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+  }
+  .expedition-stops li {
+    gap: 3px;
+  }
+  .expedition-choices button {
+    font-size: 14px;
+    padding: 8px;
+  }
+  .expedition-choices .expedition-icon {
+    width: 60px;
+    height: 55px;
+  }
+  .expedition-observations > div {
+    gap: 10px;
+    padding: 10px;
+  }
+  .expedition-observations .expedition-icon {
+    width: 58px;
+    height: 54px;
+  }
+  .expedition-scene .animal {
+    width: 80px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .expedition-motion *,
+  .traveler-walking {
+    animation: none !important;
+  }
+}
+.expedition-stops li:nth-child(4) {
+  flex-direction: row-reverse;
+  transform: translate(-85%, -50%);
+}
 /* Levels 5 and 6 keep the same component system with their own world accents. */
-.tiny[data-world=desert]{--tiny-accent:#825631;--tiny-gold:#cfa754}.tiny[data-world=ocean]{--tiny-accent:#205978;--tiny-gold:#c9ae62}
-.world-desert .expedition-water{display:none}.world-desert .expedition-atmosphere{background:linear-gradient(120deg,#f8d38c22,transparent 60%)}.world-ocean .expedition-water{inset:15% 0 0}.world-ocean .expedition-atmosphere{background:linear-gradient(115deg,transparent 35%,#aff3ef20 42%,transparent 50%)}
-.world-ocean .expedition-traveler{width:19%}.submarine-art{width:100%;display:block}.traveler-walking .submarine-art{animation:expeditionBob 1s ease-in-out infinite alternate}.world-ocean.expedition-motion .expedition-traveler:not(.traveler-walking) .submarine-art{animation:expeditionBob 3s ease-in-out infinite alternate}.world-ocean .expedition-stops li:nth-child(5){flex-direction:row-reverse;transform:translate(-80%,-50%)}
-.ocean-scene>.submarine-art{position:absolute;left:8%;bottom:65px;width:180px;max-width:40%}.ocean-power{margin:16px 0}.ocean-power p{margin-bottom:0}.power-blocks{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.power-blocks>span{width:44px;height:44px;border-radius:12px;background:#e6edf0;border:2px solid #c5d9df;opacity:.5}.power-blocks .power-used{opacity:1;background:#ecdb9b}.power-blocks .expedition-icon{width:100%;height:100%}.power-overload .power-used{background:#f0c2a0;border-color:#c48a65}.ocean-team-dashboard{margin-top:16px}.ocean-team-dashboard ol{margin:0;padding:0;list-style:none;display:grid;gap:12px}.ocean-team-dashboard li{display:flex;align-items:center;gap:12px;min-width:0}.ocean-team-dashboard .expedition-icon{width:46px;height:46px}.ocean-team-dashboard small{display:block}.ocean-team-dashboard strong{font-size:16px;overflow-wrap:anywhere}.ocean-expedition .private-panel>small{display:block;margin-top:12px}.ocean-expedition .hero-ready .expedition-icon{width:28px;height:28px}.desert-oops-supplies{display:flex;align-items:center;justify-content:center;gap:32px}.tiny-effects-scope[data-effects=on] .desert-oops-supplies span{animation:desertLooseBag 1.4s ease-in-out infinite alternate}@keyframes desertLooseBag{to{transform:translateX(24px) rotate(12deg)}}
-@media(max-width:500px){.ocean-team-dashboard strong{font-size:14px}.ocean-expedition .expedition-choices{grid-template-columns:repeat(2,minmax(0,1fr))}.ocean-expedition .expedition-choices button{min-height:116px}.world-desert .expedition-stops li:nth-child(5){flex-direction:row-reverse;transform:translate(-80%,-50%)}}
-@media(prefers-reduced-motion:reduce){.desert-oops-supplies span{animation:none!important}}
-.ocean-bubbles{position:absolute;inset:15% 0 0;pointer-events:none;overflow:hidden}.ocean-bubbles span{position:absolute;bottom:2%;width:8px;height:8px;border:1px solid #c6f2ef88;border-radius:50%;opacity:0}.expedition-motion .ocean-bubbles span{animation:oceanBubble 8s linear infinite}@keyframes oceanBubble{10%{opacity:.5}80%{opacity:.2}to{transform:translate(12px,-420px);opacity:0}}
+.tiny[data-world="desert"] {
+  --tiny-accent: #825631;
+  --tiny-gold: #cfa754;
+}
+.tiny[data-world="ocean"] {
+  --tiny-accent: #205978;
+  --tiny-gold: #c9ae62;
+}
+.world-desert .expedition-water {
+  display: none;
+}
+.world-desert .expedition-atmosphere {
+  background: linear-gradient(120deg, #f8d38c22, transparent 60%);
+}
+.world-ocean .expedition-water {
+  inset: 15% 0 0;
+}
+.world-ocean .expedition-atmosphere {
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    #aff3ef20 42%,
+    transparent 50%
+  );
+}
+.world-ocean .expedition-traveler {
+  width: 19%;
+}
+.submarine-art {
+  width: 100%;
+  display: block;
+}
+.traveler-walking .submarine-art {
+  animation: expeditionBob 1s ease-in-out infinite alternate;
+}
+.world-ocean.expedition-motion
+  .expedition-traveler:not(.traveler-walking)
+  .submarine-art {
+  animation: expeditionBob 3s ease-in-out infinite alternate;
+}
+.world-ocean .expedition-stops li:nth-child(5) {
+  flex-direction: row-reverse;
+  transform: translate(-80%, -50%);
+}
+.ocean-scene > .submarine-art {
+  position: absolute;
+  left: 8%;
+  bottom: 65px;
+  width: 180px;
+  max-width: 40%;
+}
+.ocean-power {
+  margin: 16px 0;
+}
+.ocean-power p {
+  margin-bottom: 0;
+}
+.power-blocks {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.power-blocks > span {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #e6edf0;
+  border: 2px solid #c5d9df;
+  opacity: 0.5;
+}
+.power-blocks .power-used {
+  opacity: 1;
+  background: #ecdb9b;
+}
+.power-blocks .expedition-icon {
+  width: 100%;
+  height: 100%;
+}
+.power-overload .power-used {
+  background: #f0c2a0;
+  border-color: #c48a65;
+}
+.ocean-team-dashboard {
+  margin-top: 16px;
+}
+.ocean-team-dashboard ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+.ocean-team-dashboard li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.ocean-team-dashboard .expedition-icon {
+  width: 46px;
+  height: 46px;
+}
+.ocean-team-dashboard small {
+  display: block;
+}
+.ocean-team-dashboard strong {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.ocean-expedition .private-panel > small {
+  display: block;
+  margin-top: 12px;
+}
+.ocean-expedition .hero-ready .expedition-icon {
+  width: 28px;
+  height: 28px;
+}
+.desert-oops-supplies {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+.tiny-effects-scope[data-effects="on"] .desert-oops-supplies span {
+  animation: desertLooseBag 1.4s ease-in-out infinite alternate;
+}
+@keyframes desertLooseBag {
+  to {
+    transform: translateX(24px) rotate(12deg);
+  }
+}
+@media (max-width: 500px) {
+  .ocean-team-dashboard strong {
+    font-size: 14px;
+  }
+  .ocean-expedition .expedition-choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ocean-expedition .expedition-choices button {
+    min-height: 116px;
+  }
+  .world-desert .expedition-stops li:nth-child(5) {
+    flex-direction: row-reverse;
+    transform: translate(-80%, -50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .desert-oops-supplies span {
+    animation: none !important;
+  }
+}
+.ocean-bubbles {
+  position: absolute;
+  inset: 15% 0 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ocean-bubbles span {
+  position: absolute;
+  bottom: 2%;
+  width: 8px;
+  height: 8px;
+  border: 1px solid #c6f2ef88;
+  border-radius: 50%;
+  opacity: 0;
+}
+.expedition-motion .ocean-bubbles span {
+  animation: oceanBubble 8s linear infinite;
+}
+@keyframes oceanBubble {
+  10% {
+    opacity: 0.5;
+  }
+  80% {
+    opacity: 0.2;
+  }
+  to {
+    transform: translate(12px, -420px);
+    opacity: 0;
+  }
+}
 /* These HUD captions belong to their maps, not to the page viewport. */
-.tiny .world-desert .map-caption,.tiny .world-ocean .map-caption{position:static;display:flex;flex-wrap:wrap;gap:8px;padding:12px;pointer-events:auto;background:#f6f4e9}.tiny .world-ocean .map-caption{background:#e9f2f4}.tiny .world-desert .map-caption span,.tiny .world-ocean .map-caption span{font-size:12px;line-height:1.3;color:#304c50;background:#fffdf4e8}
+.tiny .world-desert .map-caption,
+.tiny .world-ocean .map-caption {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  pointer-events: auto;
+  background: #f6f4e9;
+}
+.tiny .world-ocean .map-caption {
+  background: #e9f2f4;
+}
+.tiny .world-desert .map-caption span,
+.tiny .world-ocean .map-caption span {
+  font-size: 12px;
+  line-height: 1.3;
+  color: #304c50;
+  background: #fffdf4e8;
+}
 
 /* Keep the Desert Scout grounded on foreground sand, facing the oasis. */
-.world-desert .desert-start .animal{transform:scaleX(-1) rotate(-3deg);transform-origin:50% 95%}
-.world-desert .desert-start::before{content:"";position:absolute;left:22%;right:18%;bottom:5%;height:6%;border-radius:50%;background:#72472a33;filter:blur(2px);z-index:-1}
-.tiny[data-world=magic],.tiny [data-world=magic]{--tiny-accent:#64507d;--tiny-gold:#d5b568;--world-deep:#57446f;--world-light:#e4cf9a;--world-soft:#f1ecf6}.tiny[data-world=moon]{--tiny-accent:#3a456b;--tiny-gold:#c1b5e4;--world-deep:#303958;--world-light:#c9b8ea;--world-soft:#edf0f7}
-.world-magic .expedition-water,.world-moon .expedition-water{display:none}.world-magic .expedition-atmosphere{background:linear-gradient(135deg,#f4e7ff22,transparent 60%)}.world-moon .expedition-atmosphere{background:linear-gradient(120deg,#bbbeee15,transparent 60%)}.tiny .world-magic .map-caption,.tiny .world-moon .map-caption{position:static;display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#f0edf5;pointer-events:auto}.world-magic .expedition-stops li:nth-child(4),.world-moon .expedition-stops li:nth-child(4),.world-moon .expedition-stops li:nth-child(5){flex-direction:row-reverse;transform:translate(-80%,-50%)}
-.expert-scene{position:relative;overflow:hidden;border-radius:24px;height:220px;margin:16px 0}.expert-scene>img{width:100%;height:100%;object-fit:cover}.expert-scene>.animal{position:absolute;bottom:40px;left:16px;width:85px}.expert-scene>p{position:absolute;bottom:0;left:0;right:0;background:#fffcf1ef;color:#303947;margin:0;padding:12px 16px 12px 110px;font-weight:600;min-height:56px}
-.mechanism-illustration{background:#f8f4fb;border:1px solid #d5c9df;border-radius:24px;padding:16px;margin:16px 0;color:#463b55}.mechanism-illustration svg{display:block;width:100%;max-width:600px;margin:auto}.mechanism-illustration text{fill:#463b55;font-size:11px;font-family:inherit}.mechanism-illustration p{font-weight:600}.mission-control-board ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;list-style:none;padding:0}.mission-control-board li{display:flex;flex-direction:column;align-items:center;text-align:center;border:1px solid #c8cede;border-radius:16px;padding:12px 8px;background:#eff1f8;overflow-wrap:anywhere}.mission-control-board .expedition-icon{width:44px;height:44px}.mission-control-board span{text-transform:capitalize}.expert-team ol{list-style:none;padding:0;display:grid;gap:8px}.expert-team li{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:12px;border-radius:12px;background:#f1eef5}.expert-team li small{grid-column:1/-1}.expert-expedition fieldset{min-width:0;border:0;padding:0;margin:24px 0}.expert-expedition legend{font-size:18px;font-weight:700;margin-bottom:8px}.expert-expedition .expedition-choices button{min-height:104px}.expert-expedition .private-panel>small{display:block;margin:12px 0}.expert-expedition .mechanism-illustration svg g{transition:transform .3s ease-out}.tiny-effects-scope[data-effects=off] .expert-expedition *{transition:none!important}
-@media(max-width:600px){.mission-control-board ol{grid-template-columns:repeat(2,minmax(0,1fr))}.expert-expedition .expedition-choices{grid-template-columns:repeat(2,minmax(0,1fr))}.expert-expedition .round-header h2{font-size:20px}.expert-scene>p{font-size:16px}.expert-team li{grid-template-columns:1fr}.expert-team li small{grid-column:auto}}
-@media(prefers-reduced-motion:reduce){.expert-expedition *{animation:none!important;transition:none!important}}
-.moon-mechanism-art{margin:16px 0}.moon-mechanism-art>svg{display:block;width:100%;height:auto;max-height:260px}.moon-mechanism-art text{fill:#404a64;font-family:inherit;font-size:12px;font-weight:600}.moon-mechanism-art path{transition:stroke .25s ease,fill .25s ease}.world-moon .expedition-traveler{width:14%}.lunar-rover-art{display:block;width:100%;height:auto}.world-moon.expedition-motion .lunar-rover-art{animation:expeditionBob 2s ease-in-out infinite alternate}.world-magic.expedition-motion .expedition-traveler .animal-art{animation:expeditionBob 2.5s ease-in-out infinite alternate}.world-magic .traveler-walking .animal-art{animation:expeditionBob .4s ease-in-out infinite alternate}.tiny-effects-scope[data-effects=off] .lunar-rover-art,.tiny-effects-scope[data-effects=off] .moon-mechanism-art path{animation:none!important;transition:none!important}@media(prefers-reduced-motion:reduce){.lunar-rover-art,.world-magic .expedition-traveler .animal-art,.moon-mechanism-art path{animation:none!important;transition:none!important}}
-.world-magic .traveler-walking,.world-moon .traveler-walking{animation-name:expertRouteWalk}@keyframes expertRouteWalk{0%{left:var(--from-x);top:var(--from-y)}34%{left:var(--bend1-x);top:var(--bend1-y)}67%{left:var(--bend2-x);top:var(--bend2-y)}100%{left:var(--to-x);top:var(--to-y)}}
-.expert-scene>.animal-art{position:absolute;left:20px;bottom:54px;width:88px;height:auto;max-height:140px;object-fit:contain;filter:drop-shadow(0 5px 3px #33334b20)}
+.world-desert .desert-start .animal {
+  transform: scaleX(-1) rotate(-3deg);
+  transform-origin: 50% 95%;
+}
+.world-desert .desert-start::before {
+  content: "";
+  position: absolute;
+  left: 22%;
+  right: 18%;
+  bottom: 5%;
+  height: 6%;
+  border-radius: 50%;
+  background: #72472a33;
+  filter: blur(2px);
+  z-index: -1;
+}
+.tiny[data-world="magic"],
+.tiny [data-world="magic"] {
+  --tiny-accent: #64507d;
+  --tiny-gold: #d5b568;
+  --world-deep: #57446f;
+  --world-light: #e4cf9a;
+  --world-soft: #f1ecf6;
+}
+.tiny[data-world="moon"] {
+  --tiny-accent: #3a456b;
+  --tiny-gold: #c1b5e4;
+  --world-deep: #303958;
+  --world-light: #c9b8ea;
+  --world-soft: #edf0f7;
+}
+.world-magic .expedition-water,
+.world-moon .expedition-water {
+  display: none;
+}
+.world-magic .expedition-atmosphere {
+  background: linear-gradient(135deg, #f4e7ff22, transparent 60%);
+}
+.world-moon .expedition-atmosphere {
+  background: linear-gradient(120deg, #bbbeee15, transparent 60%);
+}
+.tiny .world-magic .map-caption,
+.tiny .world-moon .map-caption {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: #f0edf5;
+  pointer-events: auto;
+}
+.world-magic .expedition-stops li:nth-child(4),
+.world-moon .expedition-stops li:nth-child(4),
+.world-moon .expedition-stops li:nth-child(5) {
+  flex-direction: row-reverse;
+  transform: translate(-80%, -50%);
+}
+.expert-scene {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  height: 220px;
+  margin: 16px 0;
+}
+.expert-scene > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.expert-scene > .animal {
+  position: absolute;
+  bottom: 40px;
+  left: 16px;
+  width: 85px;
+}
+.expert-scene > p {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fffcf1ef;
+  color: #303947;
+  margin: 0;
+  padding: 12px 16px 12px 110px;
+  font-weight: 600;
+  min-height: 56px;
+}
+.mechanism-illustration {
+  background: #f8f4fb;
+  border: 1px solid #d5c9df;
+  border-radius: 24px;
+  padding: 16px;
+  margin: 16px 0;
+  color: #463b55;
+}
+.mechanism-illustration svg {
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+}
+.mechanism-illustration text {
+  fill: #463b55;
+  font-size: 11px;
+  font-family: inherit;
+}
+.mechanism-illustration p {
+  font-weight: 600;
+}
+.mission-control-board ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
+.mission-control-board li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: 1px solid #c8cede;
+  border-radius: 16px;
+  padding: 12px 8px;
+  background: #eff1f8;
+  overflow-wrap: anywhere;
+}
+.mission-control-board .expedition-icon {
+  width: 44px;
+  height: 44px;
+}
+.mission-control-board span {
+  text-transform: capitalize;
+}
+.expert-team ol {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.expert-team li {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f1eef5;
+}
+.expert-team li small {
+  grid-column: 1/-1;
+}
+.expert-expedition fieldset {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 24px 0;
+}
+.expert-expedition legend {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.expert-expedition .expedition-choices button {
+  min-height: 104px;
+}
+.expert-expedition .private-panel > small {
+  display: block;
+  margin: 12px 0;
+}
+.expert-expedition .mechanism-illustration svg g {
+  transition: transform 0.3s ease-out;
+}
+.tiny-effects-scope[data-effects="off"] .expert-expedition * {
+  transition: none !important;
+}
+@media (max-width: 600px) {
+  .mission-control-board ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .expert-expedition .expedition-choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .expert-expedition .round-header h2 {
+    font-size: 20px;
+  }
+  .expert-scene > p {
+    font-size: 16px;
+  }
+  .expert-team li {
+    grid-template-columns: 1fr;
+  }
+  .expert-team li small {
+    grid-column: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .expert-expedition * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+.moon-mechanism-art {
+  margin: 16px 0;
+}
+.moon-mechanism-art > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 260px;
+}
+.moon-mechanism-art text {
+  fill: #404a64;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+.moon-mechanism-art path {
+  transition:
+    stroke 0.25s ease,
+    fill 0.25s ease;
+}
+.world-moon .expedition-traveler {
+  width: 14%;
+}
+.lunar-rover-art {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.world-moon.expedition-motion .lunar-rover-art {
+  animation: expeditionBob 2s ease-in-out infinite alternate;
+}
+.world-magic.expedition-motion .expedition-traveler .animal-art {
+  animation: expeditionBob 2.5s ease-in-out infinite alternate;
+}
+.world-magic .traveler-walking .animal-art {
+  animation: expeditionBob 0.4s ease-in-out infinite alternate;
+}
+.tiny-effects-scope[data-effects="off"] .lunar-rover-art,
+.tiny-effects-scope[data-effects="off"] .moon-mechanism-art path {
+  animation: none !important;
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lunar-rover-art,
+  .world-magic .expedition-traveler .animal-art,
+  .moon-mechanism-art path {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+.world-magic .traveler-walking,
+.world-moon .traveler-walking {
+  animation-name: expertRouteWalk;
+}
+@keyframes expertRouteWalk {
+  0% {
+    left: var(--from-x);
+    top: var(--from-y);
+  }
+  34% {
+    left: var(--bend1-x);
+    top: var(--bend1-y);
+  }
+  67% {
+    left: var(--bend2-x);
+    top: var(--bend2-y);
+  }
+  100% {
+    left: var(--to-x);
+    top: var(--to-y);
+  }
+}
+.expert-scene > .animal-art {
+  position: absolute;
+  left: 20px;
+  bottom: 54px;
+  width: 88px;
+  height: auto;
+  max-height: 140px;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 3px #33334b20);
+}
 /* Moon journey overlays the approved art; only authoritative progress changes it. */
-.moon-progression-path{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}.moon-route-segment{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:.7}.moon-route-segment.route-future{stroke:#e7eaf0;opacity:.24;stroke-dasharray:1 1.6}.moon-route-segment.route-next{stroke:#f9df91;stroke-width:.9;stroke-dasharray:1.2 1.6;opacity:.95}.moon-route-segment.route-traveled{stroke:#8de6e3;stroke-width:.85;filter:drop-shadow(0 0 1px #253353)}.world-moon.expedition-motion .route-next{animation:moonRoutePulse 2.5s ease-in-out infinite alternate}@keyframes moonRoutePulse{to{opacity:.5}}.moon-home-status{display:flex;align-items:center;justify-content:center;gap:8px;margin:0;padding:12px;background:#e9edf6;color:#384761;font-weight:600}.moon-home-status .tiny-icon{width:26px;height:26px}@media(prefers-reduced-motion:reduce){.world-moon .route-next{animation:none!important}}
+.moon-progression-path {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+.moon-route-segment {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 0.7;
+}
+.moon-route-segment.route-future {
+  stroke: #e7eaf0;
+  opacity: 0.24;
+  stroke-dasharray: 1 1.6;
+}
+.moon-route-segment.route-next {
+  stroke: #f9df91;
+  stroke-width: 0.9;
+  stroke-dasharray: 1.2 1.6;
+  opacity: 0.95;
+}
+.moon-route-segment.route-traveled {
+  stroke: #8de6e3;
+  stroke-width: 0.85;
+  filter: drop-shadow(0 0 1px #253353);
+}
+.world-moon.expedition-motion .route-next {
+  animation: moonRoutePulse 2.5s ease-in-out infinite alternate;
+}
+@keyframes moonRoutePulse {
+  to {
+    opacity: 0.5;
+  }
+}
+.moon-home-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px;
+  background: #e9edf6;
+  color: #384761;
+  font-weight: 600;
+}
+.moon-home-status .tiny-icon {
+  width: 26px;
+  height: 26px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .world-moon .route-next {
+    animation: none !important;
+  }
+}
 
 /* Crop and character share one fixed illustration coordinate system at every viewport. */
-.grounded-scene .grounded-scene-landscape{position:relative;aspect-ratio:16/9;isolation:isolate}
-.grounded-scene-landscape>svg{display:block;width:100%;height:100%}
-.grounded-scene .grounded-scene-hero{position:absolute;width:11%;transform:translate(-50%,-100%);z-index:1;pointer-events:none}
-.grounded-scene-hero>.animal-art{display:block;width:100%;height:auto;max-width:none;filter:drop-shadow(0 3px 2px #263c3438)}
-.expedition-scene.grounded-scene>p{position:relative;inset:auto;min-height:56px;padding:12px 16px;background:#fffaf0;color:#263e39}
-.world-jungle .expedition-traveler,.world-treasure .expedition-traveler{transform:translate(-50%,-100%)}
-.world-jungle .expedition-traveler>.animal-art,.world-treasure .expedition-traveler>.animal-art{display:block;width:100%;height:auto}
+.grounded-scene .grounded-scene-landscape {
+  position: relative;
+  aspect-ratio: 16/9;
+  isolation: isolate;
+}
+.grounded-scene-landscape > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.grounded-scene .grounded-scene-hero {
+  position: absolute;
+  width: 11%;
+  transform: translate(-50%, -100%);
+  z-index: 1;
+  pointer-events: none;
+}
+.grounded-scene-hero > .animal-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  filter: drop-shadow(0 3px 2px #263c3438);
+}
+.expedition-scene.grounded-scene > p {
+  position: relative;
+  inset: auto;
+  min-height: 56px;
+  padding: 12px 16px;
+  background: #fffaf0;
+  color: #263e39;
+}
+.world-jungle .expedition-traveler,
+.world-treasure .expedition-traveler {
+  transform: translate(-50%, -100%);
+}
+.world-jungle .expedition-traveler > .animal-art,
+.world-treasure .expedition-traveler > .animal-art {
+  display: block;
+  width: 100%;
+  height: auto;
+}
 
 /* Jungle/Treasure captions belong below their maps, never relative to the page header. */
-.tiny .world-jungle .map-caption,.tiny .world-treasure .map-caption{position:static;display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#edf2e5;pointer-events:auto}
-.tiny .world-jungle .map-caption span,.tiny .world-treasure .map-caption span{font-size:12px;line-height:1.3;color:#304c40;background:#fffdf4ed}
-.tiny .adventure-preview{scroll-margin-block:24px}
+.tiny .world-jungle .map-caption,
+.tiny .world-treasure .map-caption {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: #edf2e5;
+  pointer-events: auto;
+}
+.tiny .world-jungle .map-caption span,
+.tiny .world-treasure .map-caption span {
+  font-size: 12px;
+  line-height: 1.3;
+  color: #304c40;
+  background: #fffdf4ed;
+}
+.tiny .adventure-preview {
+  scroll-margin-block: 24px;
+}
 
 /* Contain summary progress so Safari cannot wrap the map around its float. */
-.tiny .rescue-map-toggle>summary{display:flow-root}
-.tiny .rescue-map-toggle>.expedition-living-map{clear:both;width:100%;max-width:100%;margin-inline:auto}
+.tiny .rescue-map-toggle > summary {
+  display: flow-root;
+}
+.tiny .rescue-map-toggle > .expedition-living-map {
+  clear: both;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+}
 
-.tiny .share-clues{margin-bottom:24px}.clue-sharing-list{display:grid;gap:12px}.clue-sharing-list article{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--world-soft,#eff3e9)}.clue-sharing-list article>div{min-width:0;flex:1}.clue-sharing-list p{margin:0 0 10px;overflow-wrap:anywhere}.clue-sharing-list button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px}.clue-sharing-list button .tiny-icon{width:24px;height:24px}.team-clues{margin-top:16px}.share-clues>.hero-audio{margin-top:16px}@media(max-width:600px){.clue-sharing-list .expedition-icon{width:48px;height:48px}.clue-sharing-list button{width:100%}}
+.tiny .share-clues {
+  margin-bottom: 24px;
+}
+.clue-sharing-list {
+  display: grid;
+  gap: 12px;
+}
+.clue-sharing-list article {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--world-soft, #eff3e9);
+}
+.clue-sharing-list article > div {
+  min-width: 0;
+  flex: 1;
+}
+.clue-sharing-list p {
+  margin: 0 0 10px;
+  overflow-wrap: anywhere;
+}
+.clue-sharing-list button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+}
+.clue-sharing-list button .tiny-icon {
+  width: 24px;
+  height: 24px;
+}
+.team-clues {
+  margin-top: 16px;
+}
+.share-clues > .hero-audio {
+  margin-top: 16px;
+}
+@media (max-width: 600px) {
+  .clue-sharing-list .expedition-icon {
+    width: 48px;
+    height: 48px;
+  }
+  .clue-sharing-list button {
+    width: 100%;
+  }
+}
 /* Keep the landing marker left of the hero on narrow Jungle and Treasure maps. */
-@media(max-width:700px){
- .app.tiny .world-jungle{--landing-label-edge:36%}
- .app.tiny .world-treasure{--landing-label-edge:32%}
- .app.tiny :is(.world-jungle,.world-treasure) .expedition-stops li:first-child{left:8px!important;transform:translateY(-50%);max-width:calc(var(--landing-label-edge) - 16px)}
- .app.tiny :is(.world-jungle,.world-treasure) .expedition-stops li:first-child>span{flex-shrink:0}
- .app.tiny :is(.world-jungle,.world-treasure) .expedition-stops li:first-child>strong{min-width:0;overflow-wrap:normal}
+@media (max-width: 700px) {
+  .app.tiny .world-jungle {
+    --landing-label-edge: 36%;
+  }
+  .app.tiny .world-treasure {
+    --landing-label-edge: 32%;
+  }
+  .app.tiny
+    :is(.world-jungle, .world-treasure)
+    .expedition-stops
+    li:first-child {
+    left: 8px !important;
+    transform: translateY(-50%);
+    max-width: calc(var(--landing-label-edge) - 16px);
+  }
+  .app.tiny
+    :is(.world-jungle, .world-treasure)
+    .expedition-stops
+    li:first-child
+    > span {
+    flex-shrink: 0;
+  }
+  .app.tiny
+    :is(.world-jungle, .world-treasure)
+    .expedition-stops
+    li:first-child
+    > strong {
+    min-width: 0;
+    overflow-wrap: normal;
+  }
 }
 
 /* Coral Cove: anchor the whole marker on the western rocks, clear of the hero. */
-.app.tiny .world-treasure .expedition-stops li:first-child{left:8px!important;transform:translateY(-50%);max-width:calc(31% - 16px)}
-.app.tiny .world-treasure .expedition-stops li:first-child>span{flex-shrink:0}
-.app.tiny .world-treasure .expedition-stops li:first-child>strong{min-width:0;overflow-wrap:normal}
-@media(max-width:700px){
- .app.tiny .world-treasure .expedition-stops li:first-child{flex-direction:column;align-items:flex-start;gap:4px}
- .app.tiny .world-treasure .expedition-stops li:first-child>strong{box-sizing:border-box;max-width:100%}
+.app.tiny .world-treasure .expedition-stops li:first-child {
+  left: 8px !important;
+  transform: translateY(-50%);
+  max-width: calc(31% - 16px);
+}
+.app.tiny .world-treasure .expedition-stops li:first-child > span {
+  flex-shrink: 0;
+}
+.app.tiny .world-treasure .expedition-stops li:first-child > strong {
+  min-width: 0;
+  overflow-wrap: normal;
+}
+@media (max-width: 700px) {
+  .app.tiny .world-treasure .expedition-stops li:first-child {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .app.tiny .world-treasure .expedition-stops li:first-child > strong {
+    box-sizing: border-box;
+    max-width: 100%;
+  }
 }

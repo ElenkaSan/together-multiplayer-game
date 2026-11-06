@@ -1,19 +1,424 @@
 /* Sector 2 only: the existing application and Tiny Heroes retain their styles. */
-.app.signal .debris-mission{border:1px solid #45616d;background:#0a1721;margin-bottom:24px;color:#e4f0f3;min-width:0;--holo:#80d8df}
-.app.signal .debris-console-top{display:flex;justify-content:space-between;align-items:start;gap:16px;padding:22px 24px 0}.debris-console-top .eyebrow{color:#92b7bd;letter-spacing:2px;margin-bottom:7px}.debris-console-top h3{font-size:23px;margin-bottom:10px}.debris-console-top button{font-size:12px;white-space:nowrap;min-height:44px;padding:8px 12px}.app.signal .debris-help{font-size:14px;color:#b2c7ce;line-height:1.6;padding:0 24px;margin-bottom:20px}
-.app.signal .debris-map{position:relative;aspect-ratio:5/3;min-height:300px;border-top:1px solid #2c4a58;border-bottom:1px solid #2c4a58;isolation:isolate;overflow:hidden}.debris-map svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.debris-path{stroke:#5896a3;stroke-width:2;stroke-dasharray:5 7;opacity:.45;transition:stroke .2s,opacity .2s}.debris-path.is-selected{stroke:#adf66b;stroke-width:3;stroke-dasharray:none;opacity:1}.debris-hazard{transform-box:fill-box;transform-origin:center;animation:debris-radar 12s linear infinite}.app.signal .debris-route{position:absolute;transform:translate(-50%,-50%);background:#0d202c;border:1px solid #557783;color:#d5edf2;min-height:48px;min-width:92px;padding:5px 10px;font-size:14px;line-height:1.3;touch-action:manipulation}.debris-route strong,.debris-route span{display:block}.debris-route span{font-size:11px;color:#a2bdc8}.app.signal .debris-route.is-selected{border-color:#adf66b;background:#17342c;color:#d7ffb5}.app.signal .debris-route:disabled{opacity:1;cursor:default}.app.signal .debris-route:not(:disabled):hover{transform:translate(-50%,-50%);border-color:#e6f9fd;background:#1e3844}.debris-origin,.debris-destination{position:absolute;top:57%;font:10px monospace;letter-spacing:2px;color:#9fc9d1}.debris-origin{left:4%}.debris-destination{right:3%}.debris-map-caption{display:flex;justify-content:space-between;gap:14px;padding:12px 20px;font-size:12px;color:#a7c0ca;border-bottom:1px solid #2b4351}.app.signal .debris-warning{color:#f0bc70}
-.debris-systems{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px;padding:20px}.app.signal .debris-systems fieldset{border:1px solid #304e5a;padding:14px;margin:0;min-width:0}.app.signal .debris-systems legend{font-size:13px;padding:0 5px;color:#b7d8de}.debris-system-visual{text-align:center;min-height:88px;padding:4px 0 14px}.debris-system-visual>span{font-size:35px;color:#7cc8d2;letter-spacing:3px}.debris-system-visual small{font:9px monospace;letter-spacing:2px;color:#8ca8b4}.debris-system-visual .boost,.debris-system-visual .shield-up{color:#adf66b;text-shadow:0 0 12px #adf66b33}.debris-system-visual .relay-blue{color:#82cbe5}.debris-system-visual .relay-amber{color:#efbe75}.debris-system-visual .relay-green{color:#adf66b}.debris-options{display:grid;gap:8px}.app.signal .debris-options button{min-height:48px;padding:10px 8px;border:1px solid #3a5965;background:#0d1d28;color:#d6e4eb;font-size:13px}.app.signal .debris-options button.is-selected{border-color:#adf66b;color:#c6f69e;background:#1a302c}.app.signal .debris-options button:disabled{opacity:.75}.app.signal .debris-options button.is-selected:disabled{opacity:1}
-.debris-crew-plan{margin:0 20px 20px;padding:15px;border:1px solid #2d4654}.debris-crew-plan h4{margin:0 0 8px;font-size:14px}.debris-crew-plan p{font-size:12px;color:#a6bcc6;line-height:1.5;margin-bottom:12px}.debris-crew-plan>div{display:grid;grid-template-columns:minmax(80px,1fr) 3fr auto;gap:10px;border-top:1px solid #243e4b;padding:10px 0;font-size:12px;overflow-wrap:anywhere}.debris-crew-plan em{font-style:normal;color:#adf66b}.debris-crew-plan>div>span{color:#b3ccd3;line-height:1.6}.debris-launch{border-top:1px solid #2e4652;padding:16px 20px 20px}.debris-launch p{font-size:13px;color:#b5cbd1;line-height:1.5}.debris-launch small{text-align:center}.debris-outcome{padding:0 20px 20px;color:#adf66b;margin:0}.debris-flight{offset-distance:100%;offset-rotate:auto;animation:debris-crossing 3.5s ease-in-out 1}.debris-flight.is-failure{offset-distance:55%;animation-name:debris-abort}
-@keyframes debris-crossing{from{offset-distance:0%}to{offset-distance:100%}}@keyframes debris-abort{from{offset-distance:0%}to{offset-distance:55%}}@keyframes debris-radar{to{transform:rotate(360deg)}}
-.debris-mission[data-motion="off"] *{animation:none!important;transition:none!important}
-@media(max-width:600px){.app.signal .debris-console-top{padding:16px 14px 0;gap:8px}.debris-console-top h3{font-size:19px}.app.signal .debris-help{padding:0 14px;font-size:13px}.debris-console-top .eyebrow{font-size:9px}.app.signal .debris-map{min-height:320px;aspect-ratio:1}.app.signal .debris-route{min-width:86px}.debris-map-caption{padding:12px 14px;flex-direction:column;gap:6px}.debris-systems{padding:14px;grid-template-columns:1fr 1fr}.debris-systems>fieldset:last-child:nth-child(odd){grid-column:1/-1}.debris-crew-plan{margin:0 14px 14px;padding:12px}.debris-crew-plan>div{grid-template-columns:1fr auto}.debris-crew-plan>div>span{grid-column:1/-1;grid-row:2}.debris-launch{padding:16px 14px}.debris-origin,.debris-destination{top:54%;font-size:8px;letter-spacing:1px}}
-@media(prefers-reduced-motion:reduce){.debris-mission *{animation:none!important;transition:none!important}}
+.app.signal .debris-mission {
+  border: 1px solid #45616d;
+  background: #0a1721;
+  margin-bottom: 24px;
+  color: #e4f0f3;
+  min-width: 0;
+  --holo: #80d8df;
+}
+.app.signal .debris-console-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+  padding: 22px 24px 0;
+}
+.debris-console-top .eyebrow {
+  color: #92b7bd;
+  letter-spacing: 2px;
+  margin-bottom: 7px;
+}
+.debris-console-top h3 {
+  font-size: 23px;
+  margin-bottom: 10px;
+}
+.debris-console-top button {
+  font-size: 12px;
+  white-space: nowrap;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+.app.signal .debris-help {
+  font-size: 14px;
+  color: #b2c7ce;
+  line-height: 1.6;
+  padding: 0 24px;
+  margin-bottom: 20px;
+}
+.app.signal .debris-map {
+  position: relative;
+  aspect-ratio: 5/3;
+  min-height: 300px;
+  border-top: 1px solid #2c4a58;
+  border-bottom: 1px solid #2c4a58;
+  isolation: isolate;
+  overflow: hidden;
+}
+.debris-map svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.debris-path {
+  stroke: #5896a3;
+  stroke-width: 2;
+  stroke-dasharray: 5 7;
+  opacity: 0.45;
+  transition:
+    stroke 0.2s,
+    opacity 0.2s;
+}
+.debris-path.is-selected {
+  stroke: #adf66b;
+  stroke-width: 3;
+  stroke-dasharray: none;
+  opacity: 1;
+}
+.debris-hazard {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: debris-radar 12s linear infinite;
+}
+.app.signal .debris-route {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: #0d202c;
+  border: 1px solid #557783;
+  color: #d5edf2;
+  min-height: 48px;
+  min-width: 92px;
+  padding: 5px 10px;
+  font-size: 14px;
+  line-height: 1.3;
+  touch-action: manipulation;
+}
+.debris-route strong,
+.debris-route span {
+  display: block;
+}
+.debris-route span {
+  font-size: 11px;
+  color: #a2bdc8;
+}
+.app.signal .debris-route.is-selected {
+  border-color: #adf66b;
+  background: #17342c;
+  color: #d7ffb5;
+}
+.app.signal .debris-route:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.app.signal .debris-route:not(:disabled):hover {
+  transform: translate(-50%, -50%);
+  border-color: #e6f9fd;
+  background: #1e3844;
+}
+.debris-origin,
+.debris-destination {
+  position: absolute;
+  top: 57%;
+  font: 10px monospace;
+  letter-spacing: 2px;
+  color: #9fc9d1;
+}
+.debris-origin {
+  left: 4%;
+}
+.debris-destination {
+  right: 3%;
+}
+.debris-map-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 20px;
+  font-size: 12px;
+  color: #a7c0ca;
+  border-bottom: 1px solid #2b4351;
+}
+.app.signal .debris-warning {
+  color: #f0bc70;
+}
+.debris-systems {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 12px;
+  padding: 20px;
+}
+.app.signal .debris-systems fieldset {
+  border: 1px solid #304e5a;
+  padding: 14px;
+  margin: 0;
+  min-width: 0;
+}
+.app.signal .debris-systems legend {
+  font-size: 13px;
+  padding: 0 5px;
+  color: #b7d8de;
+}
+.debris-system-visual {
+  text-align: center;
+  min-height: 88px;
+  padding: 4px 0 14px;
+}
+.debris-system-visual > span {
+  font-size: 35px;
+  color: #7cc8d2;
+  letter-spacing: 3px;
+}
+.debris-system-visual small {
+  font: 9px monospace;
+  letter-spacing: 2px;
+  color: #8ca8b4;
+}
+.debris-system-visual .boost,
+.debris-system-visual .shield-up {
+  color: #adf66b;
+  text-shadow: 0 0 12px #adf66b33;
+}
+.debris-system-visual .relay-blue {
+  color: #82cbe5;
+}
+.debris-system-visual .relay-amber {
+  color: #efbe75;
+}
+.debris-system-visual .relay-green {
+  color: #adf66b;
+}
+.debris-options {
+  display: grid;
+  gap: 8px;
+}
+.app.signal .debris-options button {
+  min-height: 48px;
+  padding: 10px 8px;
+  border: 1px solid #3a5965;
+  background: #0d1d28;
+  color: #d6e4eb;
+  font-size: 13px;
+}
+.app.signal .debris-options button.is-selected {
+  border-color: #adf66b;
+  color: #c6f69e;
+  background: #1a302c;
+}
+.app.signal .debris-options button:disabled {
+  opacity: 0.75;
+}
+.app.signal .debris-options button.is-selected:disabled {
+  opacity: 1;
+}
+.debris-crew-plan {
+  margin: 0 20px 20px;
+  padding: 15px;
+  border: 1px solid #2d4654;
+}
+.debris-crew-plan h4 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+.debris-crew-plan p {
+  font-size: 12px;
+  color: #a6bcc6;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.debris-crew-plan > div {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) 3fr auto;
+  gap: 10px;
+  border-top: 1px solid #243e4b;
+  padding: 10px 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.debris-crew-plan em {
+  font-style: normal;
+  color: #adf66b;
+}
+.debris-crew-plan > div > span {
+  color: #b3ccd3;
+  line-height: 1.6;
+}
+.debris-launch {
+  border-top: 1px solid #2e4652;
+  padding: 16px 20px 20px;
+}
+.debris-launch p {
+  font-size: 13px;
+  color: #b5cbd1;
+  line-height: 1.5;
+}
+.debris-launch small {
+  text-align: center;
+}
+.debris-outcome {
+  padding: 0 20px 20px;
+  color: #adf66b;
+  margin: 0;
+}
+.debris-flight {
+  offset-distance: 100%;
+  offset-rotate: auto;
+  animation: debris-crossing 3.5s ease-in-out 1;
+}
+.debris-flight.is-failure {
+  offset-distance: 55%;
+  animation-name: debris-abort;
+}
+@keyframes debris-crossing {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+@keyframes debris-abort {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 55%;
+  }
+}
+@keyframes debris-radar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.debris-mission[data-motion="off"] * {
+  animation: none !important;
+  transition: none !important;
+}
+@media (max-width: 600px) {
+  .app.signal .debris-console-top {
+    padding: 16px 14px 0;
+    gap: 8px;
+  }
+  .debris-console-top h3 {
+    font-size: 19px;
+  }
+  .app.signal .debris-help {
+    padding: 0 14px;
+    font-size: 13px;
+  }
+  .debris-console-top .eyebrow {
+    font-size: 9px;
+  }
+  .app.signal .debris-map {
+    min-height: 320px;
+    aspect-ratio: 1;
+  }
+  .app.signal .debris-route {
+    min-width: 86px;
+  }
+  .debris-map-caption {
+    padding: 12px 14px;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .debris-systems {
+    padding: 14px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .debris-systems > fieldset:last-child:nth-child(odd) {
+    grid-column: 1/-1;
+  }
+  .debris-crew-plan {
+    margin: 0 14px 14px;
+    padding: 12px;
+  }
+  .debris-crew-plan > div {
+    grid-template-columns: 1fr auto;
+  }
+  .debris-crew-plan > div > span {
+    grid-column: 1/-1;
+    grid-row: 2;
+  }
+  .debris-launch {
+    padding: 16px 14px;
+  }
+  .debris-origin,
+  .debris-destination {
+    top: 54%;
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .debris-mission * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
 
-.app.signal .debris-equipment{margin:16px 20px 0;padding:12px 0;font-size:13px}.debris-equipment summary{min-height:44px;padding:12px 0}.debris-equipment dl{display:grid;grid-template-columns:1fr 1fr;gap:12px}.debris-equipment dt{color:#c0e0e7;font-weight:700}.debris-equipment dd{margin:6px 0;color:#aac0cc;line-height:1.6}@media(max-width:600px){.debris-equipment dl{grid-template-columns:1fr}}
+.app.signal .debris-equipment {
+  margin: 16px 20px 0;
+  padding: 12px 0;
+  font-size: 13px;
+}
+.debris-equipment summary {
+  min-height: 44px;
+  padding: 12px 0;
+}
+.debris-equipment dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.debris-equipment dt {
+  color: #c0e0e7;
+  font-weight: 700;
+}
+.debris-equipment dd {
+  margin: 6px 0;
+  color: #aac0cc;
+  line-height: 1.6;
+}
+@media (max-width: 600px) {
+  .debris-equipment dl {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* QA-01: one display of the existing authoritative countdown at each decision console. */
-.app.signal .signal-control-timer{position:sticky;top:8px;z-index:8;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;min-height:46px;padding:10px 14px;margin:0 0 16px;background:#10212b;border:1px solid #759c78;color:#e9f3ec;box-shadow:0 3px 10px #07111b40}
-.signal-control-timer>span{font-size:11px;letter-spacing:1px}.signal-control-timer>strong{font-size:18px;color:#adf66b}.signal-control-timer>small{flex-basis:100%;color:#c3d4d0}
-.app.signal :is(.private-panel,.debris-mission) :is(button,legend){scroll-margin-top:88px}
-.app.signal .debris-mission>.signal-control-timer{margin:12px 14px 0}
-@media(max-width:600px){.app.signal .signal-control-timer{top:6px;padding:8px 12px;min-height:44px}.signal-control-timer>strong{font-size:16px}}
+.app.signal .signal-control-timer {
+  position: sticky;
+  top: 8px;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-height: 46px;
+  padding: 10px 14px;
+  margin: 0 0 16px;
+  background: #10212b;
+  border: 1px solid #759c78;
+  color: #e9f3ec;
+  box-shadow: 0 3px 10px #07111b40;
+}
+.signal-control-timer > span {
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.signal-control-timer > strong {
+  font-size: 18px;
+  color: #adf66b;
+}
+.signal-control-timer > small {
+  flex-basis: 100%;
+  color: #c3d4d0;
+}
+.app.signal :is(.private-panel, .debris-mission) :is(button, legend) {
+  scroll-margin-top: 88px;
+}
+.app.signal .debris-mission > .signal-control-timer {
+  margin: 12px 14px 0;
+}
+@media (max-width: 600px) {
+  .app.signal .signal-control-timer {
+    top: 6px;
+    padding: 8px 12px;
+    min-height: 44px;
+  }
+  .signal-control-timer > strong {
+    font-size: 16px;
+  }
+}

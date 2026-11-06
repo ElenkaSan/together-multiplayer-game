@@ -1,126 +1,1145 @@
-.home{background:#091420}.home>header,.home>footer{display:none}.home>main{max-width:none;padding:0;min-height:100vh}.home .world-crossover{position:relative;isolation:isolate;overflow:hidden;min-height:100vh;color:#17242b;--signal-accent:#adf66b}.home .scene-backdrop{position:absolute;inset:0;z-index:-2;background-size:cover;background-repeat:no-repeat}.home .forest-backdrop{background-image:linear-gradient(0deg,#31532638,#fff5d544 75%),url('/art/tiny/forest-map.webp');background-position:center}.home .space-backdrop{background-image:linear-gradient(0deg,#07132155,#07132110),url('/art/home/signal-space.webp');background-position:center right;clip-path:var(--space-clip)}.home .scene-layout{position:relative;max-width:1260px;margin:auto;padding:36px 56px 20px}.home .portal-heading{text-align:center;margin:0 auto 32px;position:relative;z-index:2;width:fit-content;max-width:100%;padding:12px 32px 20px;border-radius:24px;background:radial-gradient(ellipse,#fff9e9ed 40%,#fff9e900 75%)}.home .portal-brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:42px;letter-spacing:-2px;display:block;margin-bottom:18px}.home .portal-heading .eyebrow{font-size:11px;margin-bottom:12px;color:#3c4b4d}.home .portal-heading h1{font-size:clamp(36px,4.8vw,58px);margin-bottom:14px}.home .portal-heading p{line-height:1.5;font-size:16px;margin:0}.home .aligned-worlds{position:relative}.home .portal-worlds{display:grid;grid-template-columns:1fr 1fr;gap:40px}.home .space-layer{position:absolute;inset:0;pointer-events:none;clip-path:var(--card-clip,var(--space-clip));z-index:2}.home .portal-card{overflow:hidden;min-width:0;border:1px solid #eee2c4;border-radius:24px;background:#fff5db;color:#343023;box-shadow:0 8px 32px #121d3030;position:relative}.home .portal-signal{border-radius:16px;background:#142029;color:#edf5fa;border-color:#6f826844}.home .portal-art{height:268px;position:relative;overflow:hidden}.home .portal-forest{background:url('/art/tiny/forest-map.webp') center/cover}.home .portal-heroes{position:absolute;inset:48px 24px 4px;display:flex;align-items:flex-end;justify-content:center;gap:10px}.home .portal-heroes .animal-art{width:30%;height:188px;max-width:140px;object-fit:contain;position:relative;z-index:1}.home .portal-tags{position:absolute;inset:16px 16px auto;display:flex;justify-content:space-between;gap:8px;z-index:4}.home .portal-tags span{padding:7px 10px;background:#fff7e8ed;border:1px solid #dccca7;border-radius:24px;font-size:12px;font-weight:700;white-space:nowrap}.home .portal-signal .portal-tags span,.home .space-layer .portal-tags span{background:#101c2ae8;color:#edf5fa;border-color:#b6c6c040}.home .portal-content{padding:22px 26px 20px;position:relative}.home .portal-content h2{font-family:'Space Grotesk',sans-serif;font-size:35px;line-height:1.15;margin:0 0 12px}.home .portal-content p{font-size:16px;line-height:1.5;min-height:48px;margin-bottom:18px}.home .portal-content small{display:block;font-size:12px;margin-top:16px;opacity:.82}.home .portal-play{display:flex;align-items:center;justify-content:center;gap:14px;min-height:52px;width:100%;background:#f3ca68;color:#302a20;border:1px solid #bf9136;border-radius:16px;box-shadow:inset 0 1px #fff7,0 3px 0 #a3782330;font-weight:700;font-size:18px}.home .portal-signal .portal-play{background:#101c29;color:#adf66b;border-color:#adf66b65;border-radius:8px;box-shadow:inset 0 1px #adf66b10}.home .portal-play:hover{transform:none;filter:brightness(1.06)}.home .portal-play:active{transform:translateY(1px)}.home .portal-console{background:#101c29}.home .signal-spacecraft{width:100%;height:100%;object-fit:cover;object-position:78% 35%}.home .mission-radar{position:absolute;left:22px;bottom:32px;width:112px;height:112px;border:1px solid #adf66b55;border-radius:50%;display:grid;place-items:center;background:#0c1b2799;box-shadow:inset 0 0 30px #adf66b09;color:#adf66b}.home .mission-radar span{font-size:42px}.home .mission-radar i{position:absolute;inset:14px;border:1px solid #adf66b22;border-radius:50%}.home .mission-radar i:last-child{inset:28px}.home .transmission{position:absolute;bottom:12px;left:22px;font-family:monospace;font-size:10px;letter-spacing:2px;color:#e3efe1}.home .world-atmosphere{position:absolute;inset:0;pointer-events:none}.home .forest-layer .portal-signal .world-atmosphere{background:linear-gradient(110deg,#d0ac513b,#3e774916)}.home .forest-layer .portal-signal{background:linear-gradient(120deg,#26382d,#15272e);border-color:#dbc57d77}.home .forest-layer .portal-signal .portal-play{color:#f3d58d;border-color:#d8c18580;background:#203328}.home .space-layer .portal-tiny{background:linear-gradient(125deg,#182938,#102030);color:#eef5fa;border-color:#80a5b688}.home .space-layer .portal-tiny .world-atmosphere{background:linear-gradient(120deg,#0f234666,#102c4b99),repeating-linear-gradient(0deg,transparent 0 7px,#a2c8db22 8px)}.home .space-layer .portal-tiny .portal-heroes{filter:brightness(.83) saturate(.82);}.home .space-layer .portal-tiny .portal-play{background:#152b3c;color:#d3e8f0;border-color:#7dacc080;box-shadow:inset 0 1px #b0d4e322}.home .space-layer .portal-signal{background:#101c29;border-color:#536a7e88}.home .nature-traces{position:absolute;inset:0;pointer-events:none;color:#eddb9980}.home .nature-traces span{position:absolute;right:12%;top:30%;font-size:38px;transform:rotate(-25deg)}.home .nature-traces span+span{right:28%;top:52%;font-size:24px}.home .holographic-traces{position:absolute;inset:0;pointer-events:none}.home .holographic-traces span{position:absolute;right:18px;top:62px;width:70px;height:70px;border:1px solid #c0dfed50;border-radius:50%;background:repeating-radial-gradient(circle,transparent 0 15px,#9dcedb33 16px 17px)}.home .holographic-traces span+span{width:34px;height:34px;top:150px;right:30px}.home .portal-invite{position:relative;z-index:4;margin:28px auto 0;width:fit-content;max-width:100%;background:#fff8e8ef;border:1px solid #ecdfc4;border-radius:18px;padding:14px 22px;box-shadow:0 4px 20px #07132120}.home .quick-join{margin:0;gap:12px}.home .quick-join input{background:#fffdfa;color:#24302e}.home .quick-join button{min-height:44px;background:#294b3b;color:white;padding:10px 18px;border-radius:10px}.home .quick-join>span{color:#35423c}.home .portal-footer{display:flex;justify-content:space-between;gap:20px;color:#fffaf0;font-size:12px;margin-top:28px;text-shadow:0 1px 3px #071321}.home .world-boundary{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;overflow:visible}.home .world-boundary path{fill:none;stroke:#e1f3eaba;stroke-width:2;filter:drop-shadow(0 0 4px #afd9d799);pointer-events:none}.home .world-boundary .boundary-hit{stroke:transparent;stroke-width:20;pointer-events:stroke;touch-action:none;cursor:ew-resize;filter:none}.home .world-handle{position:absolute;left:var(--handle-x);top:var(--handle-y);transform:translate(-50%,-50%);z-index:7;width:48px;height:48px;border-radius:50%;border:1px solid #cbd6d6;background:#fffcf2ee;color:#253746;display:grid;place-items:center;box-shadow:0 2px 12px #07132133;cursor:ew-resize;touch-action:none;user-select:none}.home .world-handle span{font-size:26px;letter-spacing:3px}.home .world-handle:focus-visible{outline:3px solid #f2ca68;outline-offset:4px}.home .world-crossover[data-effects=off] *{animation:none!important;transition:none!important}@media(max-width:700px){.home .scene-layout{padding:24px 18px 20px}.home .portal-heading{padding:12px 10px 18px;margin-bottom:24px}.home .portal-brand{font-size:30px;margin-bottom:14px}.home .portal-heading h1{font-size:35px;letter-spacing:-1.4px}.home .portal-heading p{font-size:13px}.home .portal-worlds{grid-template-columns:1fr;gap:40px}.home .portal-art{height:230px}.home .portal-content{padding:20px}.home .portal-content h2{font-size:30px}.home .portal-content p{font-size:15px}.home .portal-tags span{font-size:11px}.home .portal-heroes{inset:46px 18px 4px}.home .portal-heroes .animal-art{height:172px}.home .forest-backdrop{background-position:35% top}.home .space-backdrop{background-position:70% center}.home .portal-invite{padding:14px;width:100%}.home .portal-footer{font-size:11px;flex-wrap:wrap}.home .world-handle{cursor:ns-resize}.home .world-boundary .boundary-hit{cursor:ns-resize}}@media(prefers-reduced-motion:reduce){.home .world-crossover *{animation:none!important;transition:none!important}}
+.home {
+  background: #091420;
+}
+.home > header,
+.home > footer {
+  display: none;
+}
+.home > main {
+  max-width: none;
+  padding: 0;
+  min-height: 100vh;
+}
+.home .world-crossover {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 100vh;
+  color: #17242b;
+  --signal-accent: #adf66b;
+}
+.home .scene-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.home .forest-backdrop {
+  background-image:
+    linear-gradient(0deg, #31532638, #fff5d544 75%),
+    url("/art/tiny/forest-map.webp");
+  background-position: center;
+}
+.home .space-backdrop {
+  background-image:
+    linear-gradient(0deg, #07132155, #07132110),
+    url("/art/home/signal-space.webp");
+  background-position: center right;
+  clip-path: var(--space-clip);
+}
+.home .scene-layout {
+  position: relative;
+  max-width: 1260px;
+  margin: auto;
+  padding: 36px 56px 20px;
+}
+.home .portal-heading {
+  text-align: center;
+  margin: 0 auto 32px;
+  position: relative;
+  z-index: 2;
+  width: fit-content;
+  max-width: 100%;
+  padding: 12px 32px 20px;
+  border-radius: 24px;
+  background: radial-gradient(ellipse, #fff9e9ed 40%, #fff9e900 75%);
+}
+.home .portal-brand {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 42px;
+  letter-spacing: -2px;
+  display: block;
+  margin-bottom: 18px;
+}
+.home .portal-heading .eyebrow {
+  font-size: 11px;
+  margin-bottom: 12px;
+  color: #3c4b4d;
+}
+.home .portal-heading h1 {
+  font-size: clamp(36px, 4.8vw, 58px);
+  margin-bottom: 14px;
+}
+.home .portal-heading p {
+  line-height: 1.5;
+  font-size: 16px;
+  margin: 0;
+}
+.home .aligned-worlds {
+  position: relative;
+}
+.home .portal-worlds {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+.home .space-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  clip-path: var(--card-clip, var(--space-clip));
+  z-index: 2;
+}
+.home .portal-card {
+  overflow: hidden;
+  min-width: 0;
+  border: 1px solid #eee2c4;
+  border-radius: 24px;
+  background: #fff5db;
+  color: #343023;
+  box-shadow: 0 8px 32px #121d3030;
+  position: relative;
+}
+.home .portal-signal {
+  border-radius: 16px;
+  background: #142029;
+  color: #edf5fa;
+  border-color: #6f826844;
+}
+.home .portal-art {
+  height: 268px;
+  position: relative;
+  overflow: hidden;
+}
+.home .portal-forest {
+  background: url("/art/tiny/forest-map.webp") center/cover;
+}
+.home .portal-heroes {
+  position: absolute;
+  inset: 48px 24px 4px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+}
+.home .portal-heroes .animal-art {
+  width: 30%;
+  height: 188px;
+  max-width: 140px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+.home .portal-tags {
+  position: absolute;
+  inset: 16px 16px auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  z-index: 4;
+}
+.home .portal-tags span {
+  padding: 7px 10px;
+  background: #fff7e8ed;
+  border: 1px solid #dccca7;
+  border-radius: 24px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.home .portal-signal .portal-tags span,
+.home .space-layer .portal-tags span {
+  background: #101c2ae8;
+  color: #edf5fa;
+  border-color: #b6c6c040;
+}
+.home .portal-content {
+  padding: 22px 26px 20px;
+  position: relative;
+}
+.home .portal-content h2 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 35px;
+  line-height: 1.15;
+  margin: 0 0 12px;
+}
+.home .portal-content p {
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 48px;
+  margin-bottom: 18px;
+}
+.home .portal-content small {
+  display: block;
+  font-size: 12px;
+  margin-top: 16px;
+  opacity: 0.82;
+}
+.home .portal-play {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 52px;
+  width: 100%;
+  background: #f3ca68;
+  color: #302a20;
+  border: 1px solid #bf9136;
+  border-radius: 16px;
+  box-shadow:
+    inset 0 1px #fff7,
+    0 3px 0 #a3782330;
+  font-weight: 700;
+  font-size: 18px;
+}
+.home .portal-signal .portal-play {
+  background: #101c29;
+  color: #adf66b;
+  border-color: #adf66b65;
+  border-radius: 8px;
+  box-shadow: inset 0 1px #adf66b10;
+}
+.home .portal-play:hover {
+  transform: none;
+  filter: brightness(1.06);
+}
+.home .portal-play:active {
+  transform: translateY(1px);
+}
+.home .portal-console {
+  background: #101c29;
+}
+.home .signal-spacecraft {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 78% 35%;
+}
+.home .mission-radar {
+  position: absolute;
+  left: 22px;
+  bottom: 32px;
+  width: 112px;
+  height: 112px;
+  border: 1px solid #adf66b55;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #0c1b2799;
+  box-shadow: inset 0 0 30px #adf66b09;
+  color: #adf66b;
+}
+.home .mission-radar span {
+  font-size: 42px;
+}
+.home .mission-radar i {
+  position: absolute;
+  inset: 14px;
+  border: 1px solid #adf66b22;
+  border-radius: 50%;
+}
+.home .mission-radar i:last-child {
+  inset: 28px;
+}
+.home .transmission {
+  position: absolute;
+  bottom: 12px;
+  left: 22px;
+  font-family: monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #e3efe1;
+}
+.home .world-atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.home .forest-layer .portal-signal .world-atmosphere {
+  background: linear-gradient(110deg, #d0ac513b, #3e774916);
+}
+.home .forest-layer .portal-signal {
+  background: linear-gradient(120deg, #26382d, #15272e);
+  border-color: #dbc57d77;
+}
+.home .forest-layer .portal-signal .portal-play {
+  color: #f3d58d;
+  border-color: #d8c18580;
+  background: #203328;
+}
+.home .space-layer .portal-tiny {
+  background: linear-gradient(125deg, #182938, #102030);
+  color: #eef5fa;
+  border-color: #80a5b688;
+}
+.home .space-layer .portal-tiny .world-atmosphere {
+  background:
+    linear-gradient(120deg, #0f234666, #102c4b99),
+    repeating-linear-gradient(0deg, transparent 0 7px, #a2c8db22 8px);
+}
+.home .space-layer .portal-tiny .portal-heroes {
+  filter: brightness(0.83) saturate(0.82);
+}
+.home .space-layer .portal-tiny .portal-play {
+  background: #152b3c;
+  color: #d3e8f0;
+  border-color: #7dacc080;
+  box-shadow: inset 0 1px #b0d4e322;
+}
+.home .space-layer .portal-signal {
+  background: #101c29;
+  border-color: #536a7e88;
+}
+.home .nature-traces {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: #eddb9980;
+}
+.home .nature-traces span {
+  position: absolute;
+  right: 12%;
+  top: 30%;
+  font-size: 38px;
+  transform: rotate(-25deg);
+}
+.home .nature-traces span + span {
+  right: 28%;
+  top: 52%;
+  font-size: 24px;
+}
+.home .holographic-traces {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.home .holographic-traces span {
+  position: absolute;
+  right: 18px;
+  top: 62px;
+  width: 70px;
+  height: 70px;
+  border: 1px solid #c0dfed50;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle,
+    transparent 0 15px,
+    #9dcedb33 16px 17px
+  );
+}
+.home .holographic-traces span + span {
+  width: 34px;
+  height: 34px;
+  top: 150px;
+  right: 30px;
+}
+.home .portal-invite {
+  position: relative;
+  z-index: 4;
+  margin: 28px auto 0;
+  width: fit-content;
+  max-width: 100%;
+  background: #fff8e8ef;
+  border: 1px solid #ecdfc4;
+  border-radius: 18px;
+  padding: 14px 22px;
+  box-shadow: 0 4px 20px #07132120;
+}
+.home .quick-join {
+  margin: 0;
+  gap: 12px;
+}
+.home .quick-join input {
+  background: #fffdfa;
+  color: #24302e;
+}
+.home .quick-join button {
+  min-height: 44px;
+  background: #294b3b;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+}
+.home .quick-join > span {
+  color: #35423c;
+}
+.home .portal-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: #fffaf0;
+  font-size: 12px;
+  margin-top: 28px;
+  text-shadow: 0 1px 3px #071321;
+}
+.home .world-boundary {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  overflow: visible;
+}
+.home .world-boundary path {
+  fill: none;
+  stroke: #e1f3eaba;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px #afd9d799);
+  pointer-events: none;
+}
+.home .world-boundary .boundary-hit {
+  stroke: transparent;
+  stroke-width: 20;
+  pointer-events: stroke;
+  touch-action: none;
+  cursor: ew-resize;
+  filter: none;
+}
+.home .world-handle {
+  position: absolute;
+  left: var(--handle-x);
+  top: var(--handle-y);
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid #cbd6d6;
+  background: #fffcf2ee;
+  color: #253746;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 12px #07132133;
+  cursor: ew-resize;
+  touch-action: none;
+  user-select: none;
+}
+.home .world-handle span {
+  font-size: 26px;
+  letter-spacing: 3px;
+}
+.home .world-handle:focus-visible {
+  outline: 3px solid #f2ca68;
+  outline-offset: 4px;
+}
+.home .world-crossover[data-effects="off"] * {
+  animation: none !important;
+  transition: none !important;
+}
+@media (max-width: 700px) {
+  .home .scene-layout {
+    padding: 24px 18px 20px;
+  }
+  .home .portal-heading {
+    padding: 12px 10px 18px;
+    margin-bottom: 24px;
+  }
+  .home .portal-brand {
+    font-size: 30px;
+    margin-bottom: 14px;
+  }
+  .home .portal-heading h1 {
+    font-size: 35px;
+    letter-spacing: -1.4px;
+  }
+  .home .portal-heading p {
+    font-size: 13px;
+  }
+  .home .portal-worlds {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .home .portal-art {
+    height: 230px;
+  }
+  .home .portal-content {
+    padding: 20px;
+  }
+  .home .portal-content h2 {
+    font-size: 30px;
+  }
+  .home .portal-content p {
+    font-size: 15px;
+  }
+  .home .portal-tags span {
+    font-size: 11px;
+  }
+  .home .portal-heroes {
+    inset: 46px 18px 4px;
+  }
+  .home .portal-heroes .animal-art {
+    height: 172px;
+  }
+  .home .forest-backdrop {
+    background-position: 35% top;
+  }
+  .home .space-backdrop {
+    background-position: 70% center;
+  }
+  .home .portal-invite {
+    padding: 14px;
+    width: 100%;
+  }
+  .home .portal-footer {
+    font-size: 11px;
+    flex-wrap: wrap;
+  }
+  .home .world-handle {
+    cursor: ns-resize;
+  }
+  .home .world-boundary .boundary-hit {
+    cursor: ns-resize;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home .world-crossover * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
 
-.home .forest-layer .portal-play{position:relative;z-index:8}.home .portal-invite{z-index:8}.home .world-handle{z-index:10}
+.home .forest-layer .portal-play {
+  position: relative;
+  z-index: 8;
+}
+.home .portal-invite {
+  z-index: 8;
+}
+.home .world-handle {
+  z-index: 10;
+}
 
 /* Reference reproduction: cream woodland / graphite mission console. */
-.home .scene-layout{max-width:1100px;padding:22px 42px 18px}
-.home .forest-backdrop{background-color:var(--tiny-page-background);background-image:url('/art/home/woodland-details.svg');background-size:cover;background-position:center}
-.home .space-backdrop{background-image:url('/art/home/mission-console.svg');background-position:center;background-color:#0c171d}
-.home .portal-topbar{height:48px;border-bottom:1px solid #82938b33;display:flex;align-items:flex-start;justify-content:space-between;font-size:18px;position:relative;z-index:3;color:#17242b}
-.home .portal-topbar>span{font-size:10px;display:flex;align-items:center;gap:18px;color:#829990}
-.home .portal-topbar em{font-style:normal;border:1px solid #6b998733;background:#153a2a66;border-radius:20px;padding:6px 10px;color:#c2dfcf}
-.home .portal-heading{background:none;padding:34px 0 0;margin:0 auto 30px}
-.home .portal-heading h1{font-size:40px;line-height:1.15;letter-spacing:-1.4px}
-.home .portal-heading p{font-size:13px}
-.home .portal-heading .eyebrow{font-size:10px}
-.home .portal-worlds{max-width:710px;margin:auto;gap:22px}
-.home .portal-card{height:308px;border-radius:14px;padding:18px 0 0;background:#c79151;color:#302b21;border:2px solid #b08755;box-shadow:inset 0 0 0 5px #ebc18c77,0 5px 12px #19242c26;background-image:repeating-linear-gradient(4deg,transparent 0 18px,#8e5b2822 19px 20px,transparent 21px 31px)}
-.home .portal-art{height:147px;margin:32px 18px 0;border-radius:10px 10px 0 0;overflow:visible}
-.home .portal-forest{background:#c7e5d8}
-.home .portal-heroes{inset:0 12px -2px;gap:16px}
-.home .portal-heroes .animal-art{height:137px;width:28%}
-.home .portal-tags{inset:-35px 0 auto}
-.home .portal-tags span{font-size:9px;padding:5px 9px;background:#ffe4a0;border-color:#b88741}
-.home .portal-content{padding:10px 18px 0;background:#f9db88;min-height:82px}
-.home .portal-content h2{font-size:26px;line-height:1.1;margin:0 0 10px}
-.home .portal-content p{font-size:12px;line-height:1.45;min-height:34px;margin:0 0 12px}
-.home .portal-content small{font-size:10px;margin:0;padding:13px 0;border-top:1px solid #765a3b44}
-.home .portal-play{position:absolute!important;right:17px;bottom:5px;width:52px;min-height:34px;background:none;border:0;box-shadow:none;font-size:11px;text-transform:uppercase;border-radius:6px;padding:4px}
-.home .portal-play span{display:none}
-.home .portal-signal,.home .space-layer .portal-card{background:#0c171d;border-color:#47616a;box-shadow:inset 0 0 0 5px #56727c33,0 5px 12px #07121b55;color:#e7edeb}
-.home .portal-signal .portal-art,.home .space-layer .portal-art{background:url('/art/home/mission-console.svg') center/cover}
-.home .portal-signal .portal-content,.home .space-layer .portal-content{background:#0c171d}
-.home .portal-signal .portal-play,.home .space-layer .portal-play{background:none;border:0;box-shadow:none;color:#e7edeb}
-.home .mission-radar{top:6px;bottom:auto;left:50%;transform:translateX(-50%);width:110px;height:110px;border-color:#adf66b11;box-shadow:none;background:none;color:#adf66b}
-.home .mission-radar span{font-size:48px}
-.home .signal-wave{position:absolute;top:29px;font-size:40px;font-weight:400;letter-spacing:3px;color:#adf66b;font-family:monospace}
-.home .left-wave{right:82px}.home .right-wave{left:82px}
-.home .transmission{bottom:5px;left:0;width:100%;text-align:center;font-size:8px;letter-spacing:2px;color:#6a858b}
-.home .forest-layer .portal-signal{background:#14201e;border-color:#64716b}
-.home .forest-layer .portal-signal .portal-content{background:#14201e}
-.home .portal-invite{margin-top:22px;border:0;border-radius:0;background:none;box-shadow:none;padding:0}
-.home .quick-join{font-size:11px;gap:14px}
-.home .quick-join input{width:112px;min-height:36px;border-radius:6px;background:#fff9ed;border:1px solid #d4cabb;font-size:12px}
-.home .quick-join button{background:none;color:#496254;font-size:11px;padding:6px;min-height:36px}
-.home .portal-footer{margin-top:46px;padding-top:18px;border-top:1px solid #82938b33;font-size:9px;color:#7c8c84;text-shadow:none}
-.home .world-boundary path{stroke:#cbed9a;stroke-width:2;filter:drop-shadow(0 0 5px #a1d86a99)}
-.home .world-handle{width:32px;height:40px;border-radius:10px;background:#eeebd7;color:#778476;border:1px solid #b9c3b0}
-.home .world-handle span{font-size:18px}
-@media(max-width:700px){.home .scene-layout{padding:20px 20px}.home .portal-topbar{height:40px}.home .portal-topbar>span{font-size:9px}.home .portal-topbar>span{gap:8px}.home .portal-heading{padding-top:28px;margin-bottom:28px}.home .portal-heading h1{font-size:32px}.home .portal-worlds{grid-template-columns:1fr;gap:24px;max-width:370px}.home .portal-card{height:326px}.home .portal-art{height:163px}.home .portal-heroes .animal-art{height:151px}.home .portal-heading p{font-size:12px}.home .portal-footer{margin-top:30px}}
+.home .scene-layout {
+  max-width: 1100px;
+  padding: 22px 42px 18px;
+}
+.home .forest-backdrop {
+  background-color: var(--tiny-page-background);
+  background-image: url("/art/home/woodland-details.svg");
+  background-size: cover;
+  background-position: center;
+}
+.home .space-backdrop {
+  background-image: url("/art/home/mission-console.svg");
+  background-position: center;
+  background-color: #0c171d;
+}
+.home .portal-topbar {
+  height: 48px;
+  border-bottom: 1px solid #82938b33;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  font-size: 18px;
+  position: relative;
+  z-index: 3;
+  color: #17242b;
+}
+.home .portal-topbar > span {
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  color: #829990;
+}
+.home .portal-topbar em {
+  font-style: normal;
+  border: 1px solid #6b998733;
+  background: #153a2a66;
+  border-radius: 20px;
+  padding: 6px 10px;
+  color: #c2dfcf;
+}
+.home .portal-heading {
+  background: none;
+  padding: 34px 0 0;
+  margin: 0 auto 30px;
+}
+.home .portal-heading h1 {
+  font-size: 40px;
+  line-height: 1.15;
+  letter-spacing: -1.4px;
+}
+.home .portal-heading p {
+  font-size: 13px;
+}
+.home .portal-heading .eyebrow {
+  font-size: 10px;
+}
+.home .portal-worlds {
+  max-width: 710px;
+  margin: auto;
+  gap: 22px;
+}
+.home .portal-card {
+  height: 308px;
+  border-radius: 14px;
+  padding: 18px 0 0;
+  background: #c79151;
+  color: #302b21;
+  border: 2px solid #b08755;
+  box-shadow:
+    inset 0 0 0 5px #ebc18c77,
+    0 5px 12px #19242c26;
+  background-image: repeating-linear-gradient(
+    4deg,
+    transparent 0 18px,
+    #8e5b2822 19px 20px,
+    transparent 21px 31px
+  );
+}
+.home .portal-art {
+  height: 147px;
+  margin: 32px 18px 0;
+  border-radius: 10px 10px 0 0;
+  overflow: visible;
+}
+.home .portal-forest {
+  background: #c7e5d8;
+}
+.home .portal-heroes {
+  inset: 0 12px -2px;
+  gap: 16px;
+}
+.home .portal-heroes .animal-art {
+  height: 137px;
+  width: 28%;
+}
+.home .portal-tags {
+  inset: -35px 0 auto;
+}
+.home .portal-tags span {
+  font-size: 9px;
+  padding: 5px 9px;
+  background: #ffe4a0;
+  border-color: #b88741;
+}
+.home .portal-content {
+  padding: 10px 18px 0;
+  background: #f9db88;
+  min-height: 82px;
+}
+.home .portal-content h2 {
+  font-size: 26px;
+  line-height: 1.1;
+  margin: 0 0 10px;
+}
+.home .portal-content p {
+  font-size: 12px;
+  line-height: 1.45;
+  min-height: 34px;
+  margin: 0 0 12px;
+}
+.home .portal-content small {
+  font-size: 10px;
+  margin: 0;
+  padding: 13px 0;
+  border-top: 1px solid #765a3b44;
+}
+.home .portal-play {
+  position: absolute !important;
+  right: 17px;
+  bottom: 5px;
+  width: 52px;
+  min-height: 34px;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  font-size: 11px;
+  text-transform: uppercase;
+  border-radius: 6px;
+  padding: 4px;
+}
+.home .portal-play span {
+  display: none;
+}
+.home .portal-signal,
+.home .space-layer .portal-card {
+  background: #0c171d;
+  border-color: #47616a;
+  box-shadow:
+    inset 0 0 0 5px #56727c33,
+    0 5px 12px #07121b55;
+  color: #e7edeb;
+}
+.home .portal-signal .portal-art,
+.home .space-layer .portal-art {
+  background: url("/art/home/mission-console.svg") center/cover;
+}
+.home .portal-signal .portal-content,
+.home .space-layer .portal-content {
+  background: #0c171d;
+}
+.home .portal-signal .portal-play,
+.home .space-layer .portal-play {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: #e7edeb;
+}
+.home .mission-radar {
+  top: 6px;
+  bottom: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: 110px;
+  border-color: #adf66b11;
+  box-shadow: none;
+  background: none;
+  color: #adf66b;
+}
+.home .mission-radar span {
+  font-size: 48px;
+}
+.home .signal-wave {
+  position: absolute;
+  top: 29px;
+  font-size: 40px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  color: #adf66b;
+  font-family: monospace;
+}
+.home .left-wave {
+  right: 82px;
+}
+.home .right-wave {
+  left: 82px;
+}
+.home .transmission {
+  bottom: 5px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #6a858b;
+}
+.home .forest-layer .portal-signal {
+  background: #14201e;
+  border-color: #64716b;
+}
+.home .forest-layer .portal-signal .portal-content {
+  background: #14201e;
+}
+.home .portal-invite {
+  margin-top: 22px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  padding: 0;
+}
+.home .quick-join {
+  font-size: 11px;
+  gap: 14px;
+}
+.home .quick-join input {
+  width: 112px;
+  min-height: 36px;
+  border-radius: 6px;
+  background: #fff9ed;
+  border: 1px solid #d4cabb;
+  font-size: 12px;
+}
+.home .quick-join button {
+  background: none;
+  color: #496254;
+  font-size: 11px;
+  padding: 6px;
+  min-height: 36px;
+}
+.home .portal-footer {
+  margin-top: 46px;
+  padding-top: 18px;
+  border-top: 1px solid #82938b33;
+  font-size: 9px;
+  color: #7c8c84;
+  text-shadow: none;
+}
+.home .world-boundary path {
+  stroke: #cbed9a;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 5px #a1d86a99);
+}
+.home .world-handle {
+  width: 32px;
+  height: 40px;
+  border-radius: 10px;
+  background: #eeebd7;
+  color: #778476;
+  border: 1px solid #b9c3b0;
+}
+.home .world-handle span {
+  font-size: 18px;
+}
+@media (max-width: 700px) {
+  .home .scene-layout {
+    padding: 20px 20px;
+  }
+  .home .portal-topbar {
+    height: 40px;
+  }
+  .home .portal-topbar > span {
+    font-size: 9px;
+  }
+  .home .portal-topbar > span {
+    gap: 8px;
+  }
+  .home .portal-heading {
+    padding-top: 28px;
+    margin-bottom: 28px;
+  }
+  .home .portal-heading h1 {
+    font-size: 32px;
+  }
+  .home .portal-worlds {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    max-width: 370px;
+  }
+  .home .portal-card {
+    height: 326px;
+  }
+  .home .portal-art {
+    height: 163px;
+  }
+  .home .portal-heroes .animal-art {
+    height: 151px;
+  }
+  .home .portal-heading p {
+    font-size: 12px;
+  }
+  .home .portal-footer {
+    margin-top: 30px;
+  }
+}
 
 /* Correct issues observed on the deployed desktop composition. */
-.home .portal-card{height:350px}
-.home .portal-heading{color:#fff;mix-blend-mode:difference}
-.home .portal-heading .eyebrow{color:#fff}
-.home .quick-join button,.home .quick-join>span{color:#fff;mix-blend-mode:difference}
-.home .portal-play{min-height:44px;bottom:0}
-@media(max-width:700px){.home .portal-card{height:368px}}
+.home .portal-card {
+  height: 350px;
+}
+.home .portal-heading {
+  color: #fff;
+  mix-blend-mode: difference;
+}
+.home .portal-heading .eyebrow {
+  color: #fff;
+}
+.home .quick-join button,
+.home .quick-join > span {
+  color: #fff;
+  mix-blend-mode: difference;
+}
+.home .portal-play {
+  min-height: 44px;
+  bottom: 0;
+}
+@media (max-width: 700px) {
+  .home .portal-card {
+    height: 368px;
+  }
+}
 
 /* Larger fixed cards; the diagonal still changes only the aligned mask. */
-.home .portal-worlds{max-width:950px;gap:28px}
-.home .portal-card{height:430px}
-.home .portal-art{height:218px;margin-left:20px;margin-right:20px}
-.home .portal-heroes .animal-art{height:202px;width:30%;max-width:150px}
-.home .portal-content{padding:14px 20px 0}
-.home .portal-content h2{font-size:32px;margin-bottom:12px}
-.home .portal-content p{font-size:14px;min-height:40px}
-.home .portal-content small{font-size:12px;padding:15px 0}
-.home .portal-tags span{font-size:11px;padding:6px 10px}
-.home .portal-play{font-size:12px;width:64px;right:16px}
-.home .mission-radar{top:30px;width:126px;height:126px}
-.home .mission-radar span{font-size:54px}
-.home .signal-wave{top:34px;font-size:46px}
-.home .left-wave{right:94px}.home .right-wave{left:94px}
-.home .transmission{font-size:10px;bottom:13px}
-@media(max-width:700px){.home .portal-worlds{max-width:440px;gap:28px}.home .portal-card{height:408px}.home .portal-art{height:198px;margin-left:16px;margin-right:16px}.home .portal-heroes .animal-art{height:184px}.home .portal-content h2{font-size:29px}.home .portal-content p{font-size:13px}.home .portal-tags span{font-size:10px}.home .mission-radar{top:20px}}
+.home .portal-worlds {
+  max-width: 950px;
+  gap: 28px;
+}
+.home .portal-card {
+  height: 430px;
+}
+.home .portal-art {
+  height: 218px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.home .portal-heroes .animal-art {
+  height: 202px;
+  width: 30%;
+  max-width: 150px;
+}
+.home .portal-content {
+  padding: 14px 20px 0;
+}
+.home .portal-content h2 {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+.home .portal-content p {
+  font-size: 14px;
+  min-height: 40px;
+}
+.home .portal-content small {
+  font-size: 12px;
+  padding: 15px 0;
+}
+.home .portal-tags span {
+  font-size: 11px;
+  padding: 6px 10px;
+}
+.home .portal-play {
+  font-size: 12px;
+  width: 64px;
+  right: 16px;
+}
+.home .mission-radar {
+  top: 30px;
+  width: 126px;
+  height: 126px;
+}
+.home .mission-radar span {
+  font-size: 54px;
+}
+.home .signal-wave {
+  top: 34px;
+  font-size: 46px;
+}
+.home .left-wave {
+  right: 94px;
+}
+.home .right-wave {
+  left: 94px;
+}
+.home .transmission {
+  font-size: 10px;
+  bottom: 13px;
+}
+@media (max-width: 700px) {
+  .home .portal-worlds {
+    max-width: 440px;
+    gap: 28px;
+  }
+  .home .portal-card {
+    height: 408px;
+  }
+  .home .portal-art {
+    height: 198px;
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+  .home .portal-heroes .animal-art {
+    height: 184px;
+  }
+  .home .portal-content h2 {
+    font-size: 29px;
+  }
+  .home .portal-content p {
+    font-size: 13px;
+  }
+  .home .portal-tags span {
+    font-size: 10px;
+  }
+  .home .mission-radar {
+    top: 20px;
+  }
+}
 
 /* Tactile portal handle shared by the two worlds. */
-.home .world-handle{width:48px;height:56px;border-radius:16px;border:1px solid #adbcaa;background:linear-gradient(104deg,#fff1c9 0 47%,#25373c 49% 100%);box-shadow:inset 0 1px 0 #ffffff90,inset 0 -2px 0 #07151d30,0 3px 10px #15252630;transition:box-shadow .15s,border-color .15s}
-.home .portal-grip{width:42px;height:42px;pointer-events:none}
-.home .grip-arrow{fill:none;stroke:#f5e8c3;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.home .grip-arrow{filter:drop-shadow(0 1px 1px #15252680)}
-.home .grip-seam{fill:none;stroke:#c7de9b;stroke-width:1.5;stroke-linecap:round}
-.home .grip-light{fill:#c7de9b;stroke:#557266;stroke-width:1}
-.home .world-handle:hover{border-color:#c4dca2;box-shadow:inset 0 1px 0 #ffffff90,0 3px 12px #15252640}
-.home .world-handle:active{box-shadow:inset 0 2px 4px #07151d35,0 1px 5px #15252630}
-@media(max-width:700px){.home .portal-grip{transform:rotate(90deg)}}
+.home .world-handle {
+  width: 48px;
+  height: 56px;
+  border-radius: 16px;
+  border: 1px solid #adbcaa;
+  background: linear-gradient(104deg, #fff1c9 0 47%, #25373c 49% 100%);
+  box-shadow:
+    inset 0 1px 0 #ffffff90,
+    inset 0 -2px 0 #07151d30,
+    0 3px 10px #15252630;
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s;
+}
+.home .portal-grip {
+  width: 42px;
+  height: 42px;
+  pointer-events: none;
+}
+.home .grip-arrow {
+  fill: none;
+  stroke: #f5e8c3;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.home .grip-arrow {
+  filter: drop-shadow(0 1px 1px #15252680);
+}
+.home .grip-seam {
+  fill: none;
+  stroke: #c7de9b;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.home .grip-light {
+  fill: #c7de9b;
+  stroke: #557266;
+  stroke-width: 1;
+}
+.home .world-handle:hover {
+  border-color: #c4dca2;
+  box-shadow:
+    inset 0 1px 0 #ffffff90,
+    0 3px 12px #15252640;
+}
+.home .world-handle:active {
+  box-shadow:
+    inset 0 2px 4px #07151d35,
+    0 1px 5px #15252630;
+}
+@media (max-width: 700px) {
+  .home .portal-grip {
+    transform: rotate(90deg);
+  }
+}
 
 /* Readable invite labels follow the same page diagonal, without blend modes. */
-.home .quick-join>span,.home .quick-join button{position:relative;mix-blend-mode:normal;color:#26372f}
-.home .quick-join>span::after,.home .quick-join button::after{content:attr(data-reveal-text);position:absolute;inset:0;color:#f0f4ef;clip-path:var(--text-clip);pointer-events:none;display:flex;align-items:center;justify-content:center}
-.home .quick-join input{width:168px;min-width:168px;padding:10px 14px;letter-spacing:1px;font-size:13px;color:#26372f}
-.home .quick-join input::placeholder{color:#697265;opacity:1;letter-spacing:.8px}
-@media(max-width:700px){.home .quick-join{flex-wrap:wrap;justify-content:center;row-gap:12px}.home .quick-join input{max-width:100%}}
+.home .quick-join > span,
+.home .quick-join button {
+  position: relative;
+  mix-blend-mode: normal;
+  color: #26372f;
+}
+.home .quick-join > span::after,
+.home .quick-join button::after {
+  content: attr(data-reveal-text);
+  position: absolute;
+  inset: 0;
+  color: #f0f4ef;
+  clip-path: var(--text-clip);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home .quick-join input {
+  width: 168px;
+  min-width: 168px;
+  padding: 10px 14px;
+  letter-spacing: 1px;
+  font-size: 13px;
+  color: #26372f;
+}
+.home .quick-join input::placeholder {
+  color: #697265;
+  opacity: 1;
+  letter-spacing: 0.8px;
+}
+@media (max-width: 700px) {
+  .home .quick-join {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 12px;
+  }
+  .home .quick-join input {
+    max-width: 100%;
+  }
+}
 
 /* Homepage readability and the original mint-to-meadow character backdrop. */
-.home .portal-topbar>span,.home .portal-footer{font-size:11px}
-.home .portal-heading .eyebrow{font-size:12px}
-.home .forest-layer .portal-forest{background:linear-gradient(180deg,#c7e5d8 0%,#dcebbb 100%)}
-@media(max-width:700px){.home .world-handle{background:linear-gradient(14deg,#25373c 0 49%,#fff1c9 51% 100%)}}
+.home .portal-topbar > span,
+.home .portal-footer {
+  font-size: 11px;
+}
+.home .portal-heading .eyebrow {
+  font-size: 12px;
+}
+.home .forest-layer .portal-forest {
+  background: linear-gradient(180deg, #c7e5d8 0%, #dcebbb 100%);
+}
+@media (max-width: 700px) {
+  .home .world-handle {
+    background: linear-gradient(14deg, #25373c 0 49%, #fff1c9 51% 100%);
+  }
+}
 
 /* Keep the live Play label readable above both aligned card layers. */
-.home .forest-layer .portal-play::after{content:attr(data-reveal-text) / "";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#e7edeb;clip-path:var(--text-clip);pointer-events:none}
-.home .space-layer .portal-tiny .portal-play{background:none;border:0;box-shadow:none;color:#e7edeb}
-@media(max-width:700px){.home .world-handle{background:linear-gradient(166deg,#fff1c9 0 49%,#25373c 51% 100%)}}
+.home .forest-layer .portal-play::after {
+  content: attr(data-reveal-text) / "";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e7edeb;
+  clip-path: var(--text-clip);
+  pointer-events: none;
+}
+.home .space-layer .portal-tiny .portal-play {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: #e7edeb;
+}
+@media (max-width: 700px) {
+  .home .world-handle {
+    background: linear-gradient(166deg, #fff1c9 0 49%, #25373c 51% 100%);
+  }
+}
 
 /* Badge palettes follow the masked world, including the Tiny Heroes card. */
-.home .space-layer .portal-tiny .portal-tags span{background:#101c2ae8;color:#edf5fa;border-color:#b6c6c040}
+.home .space-layer .portal-tiny .portal-tags span {
+  background: #101c2ae8;
+  color: #edf5fa;
+  border-color: #b6c6c040;
+}
 /* Fit the whole sprig composition on tablet rather than cropping its sides. */
-@media(min-width:701px) and (max-width:1250px){.home .forest-backdrop{background-size:100% auto;background-position:center top;background-color:var(--tiny-page-background)}}
+@media (min-width: 701px) and (max-width: 1250px) {
+  .home .forest-backdrop {
+    background-size: 100% auto;
+    background-position: center top;
+    background-color: var(--tiny-page-background);
+  }
+}
 /* Keep warm tag z-index inside its own world so the masked space layer covers it. */
-.home .forest-layer{isolation:isolate}
+.home .forest-layer {
+  isolation: isolate;
+}
 
-.home .portal-topbar .brand-exclamation{color:#ADF66B}
-.home .portal-topbar>strong{color:#829990}
+.home .portal-topbar .brand-exclamation {
+  color: #adf66b;
+}
+.home .portal-topbar > strong {
+  color: #829990;
+}
 
-.home .portal-topbar>strong{position:relative;color:#17242b}
-.home .portal-topbar>strong::after{content:attr(data-reveal-text) / "";position:absolute;inset:0;color:#829990;clip-path:var(--text-clip);pointer-events:none}
+.home .portal-topbar > strong {
+  position: relative;
+  color: #17242b;
+}
+.home .portal-topbar > strong::after {
+  content: attr(data-reveal-text) / "";
+  position: absolute;
+  inset: 0;
+  color: #829990;
+  clip-path: var(--text-clip);
+  pointer-events: none;
+}
 
 /* Give the two homepage game cards more breathing room. */
-.home .portal-worlds{max-width:970px;gap:48px}
-@media(max-width:700px){.home .portal-worlds{max-width:440px;gap:44px}}
+.home .portal-worlds {
+  max-width: 970px;
+  gap: 48px;
+}
+@media (max-width: 700px) {
+  .home .portal-worlds {
+    max-width: 440px;
+    gap: 44px;
+  }
+}
 
 /* QA-03: opaque caption ink on each complete world layer, including crossover cards. */
-.home .portal-content small{color:#463d2b;opacity:1}
+.home .portal-content small {
+  color: #463d2b;
+  opacity: 1;
+}
 .home .forest-layer .portal-signal .portal-content small,
-.home .space-layer .portal-content small{color:#c3d3cd;opacity:1}
+.home .space-layer .portal-content small {
+  color: #c3d3cd;
+  opacity: 1;
+}

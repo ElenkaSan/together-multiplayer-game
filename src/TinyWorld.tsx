@@ -1,99 +1,1385 @@
-import {ImageFanCarousel} from './components/ui/image-fan-carousel';
-import {ExpeditionMap,ExpeditionProgress,isTeamExpedition,expeditionProgressLabel} from './TeamExpedition';
-import {IceJourneyMap,IceChoiceArt,RouteArt} from './IceExpedition';
-import {loadSoundPreference,saveSoundPreference} from './tiny-preferences';
-import {forestLocations,villageHomes,mapTravel,travelFrames,type MapSnapshot,type MapTravel} from './tiny-map-presentation';
-import {TinyIcon} from './TinyIcon';
-import {getAdventure,forestRescue,tinyTools,adventures,futureWorlds,adventureDifficulty,adventureSkills} from '../shared/tiny-adventures';
-import {createContext,useContext,useEffect,useRef,useState,useId,type ReactNode} from 'react';
-import type {Engine} from '../server/engine';
-type View=ReturnType<Engine['view']>;
-export const friends=['Bunny','Kitten','Puppy','Bear cub','Duckling'];
-export type HeroExpression='idle'|'thinking'|'oops'|'happy'|'celebrate';
-const heroNames=['scout','builder','guide','ranger','rescuer'];
-export function Animal({kind=0,happy=false,expression}:{kind?:number;happy?:boolean;expression?:HeroExpression}){const k=((kind%5)+5)%5;const state=expression||(happy?'happy':'idle');return <img className={`animal-art animal-${state}`} src={`/art/tiny/${heroNames[k]}-${state}.webp${k===0&&state==='happy'?'?v=20261007':''}`} alt={friends[k]} width="240" height="280" decoding="async"/>}
-function ScoutGreeting(){const id=useId().replace(/:/g,'');const paw='65,163 80,158 95,170 109,187 106,206 94,214 81,200 70,190';return <svg className="scout-greeting" viewBox="0 0 240 280" role="img" aria-label="Bunny waving hello"><defs><mask id={`body-${id}`}><rect width="240" height="280" fill="white"/><polygon points={paw} fill="black"/></mask><clipPath id={`paw-${id}`}><polygon points={paw}/></clipPath></defs><image href="/art/tiny/scout-happy.webp?v=20261007" width="240" height="280" mask={`url(#body-${id})`}/><g className="scout-greeting-paw"><image href="/art/tiny/scout-happy.webp?v=20261007" width="240" height="280" clipPath={`url(#paw-${id})`}/></g></svg>}
-function WorldMotion({snow=false}:{snow?:boolean}){return <div className={`world-motion ${snow?'motion-snow':''}`} aria-hidden="true"><span className="drifting-cloud cloud-one"/><span className="drifting-cloud cloud-two"/><span className="water-glint glint-one"/><span className="water-glint glint-two"/><span className="floating-leaf leaf-one"/><span className="floating-leaf leaf-two"/></div>}
-function useReducedMotion(){const [reduced,setReduced]=useState(()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);useEffect(()=>{const media=window.matchMedia('(prefers-reduced-motion: reduce)');const update=()=>setReduced(media.matches);media.addEventListener('change',update);update();return()=>media.removeEventListener('change',update)},[]);return reduced}
-function IllustratedMap({view,compact=false,adventureId,connected=true}:{view?:View;compact?:boolean;adventureId?:string;connected?:boolean}){
- const pack=getAdventure(adventureId),a=view?.adventure||{...pack,total:pack.rescues.length,completed:[]};
- const forest=a.environment.renderer==='forest',active=view&&view.phase!=='lobby'?view.round:0;
- const {enabled}=useTinySound(),reduced=useReducedMotion(),motion=enabled&&!reduced&&connected;
- const previous=useRef<MapSnapshot|null>(null),traveler=useRef<HTMLDivElement>(null);
- const [travel,setTravel]=useState<MapTravel|null>(null),[walking,setWalking]=useState(false);
- const identity=`${view?.code}:${a.id}:${view?.progression?.run}`,count=a.completed.length,phase=view?.phase||'preview',success=!!view?.result?.success;
- useEffect(()=>{const current={identity,round:active,completed:count,phase,success};const plan=forest?mapTravel(previous.current,current,motion):null;previous.current=current;if(plan)setTravel(plan);else if(!motion||phase!=='result')setTravel(null)},[identity,active,count,phase,success,motion,forest]);
- useEffect(()=>{setWalking(false);if(!travel||!motion||!traveler.current)return;let anim:Animation;try{anim=traveler.current.animate(travelFrames(travel.points),{duration:3600,easing:'linear',fill:'forwards'})}catch{setTravel(null);return}const walkTimer=setTimeout(()=>setWalking(true),720);anim.onfinish=()=>setTravel(null);return()=>{clearTimeout(walkTimer);anim.cancel()}},[travel,motion]);
- const doneCurrent=a.completed.some(x=>x.id===a.rescues[active]?.id),next=Math.min(active+(doneCurrent?1:0),a.total-1),allHome=count===a.total;
- const greeting=forest&&(!view||phase==='lobby');
- const position=forest?(allHome?[86,84]:next===0?[13,88]:forestLocations[next]):[a.rescues[active].mapPosition[0]/9,a.rescues[active].mapPosition[1]/5.4];
- const kind=travel?a.rescues[travel.from].character:a.rescues[allHome?a.total-1:next].character;
- const expression:HeroExpression=travel?(walking?'idle':'celebrate'):allHome?'happy':phase==='result'&&!success?'oops':phase==='action'?'thinking':'idle';
- return <div className={`adventure-map illustrated-map world-${a.environment.renderer} ${forest?'living-map':''} ${compact?'compact-map':''} ${motion?'map-motion-on':'map-motion-off'}`} data-map-state={travel?'traveling':allHome?'all-home':'current'}>
- <div className="map-landscape"><img className="map-background" src={a.environment.mapAsset} alt={forest?'Forest Rescue: river, bridge, tall tree, cave, snowy hills and village.':`${a.title}: winter expedition map.`} width="768" height="378" fetchPriority={compact?'auto':'high'}/><WorldMotion snow={!forest}/>
- <ol className="map-locations" aria-label="Rescue locations">{a.rescues.map((r,i)=>{const done=a.completed.some(x=>x.id===r.id),point=forest?forestLocations[i]:[r.mapPosition[0]/9,r.mapPosition[1]/5.4];return <li key={r.id} className={`map-location ${next===i&&!done?'active-location':''} ${done?'location-home':''}`} style={{left:`${point[0]}%`,top:`${point[1]}%`}} aria-current={next===i&&!done?'step':undefined} aria-label={`Rescue ${i+1}: ${r.friend}${done?', home':next===i?', current rescue':''}`}>
- {!forest&&<Animal kind={r.character} expression={done?'happy':'idle'}/>}<span className="location-number" aria-hidden="true">{done?'✓':i+1}</span><span className="location-label">{r.friend}</span></li>})}</ol>
- {forest&&<>{travel&&motion&&<svg className="travel-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points={travel.points.map(p=>p.join(',')).join(' ')}/></svg>}<div ref={traveler} className={`map-traveler ${travel&&walking?'hero-walking':''}`} style={{left:`${travel?travel.points[0][0]:position[0]}%`,top:`${travel?travel.points[0][1]:position[1]}%`}} aria-label={`${a.rescues[travel?travel.from:next].friend} ${travel?'traveling to the next stop':'on the rescue trail'}`}><span className="map-hero-pose">{greeting?<ScoutGreeting/>:<Animal kind={kind} expression={expression}/>}</span></div><ol className="village-friends" aria-label="Friends home at the village">{a.rescues.map((r,i)=>a.completed.some(x=>x.id===r.id)?<li key={r.id} style={{left:`${villageHomes[i][0]}%`,top:`${villageHomes[i][1]}%`}}><Animal kind={r.character} expression={allHome?'celebrate':'happy'}/></li>:null)}</ol></>}
- </div>
- {travel&&motion&&<div className="map-travel-controls"><span role="status">{a.rescues[travel.from].friend} heads {allHome?'home':'to the next rescue'}.</span><button type="button" onClick={()=>setTravel(null)}>Skip <span aria-hidden="true">→</span></button></div>}
- <div className="map-caption"><span>{a.title} · {a.world}</span><span>{allHome?'All friends home!':`${count} / ${a.total} friends home`}</span></div>{view&&view.phase!=='finished'&&<AdventureProgress view={view}/>}</div>
+import { ImageFanCarousel } from "./components/ui/image-fan-carousel";
+import {
+  ExpeditionMap,
+  ExpeditionProgress,
+  isTeamExpedition,
+  expeditionProgressLabel,
+} from "./TeamExpedition";
+import { IceJourneyMap, IceChoiceArt, RouteArt } from "./IceExpedition";
+import { loadSoundPreference, saveSoundPreference } from "./tiny-preferences";
+import {
+  forestLocations,
+  villageHomes,
+  mapTravel,
+  travelFrames,
+  type MapSnapshot,
+  type MapTravel,
+} from "./tiny-map-presentation";
+import { TinyIcon } from "./TinyIcon";
+import {
+  getAdventure,
+  forestRescue,
+  tinyTools,
+  adventures,
+  futureWorlds,
+  adventureDifficulty,
+  adventureSkills,
+} from "../shared/tiny-adventures";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useId,
+  type ReactNode,
+} from "react";
+import type { Engine } from "../server/engine";
+type View = ReturnType<Engine["view"]>;
+export const friends = ["Bunny", "Kitten", "Puppy", "Bear cub", "Duckling"];
+export type HeroExpression =
+  | "idle"
+  | "thinking"
+  | "oops"
+  | "happy"
+  | "celebrate";
+const heroNames = ["scout", "builder", "guide", "ranger", "rescuer"];
+export function Animal({
+  kind = 0,
+  happy = false,
+  expression,
+}: {
+  kind?: number;
+  happy?: boolean;
+  expression?: HeroExpression;
+}) {
+  const k = ((kind % 5) + 5) % 5;
+  const state = expression || (happy ? "happy" : "idle");
+  return (
+    <img
+      className={`animal-art animal-${state}`}
+      src={`/art/tiny/${heroNames[k]}-${state}.webp${k === 0 && state === "happy" ? "?v=20261007" : ""}`}
+      alt={friends[k]}
+      width="240"
+      height="280"
+      decoding="async"
+    />
+  );
 }
-export function ToolArt({tool}:{tool:string}){return <svg className="tool-art" viewBox="0 0 120 100" aria-hidden="true"><ellipse cx="60" cy="87" rx="40" ry="6" fill="#796039" opacity=".12"/><g stroke="#634939" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">{tool==='rope'?<><ellipse cx="57" cy="47" rx="30" ry="31" fill="none" stroke="#d89046" strokeWidth="16"/><ellipse cx="57" cy="47" rx="30" ry="31" fill="none" stroke="#ffe0a1" strokeWidth="3" strokeDasharray="2 7"/><path d="M83 52Q106 84 77 87" fill="none" stroke="#d89046" strokeWidth="12"/><path d="M83 52Q106 84 77 87" fill="none" stroke="#ffe0a1" strokeWidth="2" strokeDasharray="2 7"/></>:tool==='ladder'?<><path d="M36 13V85M82 13V85" stroke="#cf843b" strokeWidth="12"/><path d="M40 25H79M40 43H79M40 61H79M40 79H79" stroke="#e6ac58" strokeWidth="9"/><path d="M34 13V83M80 13V83" stroke="#ffcf82" strokeWidth="2"/></>:tool==='lamp'?<><path d="M64 21L99 6L109 52L72 45" fill="#fff0a7" stroke="none" opacity=".9"/><path d="M21 53L65 32L80 65L38 84Z" fill="#57bbbd"/><path d="M60 29L70 23L87 65L75 70Z" fill="#3f838e"/><ellipse cx="77" cy="44" rx="7" ry="21" fill="#ffe6a1" transform="rotate(-23 77 44)"/><path d="M36 61L51 54" stroke="#e3ffff" strokeWidth="7"/></>:tool==='blanket'?<><path d="M28 18Q60 10 89 22L88 81Q59 71 27 83Z" fill="#b498e2"/><path d="M44 17V80M69 18V77M27 38H88M27 61H88" stroke="#e3d1f9" strokeWidth="7"/><path d="M28 82V89M40 80V87M52 79V86M64 79V86M76 80V87M87 82V89" stroke="#936fc4"/></>:<><path d="M15 61L106 60L90 84H35Z" fill="#f19452"/><path d="M26 60L36 43H82L94 60" fill="#ffcb72"/><path d="M48 43V58H76V44" fill="#71c5bd"/><path d="M58 16V43M58 17L83 36H58" fill="#ffefb0"/><path d="M18 90Q30 96 42 90Q55 96 68 90Q80 96 100 89" fill="none" stroke="#5cbfdb"/></>}</g></svg>}
-function Tree({x,y,s=1}:{x:number;y:number;s?:number}){return <g transform={`translate(${x} ${y}) scale(${s})`}><path d="M0 10V53" stroke="#997245" strokeWidth="11"/><g className="world-leaves"><ellipse cx="0" cy="-5" rx="29" ry="34" fill="#469e73"/><circle cx="-19" cy="7" r="20" fill="#59b582"/><circle cx="16" cy="4" r="22" fill="#6cc086"/><path d="M-10 -15Q-1 -23 8 -19" stroke="#93d994" strokeWidth="7" fill="none" strokeLinecap="round"/></g></g>}
-function House({x,y,s=1,color='#fa9870'}:{x:number;y:number;s?:number;color?:string}){return <g transform={`translate(${x} ${y}) scale(${s})`}><rect x="-30" y="-10" width="60" height="47" rx="7" fill="#fff1c4"/><path d="M-39 -9L0 -43L39 -9Z" fill={color}/><rect x="-8" y="12" width="17" height="25" rx="8" fill="#8c6a4f"/><rect x="-22" y="1" width="12" height="12" rx="3" fill="#87cedc"/><rect x="12" y="1" width="12" height="12" rx="3" fill="#87cedc"/><path d="M-32 37H33" stroke="#ac965c" strokeWidth="4"/></g>}
+function ScoutGreeting() {
+  const id = useId().replace(/:/g, "");
+  const paw = "65,163 80,158 95,170 109,187 106,206 94,214 81,200 70,190";
+  return (
+    <svg
+      className="scout-greeting"
+      viewBox="0 0 240 280"
+      role="img"
+      aria-label="Bunny waving hello"
+    >
+      <defs>
+        <mask id={`body-${id}`}>
+          <rect width="240" height="280" fill="white" />
+          <polygon points={paw} fill="black" />
+        </mask>
+        <clipPath id={`paw-${id}`}>
+          <polygon points={paw} />
+        </clipPath>
+      </defs>
+      <image
+        href="/art/tiny/scout-happy.webp?v=20261007"
+        width="240"
+        height="280"
+        mask={`url(#body-${id})`}
+      />
+      <g className="scout-greeting-paw">
+        <image
+          href="/art/tiny/scout-happy.webp?v=20261007"
+          width="240"
+          height="280"
+          clipPath={`url(#paw-${id})`}
+        />
+      </g>
+    </svg>
+  );
+}
+function WorldMotion({ snow = false }: { snow?: boolean }) {
+  return (
+    <div
+      className={`world-motion ${snow ? "motion-snow" : ""}`}
+      aria-hidden="true"
+    >
+      <span className="drifting-cloud cloud-one" />
+      <span className="drifting-cloud cloud-two" />
+      <span className="water-glint glint-one" />
+      <span className="water-glint glint-two" />
+      <span className="floating-leaf leaf-one" />
+      <span className="floating-leaf leaf-two" />
+    </div>
+  );
+}
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof matchMedia === "function" &&
+      matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduced(media.matches);
+    media.addEventListener("change", update);
+    update();
+    return () => media.removeEventListener("change", update);
+  }, []);
+  return reduced;
+}
+function IllustratedMap({
+  view,
+  compact = false,
+  adventureId,
+  connected = true,
+}: {
+  view?: View;
+  compact?: boolean;
+  adventureId?: string;
+  connected?: boolean;
+}) {
+  const pack = getAdventure(adventureId),
+    a = view?.adventure || {
+      ...pack,
+      total: pack.rescues.length,
+      completed: [],
+    };
+  const forest = a.environment.renderer === "forest",
+    active = view && view.phase !== "lobby" ? view.round : 0;
+  const { enabled } = useTinySound(),
+    reduced = useReducedMotion(),
+    motion = enabled && !reduced && connected;
+  const previous = useRef<MapSnapshot | null>(null),
+    traveler = useRef<HTMLDivElement>(null);
+  const [travel, setTravel] = useState<MapTravel | null>(null),
+    [walking, setWalking] = useState(false);
+  const identity = `${view?.code}:${a.id}:${view?.progression?.run}`,
+    count = a.completed.length,
+    phase = view?.phase || "preview",
+    success = !!view?.result?.success;
+  useEffect(() => {
+    const current = {
+      identity,
+      round: active,
+      completed: count,
+      phase,
+      success,
+    };
+    const plan = forest ? mapTravel(previous.current, current, motion) : null;
+    previous.current = current;
+    if (plan) setTravel(plan);
+    else if (!motion || phase !== "result") setTravel(null);
+  }, [identity, active, count, phase, success, motion, forest]);
+  useEffect(() => {
+    setWalking(false);
+    if (!travel || !motion || !traveler.current) return;
+    let anim: Animation;
+    try {
+      anim = traveler.current.animate(travelFrames(travel.points), {
+        duration: 3600,
+        easing: "linear",
+        fill: "forwards",
+      });
+    } catch {
+      setTravel(null);
+      return;
+    }
+    const walkTimer = setTimeout(() => setWalking(true), 720);
+    anim.onfinish = () => setTravel(null);
+    return () => {
+      clearTimeout(walkTimer);
+      anim.cancel();
+    };
+  }, [travel, motion]);
+  const doneCurrent = a.completed.some((x) => x.id === a.rescues[active]?.id),
+    next = Math.min(active + (doneCurrent ? 1 : 0), a.total - 1),
+    allHome = count === a.total;
+  const greeting = forest && (!view || phase === "lobby");
+  const position = forest
+    ? allHome
+      ? [86, 84]
+      : next === 0
+        ? [13, 88]
+        : forestLocations[next]
+    : [
+        a.rescues[active].mapPosition[0] / 9,
+        a.rescues[active].mapPosition[1] / 5.4,
+      ];
+  const kind = travel
+    ? a.rescues[travel.from].character
+    : a.rescues[allHome ? a.total - 1 : next].character;
+  const expression: HeroExpression = travel
+    ? walking
+      ? "idle"
+      : "celebrate"
+    : allHome
+      ? "happy"
+      : phase === "result" && !success
+        ? "oops"
+        : phase === "action"
+          ? "thinking"
+          : "idle";
+  return (
+    <div
+      className={`adventure-map illustrated-map world-${a.environment.renderer} ${forest ? "living-map" : ""} ${compact ? "compact-map" : ""} ${motion ? "map-motion-on" : "map-motion-off"}`}
+      data-map-state={travel ? "traveling" : allHome ? "all-home" : "current"}
+    >
+      <div className="map-landscape">
+        <img
+          className="map-background"
+          src={a.environment.mapAsset}
+          alt={
+            forest
+              ? "Forest Rescue: river, bridge, tall tree, cave, snowy hills and village."
+              : `${a.title}: winter expedition map.`
+          }
+          width="768"
+          height="378"
+          fetchPriority={compact ? "auto" : "high"}
+        />
+        <WorldMotion snow={!forest} />
+        <ol className="map-locations" aria-label="Rescue locations">
+          {a.rescues.map((r, i) => {
+            const done = a.completed.some((x) => x.id === r.id),
+              point = forest
+                ? forestLocations[i]
+                : [r.mapPosition[0] / 9, r.mapPosition[1] / 5.4];
+            return (
+              <li
+                key={r.id}
+                className={`map-location ${next === i && !done ? "active-location" : ""} ${done ? "location-home" : ""}`}
+                style={{ left: `${point[0]}%`, top: `${point[1]}%` }}
+                aria-current={next === i && !done ? "step" : undefined}
+                aria-label={`Rescue ${i + 1}: ${r.friend}${done ? ", home" : next === i ? ", current rescue" : ""}`}
+              >
+                {!forest && (
+                  <Animal
+                    kind={r.character}
+                    expression={done ? "happy" : "idle"}
+                  />
+                )}
+                <span className="location-number" aria-hidden="true">
+                  {done ? "✓" : i + 1}
+                </span>
+                <span className="location-label">{r.friend}</span>
+              </li>
+            );
+          })}
+        </ol>
+        {forest && (
+          <>
+            {travel && motion && (
+              <svg
+                className="travel-route"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <polyline
+                  points={travel.points.map((p) => p.join(",")).join(" ")}
+                />
+              </svg>
+            )}
+            <div
+              ref={traveler}
+              className={`map-traveler ${travel && walking ? "hero-walking" : ""}`}
+              style={{
+                left: `${travel ? travel.points[0][0] : position[0]}%`,
+                top: `${travel ? travel.points[0][1] : position[1]}%`,
+              }}
+              aria-label={`${a.rescues[travel ? travel.from : next].friend} ${travel ? "traveling to the next stop" : "on the rescue trail"}`}
+            >
+              <span className="map-hero-pose">
+                {greeting ? (
+                  <ScoutGreeting />
+                ) : (
+                  <Animal kind={kind} expression={expression} />
+                )}
+              </span>
+            </div>
+            <ol
+              className="village-friends"
+              aria-label="Friends home at the village"
+            >
+              {a.rescues.map((r, i) =>
+                a.completed.some((x) => x.id === r.id) ? (
+                  <li
+                    key={r.id}
+                    style={{
+                      left: `${villageHomes[i][0]}%`,
+                      top: `${villageHomes[i][1]}%`,
+                    }}
+                  >
+                    <Animal
+                      kind={r.character}
+                      expression={allHome ? "celebrate" : "happy"}
+                    />
+                  </li>
+                ) : null,
+              )}
+            </ol>
+          </>
+        )}
+      </div>
+      {travel && motion && (
+        <div className="map-travel-controls">
+          <span role="status">
+            {a.rescues[travel.from].friend} heads{" "}
+            {allHome ? "home" : "to the next rescue"}.
+          </span>
+          <button type="button" onClick={() => setTravel(null)}>
+            Skip <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      )}
+      <div className="map-caption">
+        <span>
+          {a.title} · {a.world}
+        </span>
+        <span>
+          {allHome ? "All friends home!" : `${count} / ${a.total} friends home`}
+        </span>
+      </div>
+      {view && view.phase !== "finished" && <AdventureProgress view={view} />}
+    </div>
+  );
+}
+export function ToolArt({ tool }: { tool: string }) {
+  return (
+    <svg className="tool-art" viewBox="0 0 120 100" aria-hidden="true">
+      <ellipse cx="60" cy="87" rx="40" ry="6" fill="#796039" opacity=".12" />
+      <g
+        stroke="#634939"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {tool === "rope" ? (
+          <>
+            <ellipse
+              cx="57"
+              cy="47"
+              rx="30"
+              ry="31"
+              fill="none"
+              stroke="#d89046"
+              strokeWidth="16"
+            />
+            <ellipse
+              cx="57"
+              cy="47"
+              rx="30"
+              ry="31"
+              fill="none"
+              stroke="#ffe0a1"
+              strokeWidth="3"
+              strokeDasharray="2 7"
+            />
+            <path
+              d="M83 52Q106 84 77 87"
+              fill="none"
+              stroke="#d89046"
+              strokeWidth="12"
+            />
+            <path
+              d="M83 52Q106 84 77 87"
+              fill="none"
+              stroke="#ffe0a1"
+              strokeWidth="2"
+              strokeDasharray="2 7"
+            />
+          </>
+        ) : tool === "ladder" ? (
+          <>
+            <path d="M36 13V85M82 13V85" stroke="#cf843b" strokeWidth="12" />
+            <path
+              d="M40 25H79M40 43H79M40 61H79M40 79H79"
+              stroke="#e6ac58"
+              strokeWidth="9"
+            />
+            <path d="M34 13V83M80 13V83" stroke="#ffcf82" strokeWidth="2" />
+          </>
+        ) : tool === "lamp" ? (
+          <>
+            <path
+              d="M64 21L99 6L109 52L72 45"
+              fill="#fff0a7"
+              stroke="none"
+              opacity=".9"
+            />
+            <path d="M21 53L65 32L80 65L38 84Z" fill="#57bbbd" />
+            <path d="M60 29L70 23L87 65L75 70Z" fill="#3f838e" />
+            <ellipse
+              cx="77"
+              cy="44"
+              rx="7"
+              ry="21"
+              fill="#ffe6a1"
+              transform="rotate(-23 77 44)"
+            />
+            <path d="M36 61L51 54" stroke="#e3ffff" strokeWidth="7" />
+          </>
+        ) : tool === "blanket" ? (
+          <>
+            <path d="M28 18Q60 10 89 22L88 81Q59 71 27 83Z" fill="#b498e2" />
+            <path
+              d="M44 17V80M69 18V77M27 38H88M27 61H88"
+              stroke="#e3d1f9"
+              strokeWidth="7"
+            />
+            <path
+              d="M28 82V89M40 80V87M52 79V86M64 79V86M76 80V87M87 82V89"
+              stroke="#936fc4"
+            />
+          </>
+        ) : (
+          <>
+            <path d="M15 61L106 60L90 84H35Z" fill="#f19452" />
+            <path d="M26 60L36 43H82L94 60" fill="#ffcb72" />
+            <path d="M48 43V58H76V44" fill="#71c5bd" />
+            <path d="M58 16V43M58 17L83 36H58" fill="#ffefb0" />
+            <path
+              d="M18 90Q30 96 42 90Q55 96 68 90Q80 96 100 89"
+              fill="none"
+              stroke="#5cbfdb"
+            />
+          </>
+        )}
+      </g>
+    </svg>
+  );
+}
+function Tree({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <path d="M0 10V53" stroke="#997245" strokeWidth="11" />
+      <g className="world-leaves">
+        <ellipse cx="0" cy="-5" rx="29" ry="34" fill="#469e73" />
+        <circle cx="-19" cy="7" r="20" fill="#59b582" />
+        <circle cx="16" cy="4" r="22" fill="#6cc086" />
+        <path
+          d="M-10 -15Q-1 -23 8 -19"
+          stroke="#93d994"
+          strokeWidth="7"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </g>
+    </g>
+  );
+}
+function House({
+  x,
+  y,
+  s = 1,
+  color = "#fa9870",
+}: {
+  x: number;
+  y: number;
+  s?: number;
+  color?: string;
+}) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <rect x="-30" y="-10" width="60" height="47" rx="7" fill="#fff1c4" />
+      <path d="M-39 -9L0 -43L39 -9Z" fill={color} />
+      <rect x="-8" y="12" width="17" height="25" rx="8" fill="#8c6a4f" />
+      <rect x="-22" y="1" width="12" height="12" rx="3" fill="#87cedc" />
+      <rect x="12" y="1" width="12" height="12" rx="3" fill="#87cedc" />
+      <path d="M-32 37H33" stroke="#ac965c" strokeWidth="4" />
+    </g>
+  );
+}
 
-export function MissionMap({view,compact=false,adventureId,connected=true}:{view?:View;compact?:boolean;adventureId?:string;connected?:boolean}){const {enabled}=useTinySound(),reduced=useReducedMotion();const pack=getAdventure(adventureId);const a=view?.adventure||{...pack,total:pack.rescues.length,completed:[]};const stops=a.rescues.map(r=>r.mapPosition);const active=view&&view.phase!=='lobby'?view.round:-1;if(isTeamExpedition(a.id))return <ExpeditionMap view={view} adventureId={a.id} connected={connected}/>;if(a.mechanics?.primary==='routes')return <div className="ice-expedition-world"><IceJourneyMap view={view} motion={enabled&&!reduced&&connected}/><>{view&&view.phase!=='finished'&&<AdventureProgress view={view}/>}</></div>;if(a.environment.mapAsset)return <IllustratedMap view={view} compact={compact} adventureId={adventureId} connected={connected}/>;return <div className={`adventure-map ${compact?'compact-map':''}`}><svg viewBox="0 0 900 540" role="img" aria-label={`Sunny Valley rescue map: village, forest, river, bridge, cave and snowy hills.${active>=0?' Current rescue: '+a.rescues[active].friend+'.':''}`}><defs><linearGradient id="heroSky" x2="0" y2="1"><stop stopColor="#c4edf4"/><stop offset="1" stopColor="#f0fbdd"/></linearGradient><linearGradient id="heroMeadow" x2="0" y2="1"><stop stopColor="#b9db81"/><stop offset="1" stopColor="#7dc897"/></linearGradient></defs><rect width="900" height="540" rx="28" fill="url(#heroSky)"/><circle cx="785" cy="69" r="36" fill="#ffe69b"/><circle cx="785" cy="69" r="47" fill="#fff3bd" opacity=".4"/><g fill="#fff" opacity=".88" className="world-clouds"><path d="M70 65Q64 40 89 39Q105 14 130 37Q156 35 161 60Q184 71 166 81H77Q61 76 70 65"/><path d="M405 62Q398 38 422 37Q443 12 462 39Q489 36 493 61Q518 70 496 80H414Z"/></g><path d="M0 224Q102 105 225 155Q345 94 462 183Q595 99 713 155Q839 133 900 224V540H0Z" fill="#a3cf9a"/><path d="M0 301Q187 174 345 250Q511 149 660 252Q811 168 900 267V540H0Z" fill="url(#heroMeadow)"/><path d="M567 164Q520 242 577 299Q649 348 639 400Q624 443 754 540H859Q683 428 713 391Q735 310 648 270Q610 235 641 175" fill="#68c4dd"/><path d="M609 183Q569 238 611 278Q690 333 672 393Q663 436 802 534" fill="none" stroke="#a4e3e9" strokeWidth="5" className="world-river" strokeDasharray="22 34"/><path d="M115 426Q216 402 570 310Q347 270 205 207Q343 219 487 161Q617 125 723 178Q822 294 697 415" fill="none" stroke="#f8e8ac" strokeWidth="25" strokeLinecap="round"/><path d="M115 426Q216 402 570 310Q347 270 205 207Q343 219 487 161Q617 125 723 178Q822 294 697 415" fill="none" stroke="#d9b981" strokeWidth="3" strokeDasharray="4 13"/>
-<path d="M663 183L716 77L779 185Z" fill="#80aaa0"/><path d="M708 185L781 56L858 185Z" fill="#7d9f94"/><path d="M747 116L781 56L820 122L795 112L781 126L766 109Z" fill="#f6fbef"/><path d="M484 147Q465 91 506 99Q551 105 539 153Z" fill="#91a69a"/><path d="M491 154Q485 117 510 118Q535 122 525 154Z" fill="#596c64"/>
-{[[110,182,.85],[152,151,1],[250,137,.8],[292,175,.7],[74,226,.8],[407,248,.7],[843,323,.85],[811,369,.7]].map(([x,y,s],i)=><Tree key={i} x={x} y={y} s={s}/>)}<Tree x={198} y={195} s={1.05}/><House x={101} y={396} s={1.1}/><House x={167} y={418} s={.8} color="#cb9ad8"/><House x={62} y={451} s={.72} color="#e9bb59"/>
-<g transform="translate(582 310) rotate(27)"><rect x="-62" y="-21" width="133" height="42" rx="6" fill="#b58852"/>{[-45,-25,-5,15,35,55].map(x=><path key={x} d={`M${x} -17V17`} stroke="#e6bd7b" strokeWidth="10"/>)}<path d="M-70 -25H77M-70 25H77" stroke="#805f40" strokeWidth="7"/></g><g fill="#fff2a2">{[[40,330],[370,441],[428,350],[787,457],[871,246],[325,102]].map(([x,y],i)=><g key={i} transform={`translate(${x} ${y})`}><circle r="7"/><circle cx="-7" cy="-4" r="5"/><circle cx="6" cy="-5" r="5"/><circle cy="3" r="3" fill="#e79b52"/></g>)}</g>
-<g className="world-butterfly" transform="translate(388 140)"><ellipse cx="-6" rx="7" ry="10" fill="#f6ae84"/><ellipse cx="7" rx="7" ry="10" fill="#f6ae84"/><path d="M0 -6V7" stroke="#9c6848" strokeWidth="3"/></g>
-{stops.map(([x,y],i)=><g key={i} transform={`translate(${x} ${y})`}><circle className={active===i?'map-current-ring':''} r={active===i?34:27} fill={active===i?'#fff3ad':'#fffbee'} stroke={active===i?'#e8a83a':'#8db898'} strokeWidth={active===i?5:3}/><image x="-23" y="-85" width="46" height="58" href={`/art/tiny/${heroNames[a.rescues[i].character%5]}-idle.webp`}/><text y="8" textAnchor="middle" fontSize="25" fontWeight="800" fill="#526647">{a.completed.find(x=>x.id===a.rescues[i].id)?'✓':i+1}</text>{active===i&&<path d="M-7 -46L0 -37L7 -46" fill="#f09550"/>}</g>)}
-</svg><div className="map-caption"><span>{a.title} · {a.world}</span><span>{active<0?`${a.total} friends to help`:`Stop ${active+1} of ${a.total}`}</span></div>{view&&view.phase!=='finished'&&<AdventureProgress view={view}/>}</div>}
-export function Celebration({complete=false}:{complete?:boolean}){return <div className={`celebration ${complete?'mission-celebration':''}`} aria-hidden="true">{Array.from({length:14},(_,i)=><span key={i} style={{left:`${(i*17)%100}%`,animationDelay:`${i*.065}s`,color:['#e8b23e','#f58e73','#a991db','#67bfb5'][i%4]}}>★</span>)}</div>}
-export function FriendScene({view}:{view:View}){const r=view.adventure?.rescues[view.round];const expression:HeroExpression=view.phase==='finished'?'celebrate':view.phase==='result'?(view.result?.success?'celebrate':view.result?.assisted?'happy':'oops'):view.phase==='action'?'thinking':'idle';return <div className={`friend-scene illustrated-scene scene-${r?.scene} rescue-${r?.id} world-${view.adventure?.environment.renderer} ${expression==='celebrate'?'scene-result':''} ${expression==='oops'?'scene-encourage':''}`}><div className="scene-picture"><img className="scene-background" src={r?.challenge?view.adventure!.environment.mapAsset:r?.art?.scene||'/art/tiny/scene-bridge.webp'} style={r?.challenge?{transform:'scale(2.25)',transformOrigin:`${r.mapPosition[0]/9}% ${r.mapPosition[1]/5.4}%`}:undefined} alt="" width="900" height="540"/><WorldMotion snow={r?.scene==='snow'||view.adventure?.environment.renderer==='ice'}/><Animal kind={r?.character||0} expression={expression}/></div><div className="friend-speech"><strong>{r?.challenge?.location||r?.friend}</strong><p>{view.phase==='result'&&(view.result?.success||view.result?.assisted)?`${r?.friend} is safe!${view.result?.assisted?' Team Assist.':''}`:view.mission.story}</p></div></div>}
-const SoundContext=createContext({enabled:false,available:true,toggle:()=>{},play:(_kind:string)=>{}});
-export function TinySoundProvider({children}:{children:ReactNode}){
- const [enabled,setEnabled]=useState(loadSoundPreference),[available,setAvailable]=useState(true);const ctx=useRef<AudioContext|null>(null);const nodes=useRef<OscillatorNode[]>([]);const enabledRef=useRef(enabled);const toggling=useRef(false);
- function stop(){nodes.current.forEach(n=>{try{n.stop()}catch{}});nodes.current=[]}
- function play(kind:string){if(!enabledRef.current||!ctx.current||ctx.current.state!=='running')return;const c=ctx.current;const notes=kind==='hint'?[440,523]:kind==='select'?[523,659]:kind==='ready'?[523,784]:kind==='star'?[880,1175]:kind==='complete'?[523,659,784,1047,1319]:[659,784,1047];notes.forEach((freq,i)=>{const o=c.createOscillator(),g=c.createGain(),at=c.currentTime+i*.115;o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(.06,at+.015);g.gain.exponentialRampToValueAtTime(.001,at+.2);o.connect(g);g.connect(c.destination);o.start(at);o.stop(at+.22);nodes.current.push(o);o.onended=()=>{o.disconnect();g.disconnect();nodes.current=nodes.current.filter(n=>n!==o)}})}
- async function toggle(){if(toggling.current)return;if(enabledRef.current){enabledRef.current=false;setEnabled(false);saveSoundPreference(false);stop();return}toggling.current=true;try{ctx.current??=new AudioContext();await ctx.current.resume();enabledRef.current=true;setEnabled(true);saveSoundPreference(true);play('star')}catch{setAvailable(false)}finally{toggling.current=false}}
- useEffect(()=>{const unlock=()=>{if(!enabledRef.current)return;try{ctx.current??=new AudioContext();void ctx.current.resume().catch(()=>setAvailable(false))}catch{setAvailable(false)}};document.addEventListener('pointerdown',unlock,{capture:true});document.addEventListener('keydown',unlock,{capture:true});return()=>{document.removeEventListener('pointerdown',unlock,true);document.removeEventListener('keydown',unlock,true);stop();void ctx.current?.close()}},[]);
- return <SoundContext.Provider value={{enabled,available,toggle,play}}><div className="tiny-effects-scope" data-effects={enabled?'on':'off'}>{children}</div></SoundContext.Provider>
+export function MissionMap({
+  view,
+  compact = false,
+  adventureId,
+  connected = true,
+}: {
+  view?: View;
+  compact?: boolean;
+  adventureId?: string;
+  connected?: boolean;
+}) {
+  const { enabled } = useTinySound(),
+    reduced = useReducedMotion();
+  const pack = getAdventure(adventureId);
+  const a = view?.adventure || {
+    ...pack,
+    total: pack.rescues.length,
+    completed: [],
+  };
+  const stops = a.rescues.map((r) => r.mapPosition);
+  const active = view && view.phase !== "lobby" ? view.round : -1;
+  if (isTeamExpedition(a.id))
+    return (
+      <ExpeditionMap view={view} adventureId={a.id} connected={connected} />
+    );
+  if (a.mechanics?.primary === "routes")
+    return (
+      <div className="ice-expedition-world">
+        <IceJourneyMap view={view} motion={enabled && !reduced && connected} />
+        <>
+          {view && view.phase !== "finished" && (
+            <AdventureProgress view={view} />
+          )}
+        </>
+      </div>
+    );
+  if (a.environment.mapAsset)
+    return (
+      <IllustratedMap
+        view={view}
+        compact={compact}
+        adventureId={adventureId}
+        connected={connected}
+      />
+    );
+  return (
+    <div className={`adventure-map ${compact ? "compact-map" : ""}`}>
+      <svg
+        viewBox="0 0 900 540"
+        role="img"
+        aria-label={`Sunny Valley rescue map: village, forest, river, bridge, cave and snowy hills.${active >= 0 ? " Current rescue: " + a.rescues[active].friend + "." : ""}`}
+      >
+        <defs>
+          <linearGradient id="heroSky" x2="0" y2="1">
+            <stop stopColor="#c4edf4" />
+            <stop offset="1" stopColor="#f0fbdd" />
+          </linearGradient>
+          <linearGradient id="heroMeadow" x2="0" y2="1">
+            <stop stopColor="#b9db81" />
+            <stop offset="1" stopColor="#7dc897" />
+          </linearGradient>
+        </defs>
+        <rect width="900" height="540" rx="28" fill="url(#heroSky)" />
+        <circle cx="785" cy="69" r="36" fill="#ffe69b" />
+        <circle cx="785" cy="69" r="47" fill="#fff3bd" opacity=".4" />
+        <g fill="#fff" opacity=".88" className="world-clouds">
+          <path d="M70 65Q64 40 89 39Q105 14 130 37Q156 35 161 60Q184 71 166 81H77Q61 76 70 65" />
+          <path d="M405 62Q398 38 422 37Q443 12 462 39Q489 36 493 61Q518 70 496 80H414Z" />
+        </g>
+        <path
+          d="M0 224Q102 105 225 155Q345 94 462 183Q595 99 713 155Q839 133 900 224V540H0Z"
+          fill="#a3cf9a"
+        />
+        <path
+          d="M0 301Q187 174 345 250Q511 149 660 252Q811 168 900 267V540H0Z"
+          fill="url(#heroMeadow)"
+        />
+        <path
+          d="M567 164Q520 242 577 299Q649 348 639 400Q624 443 754 540H859Q683 428 713 391Q735 310 648 270Q610 235 641 175"
+          fill="#68c4dd"
+        />
+        <path
+          d="M609 183Q569 238 611 278Q690 333 672 393Q663 436 802 534"
+          fill="none"
+          stroke="#a4e3e9"
+          strokeWidth="5"
+          className="world-river"
+          strokeDasharray="22 34"
+        />
+        <path
+          d="M115 426Q216 402 570 310Q347 270 205 207Q343 219 487 161Q617 125 723 178Q822 294 697 415"
+          fill="none"
+          stroke="#f8e8ac"
+          strokeWidth="25"
+          strokeLinecap="round"
+        />
+        <path
+          d="M115 426Q216 402 570 310Q347 270 205 207Q343 219 487 161Q617 125 723 178Q822 294 697 415"
+          fill="none"
+          stroke="#d9b981"
+          strokeWidth="3"
+          strokeDasharray="4 13"
+        />
+        <path d="M663 183L716 77L779 185Z" fill="#80aaa0" />
+        <path d="M708 185L781 56L858 185Z" fill="#7d9f94" />
+        <path
+          d="M747 116L781 56L820 122L795 112L781 126L766 109Z"
+          fill="#f6fbef"
+        />
+        <path d="M484 147Q465 91 506 99Q551 105 539 153Z" fill="#91a69a" />
+        <path d="M491 154Q485 117 510 118Q535 122 525 154Z" fill="#596c64" />
+        {[
+          [110, 182, 0.85],
+          [152, 151, 1],
+          [250, 137, 0.8],
+          [292, 175, 0.7],
+          [74, 226, 0.8],
+          [407, 248, 0.7],
+          [843, 323, 0.85],
+          [811, 369, 0.7],
+        ].map(([x, y, s], i) => (
+          <Tree key={i} x={x} y={y} s={s} />
+        ))}
+        <Tree x={198} y={195} s={1.05} />
+        <House x={101} y={396} s={1.1} />
+        <House x={167} y={418} s={0.8} color="#cb9ad8" />
+        <House x={62} y={451} s={0.72} color="#e9bb59" />
+        <g transform="translate(582 310) rotate(27)">
+          <rect x="-62" y="-21" width="133" height="42" rx="6" fill="#b58852" />
+          {[-45, -25, -5, 15, 35, 55].map((x) => (
+            <path
+              key={x}
+              d={`M${x} -17V17`}
+              stroke="#e6bd7b"
+              strokeWidth="10"
+            />
+          ))}
+          <path d="M-70 -25H77M-70 25H77" stroke="#805f40" strokeWidth="7" />
+        </g>
+        <g fill="#fff2a2">
+          {[
+            [40, 330],
+            [370, 441],
+            [428, 350],
+            [787, 457],
+            [871, 246],
+            [325, 102],
+          ].map(([x, y], i) => (
+            <g key={i} transform={`translate(${x} ${y})`}>
+              <circle r="7" />
+              <circle cx="-7" cy="-4" r="5" />
+              <circle cx="6" cy="-5" r="5" />
+              <circle cy="3" r="3" fill="#e79b52" />
+            </g>
+          ))}
+        </g>
+        <g className="world-butterfly" transform="translate(388 140)">
+          <ellipse cx="-6" rx="7" ry="10" fill="#f6ae84" />
+          <ellipse cx="7" rx="7" ry="10" fill="#f6ae84" />
+          <path d="M0 -6V7" stroke="#9c6848" strokeWidth="3" />
+        </g>
+        {stops.map(([x, y], i) => (
+          <g key={i} transform={`translate(${x} ${y})`}>
+            <circle
+              className={active === i ? "map-current-ring" : ""}
+              r={active === i ? 34 : 27}
+              fill={active === i ? "#fff3ad" : "#fffbee"}
+              stroke={active === i ? "#e8a83a" : "#8db898"}
+              strokeWidth={active === i ? 5 : 3}
+            />
+            <image
+              x="-23"
+              y="-85"
+              width="46"
+              height="58"
+              href={`/art/tiny/${heroNames[a.rescues[i].character % 5]}-idle.webp`}
+            />
+            <text
+              y="8"
+              textAnchor="middle"
+              fontSize="25"
+              fontWeight="800"
+              fill="#526647"
+            >
+              {a.completed.find((x) => x.id === a.rescues[i].id) ? "✓" : i + 1}
+            </text>
+            {active === i && <path d="M-7 -46L0 -37L7 -46" fill="#f09550" />}
+          </g>
+        ))}
+      </svg>
+      <div className="map-caption">
+        <span>
+          {a.title} · {a.world}
+        </span>
+        <span>
+          {active < 0
+            ? `${a.total} friends to help`
+            : `Stop ${active + 1} of ${a.total}`}
+        </span>
+      </div>
+      {view && view.phase !== "finished" && <AdventureProgress view={view} />}
+    </div>
+  );
 }
-export const useTinySound=()=>useContext(SoundContext);
-export function SoundToggle(){const s=useTinySound();return <div className="sound-switch"><button className="sound-toggle" type="button" onClick={s.toggle} aria-pressed={s.enabled} aria-label={s.enabled?'Sound effects on. Mute sound effects':'Sound effects off. Enable sound effects'}><TinyIcon name={s.enabled?'sound':'muted'}/><span>{s.enabled?'Sound on':'Sound off'}</span></button>{!s.available&&<small>Sound effects unavailable.</small>}</div>}
-export function TinyRoundEffects({view}:{view:View}){const {play}=useTinySound();const last=useRef('');const bonus=useRef({code:view.code,value:view.bonus});useEffect(()=>{const key=`${view.code}:${view.adventure?.id}:${view.progression?.run}:${view.round}:${view.adventure?.attempt}:${view.phase}`;if(last.current===key)return;last.current=key;if(view.phase==='result'&&view.result?.success)play(view.adventure?.rescues[view.round].sounds.success||'rescue');if(view.phase==='result'&&!view.result?.success)play(view.adventure?.rescues[view.round].sounds.hint||'hint');if(view.phase==='finished')play('complete');if(bonus.current.code===view.code&&view.bonus<bonus.current.value)play('star');bonus.current={code:view.code,value:view.bonus}},[view.code,view.adventure?.id,view.progression?.run,view.round,view.adventure?.attempt,view.phase,view.bonus,play]);return null}
+export function Celebration({ complete = false }: { complete?: boolean }) {
+  return (
+    <div
+      className={`celebration ${complete ? "mission-celebration" : ""}`}
+      aria-hidden="true"
+    >
+      {Array.from({ length: 14 }, (_, i) => (
+        <span
+          key={i}
+          style={{
+            left: `${(i * 17) % 100}%`,
+            animationDelay: `${i * 0.065}s`,
+            color: ["#e8b23e", "#f58e73", "#a991db", "#67bfb5"][i % 4],
+          }}
+        >
+          ★
+        </span>
+      ))}
+    </div>
+  );
+}
+export function FriendScene({ view }: { view: View }) {
+  const r = view.adventure?.rescues[view.round];
+  const expression: HeroExpression =
+    view.phase === "finished"
+      ? "celebrate"
+      : view.phase === "result"
+        ? view.result?.success
+          ? "celebrate"
+          : view.result?.assisted
+            ? "happy"
+            : "oops"
+        : view.phase === "action"
+          ? "thinking"
+          : "idle";
+  return (
+    <div
+      className={`friend-scene illustrated-scene scene-${r?.scene} rescue-${r?.id} world-${view.adventure?.environment.renderer} ${expression === "celebrate" ? "scene-result" : ""} ${expression === "oops" ? "scene-encourage" : ""}`}
+    >
+      <div className="scene-picture">
+        <img
+          className="scene-background"
+          src={
+            r?.challenge
+              ? view.adventure!.environment.mapAsset
+              : r?.art?.scene || "/art/tiny/scene-bridge.webp"
+          }
+          style={
+            r?.challenge
+              ? {
+                  transform: "scale(2.25)",
+                  transformOrigin: `${r.mapPosition[0] / 9}% ${r.mapPosition[1] / 5.4}%`,
+                }
+              : undefined
+          }
+          alt=""
+          width="900"
+          height="540"
+        />
+        <WorldMotion
+          snow={
+            r?.scene === "snow" ||
+            view.adventure?.environment.renderer === "ice"
+          }
+        />
+        <Animal kind={r?.character || 0} expression={expression} />
+      </div>
+      <div className="friend-speech">
+        <strong>{r?.challenge?.location || r?.friend}</strong>
+        <p>
+          {view.phase === "result" &&
+          (view.result?.success || view.result?.assisted)
+            ? `${r?.friend} is safe!${view.result?.assisted ? " Team Assist." : ""}`
+            : view.mission.story}
+        </p>
+      </div>
+    </div>
+  );
+}
+const SoundContext = createContext({
+  enabled: false,
+  available: true,
+  toggle: () => {},
+  play: (_kind: string) => {},
+});
+export function TinySoundProvider({ children }: { children: ReactNode }) {
+  const [enabled, setEnabled] = useState(loadSoundPreference),
+    [available, setAvailable] = useState(true);
+  const ctx = useRef<AudioContext | null>(null);
+  const nodes = useRef<OscillatorNode[]>([]);
+  const enabledRef = useRef(enabled);
+  const toggling = useRef(false);
+  function stop() {
+    nodes.current.forEach((n) => {
+      try {
+        n.stop();
+      } catch {}
+    });
+    nodes.current = [];
+  }
+  function play(kind: string) {
+    if (!enabledRef.current || !ctx.current || ctx.current.state !== "running")
+      return;
+    const c = ctx.current;
+    const notes =
+      kind === "hint"
+        ? [440, 523]
+        : kind === "select"
+          ? [523, 659]
+          : kind === "ready"
+            ? [523, 784]
+            : kind === "star"
+              ? [880, 1175]
+              : kind === "complete"
+                ? [523, 659, 784, 1047, 1319]
+                : [659, 784, 1047];
+    notes.forEach((freq, i) => {
+      const o = c.createOscillator(),
+        g = c.createGain(),
+        at = c.currentTime + i * 0.115;
+      o.type = "sine";
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0, at);
+      g.gain.linearRampToValueAtTime(0.06, at + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, at + 0.2);
+      o.connect(g);
+      g.connect(c.destination);
+      o.start(at);
+      o.stop(at + 0.22);
+      nodes.current.push(o);
+      o.onended = () => {
+        o.disconnect();
+        g.disconnect();
+        nodes.current = nodes.current.filter((n) => n !== o);
+      };
+    });
+  }
+  async function toggle() {
+    if (toggling.current) return;
+    if (enabledRef.current) {
+      enabledRef.current = false;
+      setEnabled(false);
+      saveSoundPreference(false);
+      stop();
+      return;
+    }
+    toggling.current = true;
+    try {
+      ctx.current ??= new AudioContext();
+      await ctx.current.resume();
+      enabledRef.current = true;
+      setEnabled(true);
+      saveSoundPreference(true);
+      play("star");
+    } catch {
+      setAvailable(false);
+    } finally {
+      toggling.current = false;
+    }
+  }
+  useEffect(() => {
+    const unlock = () => {
+      if (!enabledRef.current) return;
+      try {
+        ctx.current ??= new AudioContext();
+        void ctx.current.resume().catch(() => setAvailable(false));
+      } catch {
+        setAvailable(false);
+      }
+    };
+    document.addEventListener("pointerdown", unlock, { capture: true });
+    document.addEventListener("keydown", unlock, { capture: true });
+    return () => {
+      document.removeEventListener("pointerdown", unlock, true);
+      document.removeEventListener("keydown", unlock, true);
+      stop();
+      void ctx.current?.close();
+    };
+  }, []);
+  return (
+    <SoundContext.Provider value={{ enabled, available, toggle, play }}>
+      <div className="tiny-effects-scope" data-effects={enabled ? "on" : "off"}>
+        {children}
+      </div>
+    </SoundContext.Provider>
+  );
+}
+export const useTinySound = () => useContext(SoundContext);
+export function SoundToggle() {
+  const s = useTinySound();
+  return (
+    <div className="sound-switch">
+      <button
+        className="sound-toggle"
+        type="button"
+        onClick={s.toggle}
+        aria-pressed={s.enabled}
+        aria-label={
+          s.enabled
+            ? "Sound effects on. Mute sound effects"
+            : "Sound effects off. Enable sound effects"
+        }
+      >
+        <TinyIcon name={s.enabled ? "sound" : "muted"} />
+        <span>{s.enabled ? "Sound on" : "Sound off"}</span>
+      </button>
+      {!s.available && <small>Sound effects unavailable.</small>}
+    </div>
+  );
+}
+export function TinyRoundEffects({ view }: { view: View }) {
+  const { play } = useTinySound();
+  const last = useRef("");
+  const bonus = useRef({ code: view.code, value: view.bonus });
+  useEffect(() => {
+    const key = `${view.code}:${view.adventure?.id}:${view.progression?.run}:${view.round}:${view.adventure?.attempt}:${view.phase}`;
+    if (last.current === key) return;
+    last.current = key;
+    if (view.phase === "result" && view.result?.success)
+      play(view.adventure?.rescues[view.round].sounds.success || "rescue");
+    if (view.phase === "result" && !view.result?.success)
+      play(view.adventure?.rescues[view.round].sounds.hint || "hint");
+    if (view.phase === "finished") play("complete");
+    if (bonus.current.code === view.code && view.bonus < bonus.current.value)
+      play("star");
+    bonus.current = { code: view.code, value: view.bonus };
+  }, [
+    view.code,
+    view.adventure?.id,
+    view.progression?.run,
+    view.round,
+    view.adventure?.attempt,
+    view.phase,
+    view.bonus,
+    play,
+  ]);
+  return null;
+}
 
 // The scout's expedition badge identifies the captain without emoji artwork.
-export function CaptainIcon(){return <span className="captain-icon" aria-hidden="true"><Animal kind={0}/></span>}
-export function CaptainClues({view}:{view:View}){
- if(view.mode!=='tiny'||!view.helperBriefs)return null;
- const routes=view.adventure?.mechanics?.primary==='routes';
- return <section className="captain-clues" aria-labelledby="captain-clues-title">
-  <h4 id="captain-clues-title">{routes?'Your heroes’ clues & routes':'Your heroes’ clues & tools'}</h4>
-  <p className="captain-clues-hint">{routes?'Compare observations. Routes appear after Ready.':'No call needed: clues appear here. Tools appear when a hero taps Ready.'}</p>
-  <ul>{view.helperBriefs.map(hero=>{
-   const route='route' in hero?hero.route:null,ready=!!(route||hero.tool);
-   const label=route?view.adventure?.rescues[view.round].challenge?.choices.find(c=>c.id===route)?.label:hero.tool?tinyTools[hero.tool as keyof typeof tinyTools]?.label:null;
-   return <li key={hero.id}>
-    <div className={`captain-helper-tool ${ready?'tool-sent':''}`}>{route?<IceChoiceArt view={view} value={route}/>:hero.tool?<ToolArt tool={hero.tool}/>:<GuideIcon step={1}/>}</div>
-    <div className="captain-helper-copy"><div className="captain-helper-heading"><strong>{hero.name}</strong><small>{!hero.connected?'Reconnecting…':ready?'Ready':'Choosing…'}</small></div>
-     <p>{hero.clue?hero.clue.replace(/^Your secret clue: /,'').replace(/ Tell your captain\.$/,''):'Waiting for a shared clue.'}</p>
-     {label&&<span className="captain-helper-choice">{label}</span>}
-    </div>
-   </li>;
-  })}</ul>
- </section>;
+export function CaptainIcon() {
+  return (
+    <span className="captain-icon" aria-hidden="true">
+      <Animal kind={0} />
+    </span>
+  );
+}
+export function CaptainClues({ view }: { view: View }) {
+  if (view.mode !== "tiny" || !view.helperBriefs) return null;
+  const routes = view.adventure?.mechanics?.primary === "routes";
+  return (
+    <section className="captain-clues" aria-labelledby="captain-clues-title">
+      <h4 id="captain-clues-title">
+        {routes ? "Your heroes’ clues & routes" : "Your heroes’ clues & tools"}
+      </h4>
+      <p className="captain-clues-hint">
+        {routes
+          ? "Compare observations. Routes appear after Ready."
+          : "No call needed: clues appear here. Tools appear when a hero taps Ready."}
+      </p>
+      <ul>
+        {view.helperBriefs.map((hero) => {
+          const route = "route" in hero ? hero.route : null,
+            ready = !!(route || hero.tool);
+          const label = route
+            ? view.adventure?.rescues[view.round].challenge?.choices.find(
+                (c) => c.id === route,
+              )?.label
+            : hero.tool
+              ? tinyTools[hero.tool as keyof typeof tinyTools]?.label
+              : null;
+          return (
+            <li key={hero.id}>
+              <div
+                className={`captain-helper-tool ${ready ? "tool-sent" : ""}`}
+              >
+                {route ? (
+                  <IceChoiceArt view={view} value={route} />
+                ) : hero.tool ? (
+                  <ToolArt tool={hero.tool} />
+                ) : (
+                  <GuideIcon step={1} />
+                )}
+              </div>
+              <div className="captain-helper-copy">
+                <div className="captain-helper-heading">
+                  <strong>{hero.name}</strong>
+                  <small>
+                    {!hero.connected
+                      ? "Reconnecting…"
+                      : ready
+                        ? "Ready"
+                        : "Choosing…"}
+                  </small>
+                </div>
+                <p>
+                  {hero.clue
+                    ? hero.clue
+                        .replace(/^Your secret clue: /, "")
+                        .replace(/ Tell your captain\.$/, "")
+                    : "Waiting for a shared clue."}
+                </p>
+                {label && (
+                  <span className="captain-helper-choice">{label}</span>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
 }
 
-export function AdventureProgress({view}:{view:View}){const a=view.adventure;if(!a)return null;if(isTeamExpedition(a.id))return <ExpeditionProgress view={view}/>;return <div className="adventure-progress"><div><strong className="friends-home"><LeafIcon/><span>{a.completed.length} / {a.total} friends home</span></strong><span className="badge-count"><TinyIcon name="star"/> {view.score} / {a.total} Rescue Badges</span>{a.completed.some(x=>x.crewHelp)&&<span className="assist-count"><TinyIcon name="assist"/> {a.completed.filter(x=>x.crewHelp).length} Team Assist{a.completed.filter(x=>x.crewHelp).length===1?'':'s'}</span>}</div><ol aria-label="Rescue progress">{a.rescues.map(r=>{const done=a.completed.find(x=>x.id===r.id);return <li key={r.id} className={done?'progress-complete':''} aria-label={`${r.friend}: ${done?done.crewHelp?'home with Team Assist':'rescued by your team':'waiting for help'}`}><span className="progress-friend" aria-hidden="true">{r.art?.character?<img src={r.art.character} alt=""/>:<Animal kind={r.character} happy={!!done}/>}</span><span aria-hidden="true">{done?<><TinyIcon name={done.earnedBadge?'star':'assist'}/>{done.crewHelp&&<small className="assist-label">Team Assist</small>}</>:<span className="progress-dot">·</span>}</span></li>})}</ol></div>}
-export function HeroTrail({view}:{view:View}){const a=view.adventure!;return <div className="hero-trail"><ol aria-label="Your rescue trail">{a.rescues.map((r,i)=>{const home=a.completed.some(x=>x.id===r.id);return <li key={r.id} className={`${home?'trail-home':''} ${i===view.round&&!home?'trail-current':''}`} aria-label={`${r.friend}: ${home?'home':i===view.round?'your next rescue':'waiting'}`}>{r.challenge?<RouteArt visual={r.challenge.choices[0].visual}/>:<Animal kind={r.character} expression={home?'happy':'idle'}/>} {home&&<TinyIcon name="ready"/>}</li>})}</ol><strong>{a.completed.length} / {a.total} home</strong></div>}
-export function AdventurePicker({selected,onSelect,onPreviewSelect,completed=[],results={},readOnly=false}:{selected:string;onSelect:(id:string)=>void;onPreviewSelect?:(id:string)=>void;completed?:string[];results?:Record<string,{friendsHome:number;badges:number;assists:number}>;readOnly?:boolean}){const items=Object.values(adventures).map(a=>{const done=completed.includes(a.id);const image=a.environment.renderer==='ice'?'/art/tiny/world-0.webp':a.environment.mapAsset||'/art/tiny/forest-map.webp';return {id:a.id,title:a.title,image,action:<button className="world-card-action" type="button" data-no-card-tilt="" disabled={readOnly} aria-label={`Explore ${a.title}`} onClick={()=>onSelect(a.id)}>Explore →</button>,content:<article data-world={a.environment.renderer} className={`adventure-world-card level-card available-world ${done?'completed-world':''}`} key={a.id}><img src={a.environment.renderer==='ice'?'/art/tiny/world-0.webp':a.environment.mapAsset||'/art/tiny/forest-map.webp'} alt="" width="768" height="378"/><span className="level-card-top"><span>Level {a.level||1} · {adventureDifficulty(a.level)}</span>{done&&<span>Completed</span>}</span><span className="world-card-copy"><strong>{a.title}</strong><small>{adventureSkills(a.level)}</small>{done&&<small>{isTeamExpedition(a.id)?expeditionProgressLabel(a.id,results[a.id]?.friendsHome??a.rescues.length):`${results[a.id]?.friendsHome??a.rescues.length}/${a.rescues.length} friends home`}{results[a.id]?` · ${results[a.id].badges}/${a.rescues.length} ${isTeamExpedition(a.id)?"Adventure Badges":"Rescue Badges"}`:""}</small>}<span className="world-card-action-space" aria-hidden="true"/></span></article>}});return <section className="adventure-picker" aria-labelledby="adventure-picker-title"><h2 id="adventure-picker-title">Adventure Map</h2><p className="world-swipe-hint">Swipe or choose a world to explore</p><ImageFanCarousel items={items} selected={selected} onSelect={onPreviewSelect||onSelect} readOnly={readOnly}/></section>}
-export function RescueHint({view}:{view:View}){if(view.phase!=='result'||view.result?.success)return null;const hint=view.result?.hint||view.adventure?.hint;if(!hint)return null;return <div className="rescue-hint">{view.adventure?.mechanics?.primary==='routes'?<IceChoiceArt view={view} value={hint.tool}/>:<ToolArt tool={hint.tool}/>}<div><strong><TinyIcon name="hint"/> Try {hint.label.toLowerCase()}!</strong><p>{'text' in hint?hint.text:hint.hint}</p></div></div>}
-export function CluePicture({scene}:{scene:string}){return <svg viewBox="0 0 100 80" aria-hidden="true">{scene==='bridge'?<><path d="M0 63Q50 43 100 62V80H0Z" fill="#71c9df"/><path d="M13 42Q50 20 90 42M13 51Q50 29 90 51" fill="none" stroke="#ba8d50" strokeWidth="7"/><path d="M15 38V65M88 38V65" stroke="#80664b" strokeWidth="6"/></>:scene==='tree'?<><path d="M50 41V76" stroke="#aa8054" strokeWidth="13"/><circle cx="50" cy="31" r="26" fill="#6bb780"/><path d="M17 18V55M9 26L17 16L25 26" fill="none" stroke="#e5ac39" strokeWidth="5"/></>:scene==='cave'?<><path d="M87 14A32 32 0 1 0 86 64A29 29 0 0 1 87 14" fill="#ffd369"/><path d="M23 12L25 19L32 21L25 23L23 30L21 23L14 21L21 19Z" fill="#ac9be1"/></>:scene==='snow'?<path d="M50 8V70M21 24L79 56M21 56L79 24M40 14L50 24L60 14M40 64L50 54L60 64" stroke="#8bc2df" strokeWidth="6" fill="none" strokeLinecap="round"/>:<path d="M5 24Q20 12 35 24T65 24T95 24M5 44Q20 32 35 44T65 44T95 44M5 64Q20 52 35 64T65 64T95 64" fill="none" stroke="#67bdd5" strokeWidth="7" strokeLinecap="round"/>}</svg>}
+export function AdventureProgress({ view }: { view: View }) {
+  const a = view.adventure;
+  if (!a) return null;
+  if (isTeamExpedition(a.id)) return <ExpeditionProgress view={view} />;
+  return (
+    <div className="adventure-progress">
+      <div>
+        <strong className="friends-home">
+          <LeafIcon />
+          <span>
+            {a.completed.length} / {a.total} friends home
+          </span>
+        </strong>
+        <span className="badge-count">
+          <TinyIcon name="star" /> {view.score} / {a.total} Rescue Badges
+        </span>
+        {a.completed.some((x) => x.crewHelp) && (
+          <span className="assist-count">
+            <TinyIcon name="assist" />{" "}
+            {a.completed.filter((x) => x.crewHelp).length} Team Assist
+            {a.completed.filter((x) => x.crewHelp).length === 1 ? "" : "s"}
+          </span>
+        )}
+      </div>
+      <ol aria-label="Rescue progress">
+        {a.rescues.map((r) => {
+          const done = a.completed.find((x) => x.id === r.id);
+          return (
+            <li
+              key={r.id}
+              className={done ? "progress-complete" : ""}
+              aria-label={`${r.friend}: ${done ? (done.crewHelp ? "home with Team Assist" : "rescued by your team") : "waiting for help"}`}
+            >
+              <span className="progress-friend" aria-hidden="true">
+                {r.art?.character ? (
+                  <img src={r.art.character} alt="" />
+                ) : (
+                  <Animal kind={r.character} happy={!!done} />
+                )}
+              </span>
+              <span aria-hidden="true">
+                {done ? (
+                  <>
+                    <TinyIcon name={done.earnedBadge ? "star" : "assist"} />
+                    {done.crewHelp && (
+                      <small className="assist-label">Team Assist</small>
+                    )}
+                  </>
+                ) : (
+                  <span className="progress-dot">·</span>
+                )}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+export function HeroTrail({ view }: { view: View }) {
+  const a = view.adventure!;
+  return (
+    <div className="hero-trail">
+      <ol aria-label="Your rescue trail">
+        {a.rescues.map((r, i) => {
+          const home = a.completed.some((x) => x.id === r.id);
+          return (
+            <li
+              key={r.id}
+              className={`${home ? "trail-home" : ""} ${i === view.round && !home ? "trail-current" : ""}`}
+              aria-label={`${r.friend}: ${home ? "home" : i === view.round ? "your next rescue" : "waiting"}`}
+            >
+              {r.challenge ? (
+                <RouteArt visual={r.challenge.choices[0].visual} />
+              ) : (
+                <Animal
+                  kind={r.character}
+                  expression={home ? "happy" : "idle"}
+                />
+              )}{" "}
+              {home && <TinyIcon name="ready" />}
+            </li>
+          );
+        })}
+      </ol>
+      <strong>
+        {a.completed.length} / {a.total} home
+      </strong>
+    </div>
+  );
+}
+export function AdventurePicker({
+  selected,
+  onSelect,
+  onPreviewSelect,
+  completed = [],
+  results = {},
+  readOnly = false,
+}: {
+  selected: string;
+  onSelect: (id: string) => void;
+  onPreviewSelect?: (id: string) => void;
+  completed?: string[];
+  results?: Record<
+    string,
+    { friendsHome: number; badges: number; assists: number }
+  >;
+  readOnly?: boolean;
+}) {
+  const items = Object.values(adventures).map((a) => {
+    const done = completed.includes(a.id);
+    const image =
+      a.environment.renderer === "ice"
+        ? "/art/tiny/world-0.webp"
+        : a.environment.mapAsset || "/art/tiny/forest-map.webp";
+    return {
+      id: a.id,
+      title: a.title,
+      image,
+      action: (
+        <button
+          className="world-card-action"
+          type="button"
+          data-no-card-tilt=""
+          disabled={readOnly}
+          aria-label={`Explore ${a.title}`}
+          onClick={() => onSelect(a.id)}
+        >
+          Explore →
+        </button>
+      ),
+      content: (
+        <article
+          data-world={a.environment.renderer}
+          className={`adventure-world-card level-card available-world ${done ? "completed-world" : ""}`}
+          key={a.id}
+        >
+          <img
+            src={
+              a.environment.renderer === "ice"
+                ? "/art/tiny/world-0.webp"
+                : a.environment.mapAsset || "/art/tiny/forest-map.webp"
+            }
+            alt=""
+            width="768"
+            height="378"
+          />
+          <span className="level-card-top">
+            <span>
+              Level {a.level || 1} · {adventureDifficulty(a.level)}
+            </span>
+            {done && <span>Completed</span>}
+          </span>
+          <span className="world-card-copy">
+            <strong>{a.title}</strong>
+            <small>{adventureSkills(a.level)}</small>
+            {done && (
+              <small>
+                {isTeamExpedition(a.id)
+                  ? expeditionProgressLabel(
+                      a.id,
+                      results[a.id]?.friendsHome ?? a.rescues.length,
+                    )
+                  : `${results[a.id]?.friendsHome ?? a.rescues.length}/${a.rescues.length} friends home`}
+                {results[a.id]
+                  ? ` · ${results[a.id].badges}/${a.rescues.length} ${isTeamExpedition(a.id) ? "Adventure Badges" : "Rescue Badges"}`
+                  : ""}
+              </small>
+            )}
+            <span className="world-card-action-space" aria-hidden="true" />
+          </span>
+        </article>
+      ),
+    };
+  });
+  return (
+    <section
+      className="adventure-picker"
+      aria-labelledby="adventure-picker-title"
+    >
+      <h2 id="adventure-picker-title">Adventure Map</h2>
+      <p className="world-swipe-hint">Swipe or choose a world to explore</p>
+      <ImageFanCarousel
+        items={items}
+        selected={selected}
+        onSelect={onPreviewSelect || onSelect}
+        readOnly={readOnly}
+      />
+    </section>
+  );
+}
+export function RescueHint({ view }: { view: View }) {
+  if (view.phase !== "result" || view.result?.success) return null;
+  const hint = view.result?.hint || view.adventure?.hint;
+  if (!hint) return null;
+  return (
+    <div className="rescue-hint">
+      {view.adventure?.mechanics?.primary === "routes" ? (
+        <IceChoiceArt view={view} value={hint.tool} />
+      ) : (
+        <ToolArt tool={hint.tool} />
+      )}
+      <div>
+        <strong>
+          <TinyIcon name="hint" /> Try {hint.label.toLowerCase()}!
+        </strong>
+        <p>{"text" in hint ? hint.text : hint.hint}</p>
+      </div>
+    </div>
+  );
+}
+export function CluePicture({ scene }: { scene: string }) {
+  return (
+    <svg viewBox="0 0 100 80" aria-hidden="true">
+      {scene === "bridge" ? (
+        <>
+          <path d="M0 63Q50 43 100 62V80H0Z" fill="#71c9df" />
+          <path
+            d="M13 42Q50 20 90 42M13 51Q50 29 90 51"
+            fill="none"
+            stroke="#ba8d50"
+            strokeWidth="7"
+          />
+          <path d="M15 38V65M88 38V65" stroke="#80664b" strokeWidth="6" />
+        </>
+      ) : scene === "tree" ? (
+        <>
+          <path d="M50 41V76" stroke="#aa8054" strokeWidth="13" />
+          <circle cx="50" cy="31" r="26" fill="#6bb780" />
+          <path
+            d="M17 18V55M9 26L17 16L25 26"
+            fill="none"
+            stroke="#e5ac39"
+            strokeWidth="5"
+          />
+        </>
+      ) : scene === "cave" ? (
+        <>
+          <path d="M87 14A32 32 0 1 0 86 64A29 29 0 0 1 87 14" fill="#ffd369" />
+          <path
+            d="M23 12L25 19L32 21L25 23L23 30L21 23L14 21L21 19Z"
+            fill="#ac9be1"
+          />
+        </>
+      ) : scene === "snow" ? (
+        <path
+          d="M50 8V70M21 24L79 56M21 56L79 24M40 14L50 24L60 14M40 64L50 54L60 64"
+          stroke="#8bc2df"
+          strokeWidth="6"
+          fill="none"
+          strokeLinecap="round"
+        />
+      ) : (
+        <path
+          d="M5 24Q20 12 35 24T65 24T95 24M5 44Q20 32 35 44T65 44T95 44M5 64Q20 52 35 64T65 64T95 64"
+          fill="none"
+          stroke="#67bdd5"
+          strokeWidth="7"
+          strokeLinecap="round"
+        />
+      )}
+    </svg>
+  );
+}
 
-export function LeafIcon(){return <svg className="leaf-icon" viewBox="0 0 48 48" aria-hidden="true"><g stroke="#634939" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 41Q28 26 24 9" fill="none"/><path d="M25 31Q8 33 7 16Q24 14 25 31Z" fill="#78c697"/><path d="M25 23Q24 8 40 7Q43 22 25 23Z" fill="#a3d983"/><path d="M24 38Q31 24 43 28Q42 42 24 38Z" fill="#67b98b"/><path d="M13 21L25 31M34 13L25 23M36 32L24 38" fill="none" stroke="#4b805b" strokeWidth="1.8"/></g></svg>}
+export function LeafIcon() {
+  return (
+    <svg className="leaf-icon" viewBox="0 0 48 48" aria-hidden="true">
+      <g
+        stroke="#634939"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M23 41Q28 26 24 9" fill="none" />
+        <path d="M25 31Q8 33 7 16Q24 14 25 31Z" fill="#78c697" />
+        <path d="M25 23Q24 8 40 7Q43 22 25 23Z" fill="#a3d983" />
+        <path d="M24 38Q31 24 43 28Q42 42 24 38Z" fill="#67b98b" />
+        <path
+          d="M13 21L25 31M34 13L25 23M36 32L24 38"
+          fill="none"
+          stroke="#4b805b"
+          strokeWidth="1.8"
+        />
+      </g>
+    </svg>
+  );
+}
 
 // Original instruction icons share the characters' warm ink and flat illustrated palette.
-export function GuideIcon({step}:{step:number}){return <svg className="guide-icon" viewBox="0 0 72 72" aria-hidden="true"><g stroke="#634939" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">{step===0?<><ellipse cx="23" cy="37" rx="13" ry="21" fill="#fff9e9"/><ellipse cx="49" cy="37" rx="13" ry="21" fill="#fff9e9"/><ellipse cx="27" cy="39" rx="6" ry="10" fill="#8b6246"/><ellipse cx="53" cy="39" rx="6" ry="10" fill="#8b6246"/><circle cx="28" cy="37" r="3" fill="#493934" stroke="none"/><circle cx="54" cy="37" r="3" fill="#493934" stroke="none"/><circle cx="25" cy="34" r="2" fill="#fff" stroke="none"/><circle cx="51" cy="34" r="2" fill="#fff" stroke="none"/><path d="M13 11Q20 7 26 10M40 10Q48 6 55 10" fill="none"/></>:step===1?<><path d="M25 22V14Q36 6 47 14V22" fill="none" strokeWidth="5"/><rect x="8" y="23" width="56" height="39" rx="9" fill="#75c6bc"/><path d="M8 37H64" stroke="#408b85"/><rect x="8" y="21" width="56" height="20" rx="7" fill="#f58e73"/><rect x="29" y="33" width="14" height="16" rx="4" fill="#ffe3a0"/><path d="M36 38V44"/><path d="M17 54H26M47 54H55" stroke="#b8eee2" strokeWidth="4"/></>:step===2?<><rect x="12" y="12" width="48" height="48" rx="16" fill="#ab98dc"/><rect x="17" y="17" width="38" height="38" rx="12" fill="#d9c9f0" stroke="none"/><path d="M23 35L33 45L49 26" fill="none" stroke="#527957" strokeWidth="9"/><path d="M23 33L33 43L49 24" fill="none" stroke="#fffbee" strokeWidth="6"/></>:<><path d="M36 12L43 28L61 30L47 42L51 60L36 51L21 60L25 42L11 30L29 28Z" fill="#ffcf65"/><path d="M19 32L31 30L35 20" fill="none" stroke="#fff2ba" strokeWidth="3"/><path d="M57 13V21M53 17H61M10 52V60M6 56H14" stroke="#da9b43" strokeWidth="2"/></>}</g></svg>}
-
+export function GuideIcon({ step }: { step: number }) {
+  return (
+    <svg className="guide-icon" viewBox="0 0 72 72" aria-hidden="true">
+      <g
+        stroke="#634939"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {step === 0 ? (
+          <>
+            <ellipse cx="23" cy="37" rx="13" ry="21" fill="#fff9e9" />
+            <ellipse cx="49" cy="37" rx="13" ry="21" fill="#fff9e9" />
+            <ellipse cx="27" cy="39" rx="6" ry="10" fill="#8b6246" />
+            <ellipse cx="53" cy="39" rx="6" ry="10" fill="#8b6246" />
+            <circle cx="28" cy="37" r="3" fill="#493934" stroke="none" />
+            <circle cx="54" cy="37" r="3" fill="#493934" stroke="none" />
+            <circle cx="25" cy="34" r="2" fill="#fff" stroke="none" />
+            <circle cx="51" cy="34" r="2" fill="#fff" stroke="none" />
+            <path d="M13 11Q20 7 26 10M40 10Q48 6 55 10" fill="none" />
+          </>
+        ) : step === 1 ? (
+          <>
+            <path d="M25 22V14Q36 6 47 14V22" fill="none" strokeWidth="5" />
+            <rect x="8" y="23" width="56" height="39" rx="9" fill="#75c6bc" />
+            <path d="M8 37H64" stroke="#408b85" />
+            <rect x="8" y="21" width="56" height="20" rx="7" fill="#f58e73" />
+            <rect x="29" y="33" width="14" height="16" rx="4" fill="#ffe3a0" />
+            <path d="M36 38V44" />
+            <path d="M17 54H26M47 54H55" stroke="#b8eee2" strokeWidth="4" />
+          </>
+        ) : step === 2 ? (
+          <>
+            <rect x="12" y="12" width="48" height="48" rx="16" fill="#ab98dc" />
+            <rect
+              x="17"
+              y="17"
+              width="38"
+              height="38"
+              rx="12"
+              fill="#d9c9f0"
+              stroke="none"
+            />
+            <path
+              d="M23 35L33 45L49 26"
+              fill="none"
+              stroke="#527957"
+              strokeWidth="9"
+            />
+            <path
+              d="M23 33L33 43L49 24"
+              fill="none"
+              stroke="#fffbee"
+              strokeWidth="6"
+            />
+          </>
+        ) : (
+          <>
+            <path
+              d="M36 12L43 28L61 30L47 42L51 60L36 51L21 60L25 42L11 30L29 28Z"
+              fill="#ffcf65"
+            />
+            <path
+              d="M19 32L31 30L35 20"
+              fill="none"
+              stroke="#fff2ba"
+              strokeWidth="3"
+            />
+            <path
+              d="M57 13V21M53 17H61M10 52V60M6 56H14"
+              stroke="#da9b43"
+              strokeWidth="2"
+            />
+          </>
+        )}
+      </g>
+    </svg>
+  );
+}

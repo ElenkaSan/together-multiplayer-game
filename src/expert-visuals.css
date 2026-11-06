@@ -1,16 +1,299 @@
 /* Literal, labelled mechanisms for Magic Kingdom and Moon only. No game rules here. */
-.app.tiny .expert-live-diagram{margin:16px 0;padding:20px;background:#f6f3fa;border:1px solid #d4cbdc;color:#354653;min-width:0}
-.app.tiny .moon-mechanism-art.expert-live-diagram{background:#eef2f7;border-color:#c4cfda}
-.expert-live-diagram figcaption h3{font-size:20px;margin:0 0 6px}.expert-live-diagram figcaption p{font-size:14px;line-height:1.5;margin:0 0 18px}.expert-live-diagram>small{margin-top:16px;line-height:1.5}
-.mechanism-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:stretch}.mechanism-flow.two-stations{grid-template-columns:repeat(2,minmax(0,1fr))}.mechanism-flow.lunar-kit{grid-template-columns:repeat(3,minmax(0,1fr))}
-.mechanism-tile,.mechanism-step{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:10px;padding:16px 10px;border:1px solid #d5d5dc;background:#fffdf8;text-align:center;min-width:0}.mechanism-tile>strong,.mechanism-step>strong{font-size:14px;line-height:1.4}.mechanism-tile>span,.mechanism-step>span{font-size:14px;line-height:1.5;overflow-wrap:anywhere}.mechanism-step>b{font-size:26px;color:#658f83}
-.app.tiny .mechanism-tile>.expert-picture,.app.tiny .mechanism-step>.expert-picture,.app.tiny .mechanism-tile>.expedition-icon{width:110px;height:90px;max-width:100%;margin:auto}
-.app.tiny .mechanism-tile>.lunar-rover-art{width:140px;height:95px;max-width:100%;margin:auto}.app.tiny .mechanism-tile>svg:not(.expert-picture):not(.lunar-rover-art){width:150px;max-width:100%;height:auto;margin:auto}
-.mechanism-settings{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.mechanism-settings>span{padding:8px 10px;background:#fffdf8;border:1px solid #d5d5dc;font-size:14px;line-height:1.4;overflow-wrap:anywhere}
-.app.tiny .expert-picture-wrap{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;width:100px;min-width:0;flex:0 0 100px}.app.tiny .expert-picture{display:block;width:100%;height:auto;max-height:100px}.app.tiny .expert-picture-wrap>.expedition-icon,.expert-rover-icon>.expedition-icon{display:block;width:96px;height:88px;max-width:100%}.expert-rover-icon{position:relative;display:block;width:100%;max-width:110px}.expert-rover-icon>span{display:block;text-align:center;font-size:20px;line-height:1;color:#4e7567}.expert-turn-count{position:absolute;right:0;bottom:0;background:#ffedb5;border:1px solid #c1a45a;padding:3px 6px;font-size:17px;font-weight:700;color:#314c4a}.expert-picture-key{font-size:12px;white-space:nowrap;color:#425a64}
-.app.tiny .expert-expedition .expedition-choices .expert-picture-wrap{flex:none;width:90px}.app.tiny .share-clues .expert-picture-wrap{align-self:center}
-.app.tiny .mirror-route-diagram{max-width:700px;width:100%;height:auto;background:#fffdf8;border:1px solid #d5d5dc}.app.tiny .mirror-route-diagram text{font-size:12px;fill:#3d5260}
-.platform-diagram{display:flex;gap:12px;padding:12px;background:#fffdf8;border:1px solid #d5d5dc}.platform-levels{height:160px;line-height:53px;color:#667e79}.platform-column{flex:1;min-width:0;text-align:center}.platform-track{position:relative;height:160px;border-bottom:2px solid #abac9c;background:repeating-linear-gradient(to top,transparent 0 51px,#d4dace 52px 53px)}.platform-track>span{position:absolute;left:5%;width:90%;height:24px;background:#d9bd7d;border:2px solid #8c7854;display:flex;align-items:center;justify-content:space-around;color:#354d50}.platform-column>strong{font-size:13px;display:block;margin-top:10px}
-.transmission-steps{display:flex;gap:12px;margin-top:16px}.transmission-steps>span{flex:1;position:relative;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 10px;border:1px solid #c6cfda;background:#fffdf8;text-transform:capitalize;overflow-wrap:anywhere}.transmission-steps b{display:grid;place-items:center;width:30px;height:30px;background:#dce8e2;border-radius:50%;color:#315a47}.transmission-steps i{position:absolute;right:-12px;top:50%;font-style:normal;z-index:1}
-@media(max-width:600px){.app.tiny .expert-live-diagram{padding:14px;margin-inline:0}.mechanism-flow,.mechanism-flow.lunar-kit{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mechanism-flow:not(.two-stations)>:last-child:nth-child(odd){grid-column:1/-1}.mechanism-tile,.mechanism-step{padding:12px 8px}.expert-live-diagram figcaption h3{font-size:18px}.app.tiny .expert-picture-wrap{width:68px;flex-basis:68px}.app.tiny .expert-expedition .expedition-choices .expert-picture-wrap{width:72px}.mechanism-settings>span{font-size:13px}.transmission-steps{gap:8px}.transmission-steps>span{font-size:12px;padding-inline:4px}.transmission-steps i{right:-9px}.app.tiny .expert-expedition .expedition-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(prefers-reduced-motion:reduce){.expert-live-diagram *{animation:none!important;transition:none!important}}
+.app.tiny .expert-live-diagram {
+  margin: 16px 0;
+  padding: 20px;
+  background: #f6f3fa;
+  border: 1px solid #d4cbdc;
+  color: #354653;
+  min-width: 0;
+}
+.app.tiny .moon-mechanism-art.expert-live-diagram {
+  background: #eef2f7;
+  border-color: #c4cfda;
+}
+.expert-live-diagram figcaption h3 {
+  font-size: 20px;
+  margin: 0 0 6px;
+}
+.expert-live-diagram figcaption p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 18px;
+}
+.expert-live-diagram > small {
+  margin-top: 16px;
+  line-height: 1.5;
+}
+.mechanism-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+.mechanism-flow.two-stations {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.mechanism-flow.lunar-kit {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.mechanism-tile,
+.mechanism-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 16px 10px;
+  border: 1px solid #d5d5dc;
+  background: #fffdf8;
+  text-align: center;
+  min-width: 0;
+}
+.mechanism-tile > strong,
+.mechanism-step > strong {
+  font-size: 14px;
+  line-height: 1.4;
+}
+.mechanism-tile > span,
+.mechanism-step > span {
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.mechanism-step > b {
+  font-size: 26px;
+  color: #658f83;
+}
+.app.tiny .mechanism-tile > .expert-picture,
+.app.tiny .mechanism-step > .expert-picture,
+.app.tiny .mechanism-tile > .expedition-icon {
+  width: 110px;
+  height: 90px;
+  max-width: 100%;
+  margin: auto;
+}
+.app.tiny .mechanism-tile > .lunar-rover-art {
+  width: 140px;
+  height: 95px;
+  max-width: 100%;
+  margin: auto;
+}
+.app.tiny .mechanism-tile > svg:not(.expert-picture):not(.lunar-rover-art) {
+  width: 150px;
+  max-width: 100%;
+  height: auto;
+  margin: auto;
+}
+.mechanism-settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+.mechanism-settings > span {
+  padding: 8px 10px;
+  background: #fffdf8;
+  border: 1px solid #d5d5dc;
+  font-size: 14px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.app.tiny .expert-picture-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+  min-width: 0;
+  flex: 0 0 100px;
+}
+.app.tiny .expert-picture {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 100px;
+}
+.app.tiny .expert-picture-wrap > .expedition-icon,
+.expert-rover-icon > .expedition-icon {
+  display: block;
+  width: 96px;
+  height: 88px;
+  max-width: 100%;
+}
+.expert-rover-icon {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 110px;
+}
+.expert-rover-icon > span {
+  display: block;
+  text-align: center;
+  font-size: 20px;
+  line-height: 1;
+  color: #4e7567;
+}
+.expert-turn-count {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  background: #ffedb5;
+  border: 1px solid #c1a45a;
+  padding: 3px 6px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #314c4a;
+}
+.expert-picture-key {
+  font-size: 12px;
+  white-space: nowrap;
+  color: #425a64;
+}
+.app.tiny .expert-expedition .expedition-choices .expert-picture-wrap {
+  flex: none;
+  width: 90px;
+}
+.app.tiny .share-clues .expert-picture-wrap {
+  align-self: center;
+}
+.app.tiny .mirror-route-diagram {
+  max-width: 700px;
+  width: 100%;
+  height: auto;
+  background: #fffdf8;
+  border: 1px solid #d5d5dc;
+}
+.app.tiny .mirror-route-diagram text {
+  font-size: 12px;
+  fill: #3d5260;
+}
+.platform-diagram {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #fffdf8;
+  border: 1px solid #d5d5dc;
+}
+.platform-levels {
+  height: 160px;
+  line-height: 53px;
+  color: #667e79;
+}
+.platform-column {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+.platform-track {
+  position: relative;
+  height: 160px;
+  border-bottom: 2px solid #abac9c;
+  background: repeating-linear-gradient(
+    to top,
+    transparent 0 51px,
+    #d4dace 52px 53px
+  );
+}
+.platform-track > span {
+  position: absolute;
+  left: 5%;
+  width: 90%;
+  height: 24px;
+  background: #d9bd7d;
+  border: 2px solid #8c7854;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  color: #354d50;
+}
+.platform-column > strong {
+  font-size: 13px;
+  display: block;
+  margin-top: 10px;
+}
+.transmission-steps {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+.transmission-steps > span {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 10px;
+  border: 1px solid #c6cfda;
+  background: #fffdf8;
+  text-transform: capitalize;
+  overflow-wrap: anywhere;
+}
+.transmission-steps b {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  background: #dce8e2;
+  border-radius: 50%;
+  color: #315a47;
+}
+.transmission-steps i {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  font-style: normal;
+  z-index: 1;
+}
+@media (max-width: 600px) {
+  .app.tiny .expert-live-diagram {
+    padding: 14px;
+    margin-inline: 0;
+  }
+  .mechanism-flow,
+  .mechanism-flow.lunar-kit {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .mechanism-flow:not(.two-stations) > :last-child:nth-child(odd) {
+    grid-column: 1/-1;
+  }
+  .mechanism-tile,
+  .mechanism-step {
+    padding: 12px 8px;
+  }
+  .expert-live-diagram figcaption h3 {
+    font-size: 18px;
+  }
+  .app.tiny .expert-picture-wrap {
+    width: 68px;
+    flex-basis: 68px;
+  }
+  .app.tiny .expert-expedition .expedition-choices .expert-picture-wrap {
+    width: 72px;
+  }
+  .mechanism-settings > span {
+    font-size: 13px;
+  }
+  .transmission-steps {
+    gap: 8px;
+  }
+  .transmission-steps > span {
+    font-size: 12px;
+    padding-inline: 4px;
+  }
+  .transmission-steps i {
+    right: -9px;
+  }
+  .app.tiny .expert-expedition .expedition-choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .expert-live-diagram * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
