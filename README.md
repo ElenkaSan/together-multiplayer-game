@@ -308,6 +308,40 @@ There is **no built-in voice or free-form chat**. Gameplay provides specific **S
 
 ---
 
+## License, authorship and contributions
+
+**Author and maintainer: Elena Nurullina.**
+
+The original program source code, tests, build/configuration scripts and project
+documentation are licensed under the **GNU Affero General Public License,
+version 3 only** (`AGPL-3.0-only`). See [LICENSE](LICENSE) for the full terms and
+[COPYRIGHT.md](COPYRIGHT.md) for scope and attribution.
+
+AGPL permits use, modification and commercial use under its terms. It preserves
+applicable notices and requires an offer of Corresponding Source to remote
+users of a modified network version as specified in section 13. It does not
+require contributors to send changes to this repository or transfer copyright
+to the maintainer. The software is provided without warranty.
+
+Artwork, audio, fonts and third-party components have distinct licensing
+considerations; see [ASSETS.md](ASSETS.md). No trademark rights or official
+endorsement are granted.
+
+Bug reports, documentation improvements, accessibility work and focused tests
+are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md).
+This project does not claim external adoption or accepted community contributions
+that have not been documented.
+
+Canonical source repository:
+https://github.com/ElenkaSan/together-multiplayer-game
+
+License selection does not make a private repository public. Public access must
+be enabled separately before this URL can serve as an anonymous source download.
+Operators distributing or deploying a covered version must provide the
+Corresponding Source as required by the license.
+
+---
+
 <div align="center">
 
 **Built as a full-stack engineering challenge: real-time systems, cooperative game logic, responsive interfaces, and production delivery.**
