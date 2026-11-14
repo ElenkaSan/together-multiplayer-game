@@ -44,19 +44,19 @@ test('QA-02: title follows Signal → Tiny → home and invite/screen changes',(
  assert.match(pageTitle({mode:'signal',screen:'action',round:1}),/Signal Lost.*Sector 2\/5/);
  const tiny=pageTitle({mode:'tiny',adventure:'Magic Kingdom',screen:'action',round:0});assert.match(tiny,/Tiny Heroes.*Magic Kingdom.*Stage 1\/5/);assert.doesNotMatch(tiny,/Signal Lost/);
  assert.equal(pageTitle({}), 'TOGETHER! · Cooperative adventures');assert.match(pageTitle({mode:'tiny',screen:'invite'}),/Tiny Heroes.*Join your team/);assert.match(pageTitle({mode:'signal',screen:'finished'}),/Mission complete/);
- assert.match(readFileSync('src/main.tsx','utf8'),/useEffect\(\(\)=>\{document.title=title\},\[title\]\)/);
+ assert.match(readFileSync('src/main.tsx','utf8'),/useEffect\(\(\)\s*=>\s*\{\s*document.title\s*=\s*title;?\s*\},\s*\[title\]\)/);
 });
 test('QA-01: compact timer renders supplied authoritative remaining time with no second clock',()=>{
  for(const remaining of [135,61,1,0,-5]){const html=render(React.createElement(SignalControlTimer,{remaining,phase:'action',connected:true}));assert.match(html,new RegExp(`${Math.max(0,remaining)}s remaining`));assert.match(html,/role="timer"/)}
  const html=render(React.createElement(SignalControlTimer,{remaining:12,phase:'locked',connected:false}));assert.match(html,/Orders locked/);assert.match(html,/Reconnecting/);
  assert.doesNotMatch(readFileSync('src/SignalControlTimer.tsx','utf8'),/setInterval|Date\.now|useState/);
- const main=readFileSync('src/main.tsx','utf8');assert.match(readFileSync('src/SignalMission.tsx','utf8'),/<SignalControlTimer remaining=\{remaining\}/);assert.match(main,/<SignalMission/);assert.match(main,/<DebrisMission[^>]*remaining=\{remaining\}/);
- const css=readFileSync('src/signal-mission.css','utf8');assert.match(css,/signal-control-timer\{position:sticky/);assert.match(css,/@media\(max-width:600px\)/);
+ const main=readFileSync('src/main.tsx','utf8');assert.match(readFileSync('src/SignalMission.tsx','utf8'),/<SignalControlTimer\s+remaining=\{remaining\}/);assert.match(main,/<SignalMission/);assert.match(main,/<DebrisMission[^>]*remaining=\{remaining\}/);
+ const css=readFileSync('src/signal-mission.css','utf8');assert.match(css,/signal-control-timer\s*\{\s*position:\s*sticky/);assert.match(css,/@media\s*\(max-width:\s*600px\)/);
 });
 function luminance(hex:string){const c=hex.match(/../g)!.map(x=>parseInt(x,16)/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);return .2126*c[0]+.7152*c[1]+.0722*c[2]}
 function contrast(a:string,b:string){const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
 test('QA-03: opaque homepage caption colors exceed WCAG AA on both clipped world layers',()=>{
- const css=readFileSync('src/world-crossover.css','utf8');assert.match(css,/\.home \.portal-content small\{color:#463d2b;opacity:1\}/);assert.match(css,/\.home \.space-layer \.portal-content small\{color:#c3d3cd;opacity:1\}/);
+ const css=readFileSync('src/world-crossover.css','utf8');assert.match(css,/\.home \.portal-content small\s*\{\s*color:\s*#463d2b;\s*opacity:\s*1;?\s*\}/);assert.match(css,/\.home \.space-layer \.portal-content small\s*\{\s*color:\s*#c3d3cd;\s*opacity:\s*1;?\s*\}/);
  // Actual solid/gradient endpoints beneath captions, including the crossover layer.
  for(const [fg,bgs] of [['463d2b',['f9db88','fff5db']],['c3d3cd',['14201e','182938','102030','101c29','142127','0c171d']]] as const)for(const bg of bgs)assert.ok(contrast(fg,bg)>=4.5,`${fg}/${bg}: ${contrast(fg,bg)}`);
  assert.match(css,/space-layer[^}]*clip-path:/); // transition clips opaque layers, never fades text

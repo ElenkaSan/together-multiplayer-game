@@ -177,24 +177,31 @@ export function ExpeditionIllustration({
       a.pictures.includes(tile),
     );
   if (atlas) {
+    // A non-square SVG viewport can expose the atlas beyond its viewBox.
+    // Clip in tile coordinates as well as at the outer viewport boundary.
     const index = atlas.pictures.indexOf(tile);
     return (
       <svg
         className="expedition-icon expedition-illustration expedition-painted"
-        viewBox={
-          p === "parrot" || p === "leaf" ? "0 -14 100 114" : "0 0 100 100"
-        }
+        viewBox="0 0 100 100"
         aria-hidden="true"
         data-picture={p}
         style={{ overflow: "hidden" }}
       >
-        <image
-          href={atlas.asset}
-          x={-(index % 4) * 100}
-          y={-Math.floor(index / 4) * 100}
-          width="400"
-          height="400"
-        />
+        <defs>
+          <clipPath id={`${id}-tile`}>
+            <rect width="100" height="100" />
+          </clipPath>
+        </defs>
+        <g clipPath={`url(#${id}-tile)`}>
+          <image
+            href={atlas.asset}
+            x={-(index % 4) * 100}
+            y={-Math.floor(index / 4) * 100}
+            width="400"
+            height="400"
+          />
+        </g>
         {p === "power-off" && (
           <path d="m16 16 68 68" fill="none" stroke="#ac665c" strokeWidth="5" />
         )}

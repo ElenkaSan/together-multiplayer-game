@@ -16,12 +16,12 @@ test('diagonal is continuous, bounded and reversible on desktop and mobile',()=>
 });
 test('homepage uses aligned whole-card layers and integrated accessible handle',()=>{
  const source=readFileSync(new URL('../src/WorldCrossover.tsx',import.meta.url),'utf8');
- assert.match(source,/cards\('forest'\)/);assert.match(source,/cards\('space',true\)/);
+ assert.match(source,/cards\(["']forest["']\)/);assert.match(source,/cards\(["']space["'],\s*true\)/);
  assert.match(source,/role="slider"/);assert.match(source,/aria-hidden="true" inert/);
- assert.match(source,/onKeyDown=\{key\}/);assert.match(source,/onClick=\{\(\)=>onPlay\(game\)\}/);
+ assert.match(source,/onKeyDown=\{key\}/);assert.match(source,/onClick=\{\(\)\s*=>\s*onPlay\(game\)\}/);
  assert.doesNotMatch(source,/crossover-control|type="range"|crossover-presets/);
  const css=readFileSync(new URL('../src/world-crossover.css',import.meta.url),'utf8');
- assert.match(css,/space-layer\{position:absolute;inset:0/);
+ assert.match(css,/space-layer\s*\{\s*position:\s*absolute;\s*inset:\s*0/);
  assert.match(css,/prefers-reduced-motion/);
  assert.doesNotMatch(css,/portal-card[^}]*transform:/);
 });
