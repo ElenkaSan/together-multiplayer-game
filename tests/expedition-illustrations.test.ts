@@ -44,8 +44,14 @@ test('direction and broad-leaf clues use literal illustrations instead of an unr
  assert.equal(expeditionPicture('flag','The scout brings back a green flag when the crossing is safe.'),'flag');assert.doesNotMatch(draw('flag','Read the door pictures from left to right.'),/Leaf · Sun · River|correct|data-picture="leaf"/);
 });
 
-test('whole leaf and parrot artwork include the top beyond the atlas grid; twin-palms clue shows palms',()=>{
- for(const name of ['leaf','parrot'])assert.match(draw(name),/viewBox="0 -14 100 114"/);
+test('atlas artwork clips to its own tile even in a non-square SVG viewport; twin-palms clue shows palms',()=>{
+ for(const name of ['leaf','parrot','river','cave']){
+  const html=draw(name);
+  assert.match(html,/viewBox="0 0 100 100"/);
+  assert.match(html,/<clipPath id="[^"]+-tile"><rect width="100" height="100"/);
+  assert.match(html,/<g clip-path="url\(#[^)]+-tile\)"><image/);
+  assert.doesNotMatch(html,/0 -14 100 114/);
+ }
  assert.equal(expeditionPicture('leaf','The drawing shows two palms together.'),'palms');
  assert.match(draw('leaf','The drawing shows two palms together.'),/data-picture="palms"/);
 });
