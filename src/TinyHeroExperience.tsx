@@ -595,6 +595,13 @@ export function TinyHeroExperience({
                 </span>
                 <div>
                   <h3>Your private clue</h3>
+                  {a.mechanics?.primary === "routes" && (
+                    <p className="private-clue-explanation">
+                      {view.players.length === 2
+                        ? "You are the only Little Hero, so all environmental clues are yours. Share them with Captain. Captain chooses the warmth plan; everyone chooses a route."
+                        : "These environmental clues are assigned to you. Other heroes have different clues. Share yours with Captain before choosing a route."}
+                    </p>
+                  )}
                   <p>{clue}</p>
                 </div>
               </div>
