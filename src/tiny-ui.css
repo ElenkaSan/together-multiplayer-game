@@ -1331,6 +1331,30 @@
 }
 
 /* Illustrated public choices: larger silhouettes, no answer or safety indicators. */
+.app.tiny .expedition-choices,
+.app.tiny .expedition-choices button {
+  min-width: 0;
+  max-width: 100%;
+}
+.app.tiny .expedition-choices button {
+  overflow-wrap: anywhere;
+}
+.app.tiny .expedition-symbol-strip {
+  width: 100%;
+  min-width: 0;
+  max-width: 240px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: 2px;
+}
+.app.tiny .expedition-choices .expedition-symbol-strip > .expedition-icon {
+  width: 100%;
+  height: auto;
+  min-width: 0;
+  max-width: 100%;
+  aspect-ratio: 1;
+}
 .app.tiny .expedition-choices .expedition-illustration {
   width: 104px;
   height: 96px;
@@ -1342,6 +1366,12 @@
   height: 80px;
 }
 @media (max-width: 600px) {
+  .app.tiny .expedition-choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .app.tiny .expedition-choices button {
+    min-height: 116px;
+  }
   .app.tiny .expedition-choices .expedition-illustration {
     width: 80px;
     height: 76px;
@@ -1350,6 +1380,11 @@
   .app.tiny .expedition-observations .expedition-illustration {
     width: 68px;
     height: 64px;
+  }
+}
+@media (max-width: 360px) {
+  .app.tiny .expedition-choices {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
